@@ -1,4 +1,4 @@
-#JS Game
+# JS Game
 
 Simple game framework to develop on Android Termux setup.
 
