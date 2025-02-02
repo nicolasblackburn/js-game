@@ -1,4 +1,12 @@
-function (
+import {
+	print as _print,
+	test as _test
+} from "./Test.js";  
+import {virtual} from "../devClient.js";
 
-const messages = document.querySelector("#messages");
-messages.append("yo");
+const print = virtual(_print);
+const test = virtual(_test);
+
+window.addEventListener("pointerup", () => {
+	print(test());
+});
