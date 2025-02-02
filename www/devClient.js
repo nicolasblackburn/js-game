@@ -1,12 +1,9 @@
-import {print} from "./lib.js";
-
 function call(fn, ...args) {
 	(serverFns[fn] ?? (() => undefined))(...args);
 }
 
 const restricted = [
-	"devClient.js",
-	"index.js"
+	"devClient.js"
 ];
 
 const serverFns = {
