@@ -10,9 +10,6 @@ const restricted = [
 ];
 
 const serverFns = {
-	log: (...args) => {
-		print("Server: " + args.join(","));
-	},
 	reload: async (url) => {
 		if (!restricted.includes(url) && url.match(/\.js$/)) {
 			try {
@@ -24,7 +21,7 @@ const serverFns = {
 					}
 				}
 			} catch (e) {
-				call("log", `${e}`);
+				send("error", `${e}`);
 			}
 		}
 	}
@@ -45,7 +42,6 @@ ws.onerror = function(error) {
 const connected = new Promise(resolve => {
 	// Send a message to the server
 	ws.onopen = function() {
-		send("log", "Hello, Server!\n");
 		resolve();
 	};
 });
@@ -57,8 +53,8 @@ async function send(fn, ...args) {
 
 
 window.onerror = function (message, url, line, col, error) {
-	send("log", `Error: ${message}
-\tat (${url}:${line}:${col})\n`);
+	send("error", `${message}
+\tat (${url}:${line}:${col})`);
 };
 
 const vtable = {};
@@ -70,8 +66,4 @@ export function virtual(fn) {
 	return function (...args) {
 		return vtable[fn.name](...args);
 	};
-}
-
-function reload(fn) {
-	vtable[fn.name] = fn;
 }

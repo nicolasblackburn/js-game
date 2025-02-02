@@ -7,7 +7,7 @@ import {virtual} from "../devClient.js";
 const print = virtual(_print);
 const test = virtual(_test);
 
-class Test {
+class Test 
 	constructor(value) {
 		this.value = value;
 	}

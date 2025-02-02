@@ -4,6 +4,7 @@ const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
 const chokidar = require("chokidar");
+const util = require("util");
 
 // Create an Express app
 const app = express();
@@ -28,7 +29,7 @@ const scheduledReloads = {};
 chokidar.watch(wwwdir).on("change" , (filename) => {
 	filename = path.relative(wwwdir, filename);
 	if (!scheduledReloads[filename]) {
-		console.log(`\n${filename} has been modified`);
+		console.log(`${filename} has been modified`);
 
 		scheduledReloads[filename] = setTimeout(() => {
 			// Notify all connected clients via WebSocket
@@ -55,17 +56,15 @@ function send(ws, fn, ...args) {
 }
 
 const fns = {
-	log: (...args) => console.log(...args)
+	log: (...args) => console.log(...args),
+	error: (...args) => console.error(...args.map(value => util.styleText("red", value)))
 };
 
 
 
 // WebSocket connection event
 wss.on('connection', (ws) => {
-	console.log('New WebSocket connection');
-
-	// Send a message to the client
-	send(ws, "log", 'Hello from the WebSocket server!');
+	console.log(util.styleText('greenBright', 'New WebSocket connection'));
 
 	// Listen for messages from the client
 	ws.on('message', (data) => {
