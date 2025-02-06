@@ -3,7 +3,7 @@ function call(fn, ...args) {
 }
 
 const restricted = [
-	"devClient.js"
+	"client.js"
 ];
 
 const serverFns = {
@@ -15,6 +15,17 @@ const serverFns = {
 				for (const [key, value] of Object.entries(module)) {
 					if (vtable[key]) {
 						vtable[key] = value;
+					} else if (classtable[key]) {
+						for (const clss of classtable[key]) {
+							for (const field of Object.getOwnPropertyNames(value.prototype)) {
+								clss.prototype[field] = value.prototype[field];
+							}
+							const instance = new value();
+							for (const field of Object.getOwnPropertyNames(instance)) {
+								clss.prototype[field] = instance[field];
+							}
+						}
+						classtable[key].push(value);
 					}
 				}
 			} catch (e) {
@@ -62,5 +73,15 @@ export function virtual(fn) {
 	}
 	return function (...args) {
 		return vtable[fn.name](...args);
+	};
+}
+const classtable = {};
+
+export function virtualClass(fn) {
+	if (!classtable[fn.name]) {
+		classtable[fn.name] = [fn];
+	}
+	return function (...args) {
+		return new classtable[fn.name][classtable[fn.name].length - 1](...args);
 	};
 }

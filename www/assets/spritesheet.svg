@@ -1,0 +1,132 @@
+<svg width="1024" height="1024" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+	<style>
+		:root {
+			--color-0: black;
+			--color-1: white;
+		}
+	</style>
+
+	<defs>
+		<pattern id="pat0" width="2" height="2" patternUnits="userSpaceOnUse">
+			<rect width="2" height="2" fill="var(--color-0)" />
+			<rect width="1" height="1" fill="var(--color-1)" />
+		</pattern>
+
+		<pattern id="pat1" width="2" height="2" patternUnits="userSpaceOnUse">
+			<rect width="2" height="2" fill="var(--color-0)" />
+			<rect width="1" height="1" fill="var(--color-1)" />
+			<rect width="1" height="1" x="1" y="1" fill="var(--color-1)" />
+		</pattern>
+
+		<pattern id="pat2" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-0)" />
+			<rect width="1" height="1" fill="var(--color-1)" />
+		</pattern>
+		
+		<pattern id="pat3" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-0)" />
+			<rect width="1" height="1" fill="var(--color-1)" />
+			<rect width="1" height="1" x="2" y="2"  fill="var(--color-1)" />
+		</pattern>
+
+		<pattern id="pat4" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-0)" />
+			<rect width="1" height="1" y="1" fill="var(--color-1)" />
+			<rect width="1" height="1" y="3" fill="var(--color-1)" />
+			<rect width="1" height="1" x="2" y="0"  fill="var(--color-1)" />
+			<rect width="1" height="1" x="2" y="2"  fill="var(--color-1)" />
+		</pattern>
+		
+		<pattern id="pat5" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-0)" />
+			<rect width="1" height="1" fill="var(--color-1)" />
+			<rect width="1" height="1" x="2" y="1"  fill="var(--color-1)" />
+			<rect width="1" height="1" x="1" y="2"  fill="var(--color-1)" />
+			<rect width="1" height="1" x="3" y="3"  fill="var(--color-1)" />
+		</pattern>
+		
+		<pattern id="pat6" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-0)" />
+			<rect width="3" height="1" fill="var(--color-1)" />
+			<rect width="1" height="1" y="2" fill="var(--color-1)" />
+			<rect width="2" height="1" x="2" y="2" fill="var(--color-1)" />
+		</pattern>
+		
+		<pattern id="pat7" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-1)" />
+			<rect width="4" height="1" fill="var(--color-0)" />
+			<rect width="1" height="4" fill="var(--color-0)" />
+		</pattern>
+		<pattern id="pat8" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-1)" />
+			<rect width="1" height="1" fill="var(--color-0)" />
+			<rect width="1" height="1" x="1" y="1" fill="var(--color-0)" />
+			<rect width="1" height="1" x="2" y="2" fill="var(--color-0)" />
+			<rect width="1" height="1" x="3" y="3" fill="var(--color-0)" />
+		</pattern>
+		
+		<pattern id="pat9" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-1)" />
+			<rect width="1" height="1" y="3" fill="var(--color-0)" />
+			<rect width="1" height="1" x="1" y="2" fill="var(--color-0)" />
+			<rect width="1" height="1" x="2" y="1" fill="var(--color-0)" />
+			<rect width="1" height="1" x="3" fill="var(--color-0)" />
+		</pattern>
+		
+		<pattern id="pat10" width="4" height="4" patternUnits="userSpaceOnUse">
+			<rect width="4" height="4" fill="var(--color-1)" />
+			<rect width="1" height="1" fill="var(--color-0)" />
+			<rect width="1" height="1" x="1" y="1" fill="var(--color-0)" />
+			<rect width="1" height="1" x="2" y="2" fill="var(--color-0)" />
+			<rect width="1" height="1" x="3" y="3" fill="var(--color-0)" />
+			<rect width="1" height="1" x="2" fill="var(--color-0)" />
+			<rect width="1" height="1" y="2" fill="var(--color-0)" />
+		</pattern>
+	</defs>
+
+	<svg>
+		<rect width="16" height="16" fill="url(#pat0)" />
+	</svg>
+
+	<svg x="16">
+		<rect width="16" height="16" fill="url(#pat1)" />
+	</svg>
+
+	<svg x="32">
+		<rect width="16" height="16" fill="url(#pat2)" />
+	</svg>
+
+	<svg x="48">
+		<rect width="16" height="16" fill="url(#pat3)" />
+	</svg>
+
+	<svg x="64">
+		<rect width="16" height="16" fill="url(#pat4)" />
+	</svg>
+
+	<svg x="80">
+		<rect width="16" height="16" fill="url(#pat5)" />
+	</svg>
+
+	<svg x="96">
+		<rect width="16" height="16" fill="url(#pat6)" />
+	</svg>
+
+	<svg x="112">
+		<rect width="16" height="16" fill="url(#pat7)" />
+	</svg>
+
+	<svg x="128">
+		<rect width="16" height="16" fill="url(#pat8)" />
+	</svg>
+
+	<svg x="144">
+		<rect width="16" height="16" fill="url(#pat9)" />
+	</svg>
+
+	<svg x="160">
+		<rect width="16" height="16" fill="url(#pat10)" />
+	</svg>
+
+</svg>
+
