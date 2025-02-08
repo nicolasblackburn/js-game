@@ -7,29 +7,13 @@ const restricted = [
 ];
 
 const serverFns = {
-	reload: async (url) => {
+	reload: (url) => {
 		if (!restricted.includes(url) && url.match(/\.js$/)) {
 			try {
 				const cacheBust = new Date().getTime();
-				const module = await import(`./${url}?${cacheBust}`);
-				for (const [key, value] of Object.entries(module)) {
-					if (vtable[key]) {
-						vtable[key] = value;
-					} else if (classtable[key]) {
-						for (const clss of classtable[key]) {
-							for (const field of Object.getOwnPropertyNames(value.prototype)) {
-								clss.prototype[field] = value.prototype[field];
-							}
-							const instance = new value();
-							for (const field of Object.getOwnPropertyNames(instance)) {
-								clss.prototype[field] = instance[field];
-							}
-						}
-						classtable[key].push(value);
-					}
-				}
+				import(`./${url}?${cacheBust}`);
 			} catch (e) {
-				send("error", `${e}`);
+				send("error", `${e.stack}`);
 			}
 		}
 	}
@@ -62,26 +46,34 @@ async function send(fn, ...args) {
 
 window.onerror = function (message, url, line, col, error) {
 	send("error", `${message}
-\tat (${url}:${line}:${col})`);
+\tat ${url}:${line}:${col}`);
 };
 
-const vtable = {};
-
+const vtable1 = {};
+const vtable2 = {};
 export function virtual(fn) {
-	if (!vtable[fn.name]) {
-		vtable[fn.name] = fn;
+	vtable1[fn.name] = fn;
+	if (!vtable2[fn.name]) {
+		vtable2[fn.name] = fn;
 	}
-	return function (...args) {
-		return vtable[fn.name](...args);
-	};
-}
-const classtable = {};
+	try {
+		for (const field of Object.getOwnPropertyNames(fn.prototype)) {
+			vtable2[fn.name].prototype[field] = fn.prototype[field];
+		}
+		const instance = new fn();
+		// It's a class
+		for (const field of Object.getOwnPropertyNames(instance)) {
+			vtable2[fn.name].prototype[field] = instance[field];
+		}
+	} catch(e) {
+	}
 
-export function virtualClass(fn) {
-	if (!classtable[fn.name]) {
-		classtable[fn.name] = [fn];
-	}
-	return function (...args) {
-		return new classtable[fn.name][classtable[fn.name].length - 1](...args);
-	};
+	return new Proxy(fn, {
+		apply(target, thisArg, args) {
+			return vtable1[target.name](...args);
+		},
+		construct(target, args) {
+			return new vtable2[target.name](...args);
+		}
+	});
 }
