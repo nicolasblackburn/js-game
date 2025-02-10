@@ -1,3 +1,4 @@
+/*
 const {log} = console;
 const _log = () => undefined;
 
@@ -35,3 +36,13 @@ _log(`<svg width="512" height="512" viewBox="0 0 256 256" xmlns="http://www.w3.o
 	<rect width="16" height="16" x="" y="" fill="url(#)">
 	</rect>
 </svg>`);
+*/
+
+for (let i = 0; i < 256; i++) {
+	const x = (i % 16) * 16;
+	const y = (i / 16 | 0) * 16;
+	console.log(`
+<svg x="${x}" y="${y}">
+	<rect width="16" height="16" fill="url(#pat${i})" />
+</svg>`);
+}

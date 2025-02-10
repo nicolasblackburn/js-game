@@ -49,31 +49,55 @@ window.onerror = function (message, url, line, col, error) {
 \tat ${url}:${line}:${col}`);
 };
 
-const vtable1 = {};
-const vtable2 = {};
+const functionTable = {};
+const classTable = {};
+
+/**
+ * This creates a function or a class that can be
+ * hot code reloaded.
+ */
 export function virtual(fn) {
-	vtable1[fn.name] = fn;
-	if (!vtable2[fn.name]) {
-		vtable2[fn.name] = fn;
-	}
-	try {
+	// Detect classes by convention. Not very robust
+	// but did not find something much better yet.
+	const isClassName = fn.name[0].match(/[A-Z]/);
+
+	if (!isClassName) {
+	
+		functionTable[fn.name] = fn;
+
+	} else if (!classTable[fn.name]) {
+
+		// First time we define the class
+		classTable[fn.name] = fn;
+
+	} else {
+
+		// Hot reloading the class
 		for (const field of Object.getOwnPropertyNames(fn.prototype)) {
-			vtable2[fn.name].prototype[field] = fn.prototype[field];
+			classTable[fn.name].prototype[field] = fn.prototype[field];
 		}
+
+		// This is not ideal, because that will
+		// execute the constructor side effects but
+		// I do not have a better way to assign
+		// new properties.
 		const instance = new fn();
-		// It's a class
+
+		// We assign all instance's properties to
+		// the class prototype. This allows to
+		// assign values to new properties that did 
+		// not exist in previous class definition.
 		for (const field of Object.getOwnPropertyNames(instance)) {
-			vtable2[fn.name].prototype[field] = instance[field];
+			classTable[fn.name].prototype[field] = instance[field];
 		}
-	} catch(e) {
 	}
 
 	return new Proxy(fn, {
 		apply(target, thisArg, args) {
-			return vtable1[target.name](...args);
+			return functionTable[target.name](...args);
 		},
 		construct(target, args) {
-			return new vtable2[target.name](...args);
+			return new classTable[target.name](...args);
 		}
 	});
 }

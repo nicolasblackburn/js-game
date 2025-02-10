@@ -1,5 +1,7 @@
 import {virtual} from "./client.js";
 
+const SVG_NS = "http://www.w3.org/2000/svg";
+
 const load = virtual(async function load() {
 	const ctx = initContext();
 	const game = initGame(ctx);
@@ -19,22 +21,86 @@ const load = virtual(async function load() {
 		update(game, ctx);
 		requestAnimationFrame(updateFrame);
 	})();
+	
+	const svg = document.createElementNS(SVG_NS, "svg");
+	svg.innerHTML = await (await fetch("assets/spritesheet.svg")).text();
+	svg.style.display = "none";
 
+	ctx.game.append(svg);
 });
 
 const initContext = virtual(function initContext() {
 	const game = document.createElement('div');
 	game.setAttribute('class', 'game');
 
-	const view = document.createElement('pre');
-	view.setAttribute('class', 'view');
+	const view = createSVGElement('svg', {
+		'class': 'view',
+		"width": window.innerWidth,
+		"height": window.innerWidth * 10 / 9,
+		"viewBox": `0 0 ${16 * 9} ${16 * 10}`
+	});
+
+	const background = createSVGElement("g", {
+		'class': 'background'
+	});
+	view.append(background);
+
+	// Background tiles
+	const tiles = [];
+	for (let i = 0; i < 10 * 11; i++) {
+		const x = (i % 10) * 16;
+		const y = (i / 10 | 0) * 16;
+		const color = (i + y / 16) % 2 ? "#000" : "#fff";
+		const tile = createSVGElement("rect", {
+			"x": x,
+			"y": y,
+			"width": "16",
+			"height": "16",
+			"fill": color
+		});
+
+		tiles.push(tile);
+		background.append(tile);
+	}
+	
+	const spritesContainer = createSVGElement("g", {
+		'class': 'sprites'
+	});
+	view.append(spritesContainer);
+
+	const sprites = [];
+	for (let i = 0; i < 64; i++) {
+		const display = i ? "none" : "";
+		const sprite = createSVGElement("circle", {
+			"cx": 8,
+			"cy": 8,
+			"r": 8,
+			"fill": "#0c9"
+		}, {
+			display
+		});
+
+		sprites.push(sprite);
+		spritesContainer.append(sprite);
+	}
+	
+	const border = createSVGElement("rect", {
+		"width": 16 * 9,
+		"height": 16 * 10,
+		"stroke": "#000",
+		"fill": "transparent"
+	});
+	view.append(border);
 
 	game.append(view);
 	document.body.append(game);
 
 	return {
 		game,
-		view
+		view,
+		background,
+		tiles,
+		sprites
 	};
 });
 
@@ -47,32 +113,14 @@ const initGame = virtual(function initGame(ctx) {
 const update = virtual(function update(game, ctx) {
 	const {view} = ctx;
 
-	const gfx = `
-######..######
-#............#
-#............#
-#............#
-.......$......
-#............#
-#............#
-#............#
-######..######
-
+	/*
 (px: pixel, sx: subpixel, s: second, f: frame)
 256 sx = 1 px
 64 f = 1 s
 8 px / s
 = (2048 / 64) sx / f
 = 32 sx / f
-
-${hello("World")}
-`.trim();
-
-	view.innerHTML = gfx; 
-});
-
-const hello = virtual(function hello(value) {
-	return `Hello ${value}`;
+*/
 });
 
 const pointerCancel = virtual(function pointerCancel(event, game, ctx) {
@@ -104,6 +152,17 @@ const resize = virtual(function resize(event, game, ctx) {
 
 const visibilityChange = virtual(function visibilityChange(event, game, ctx) {
 });
+
+function createSVGElement(name, attrs = {}, style = {}) {
+	const e = document.createElementNS(SVG_NS, name);
+	for (const [key, value] of Object.entries(attrs)) {
+		e.setAttribute(key, value);
+	}
+	for (const [key, value] of Object.entries(style)) {
+		e.style[key] = value;
+	}
+	return e;
+}
 
 window.addEventListener("load", load);
 
