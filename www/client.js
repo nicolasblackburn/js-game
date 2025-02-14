@@ -16,6 +16,9 @@ const serverFns = {
 				send("error", `${e.stack}`);
 			}
 		}
+		for (const listener of reloadListeners) {
+			listener(url);
+		}
 	}
 };
 
@@ -48,6 +51,13 @@ window.onerror = function (message, url, line, col, error) {
 	send("error", `${message}
 \tat ${url}:${line}:${col}`);
 };
+
+const reloadListeners = [];
+export function addReloadListener(listener) {
+	if (!reloadListeners.includes(listener)) {
+		reloadListeners.push(listener);
+	}
+}
 
 const functionTable = {};
 const classTable = {};

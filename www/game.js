@@ -1,4 +1,4 @@
-import {virtual} from "./client.js";
+import {addReloadListener, virtual} from "./client.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -16,6 +16,8 @@ const load = virtual(async function load() {
 	window.addEventListener("pointerup", event => pointerUp(event, game, ctx));
 	window.addEventListener("resize", event => resize(event, game, ctx));
 	window.addEventListener("visibilitychange", event => visibilityChange(event, game, ctx));
+	
+	addReloadListener(url => reload(url, game, ctx));
 
 	(function updateFrame () {
 		update(game, ctx);
@@ -27,6 +29,7 @@ const load = virtual(async function load() {
 	svg.style.display = "none";
 
 	ctx.game.append(svg);
+
 });
 
 const initContext = virtual(function initContext() {
@@ -40,6 +43,35 @@ const initContext = virtual(function initContext() {
 		"viewBox": `0 0 ${16 * 9} ${16 * 10}`
 	});
 
+	const defs = createSVGElement("defs");
+	view.append(defs);
+
+	let nextTextureId = 0;
+
+	const tex1 = createSVGElement("symbol", {
+		id: "tex" + nextTextureId++
+	});
+
+	tex1.append(createSVGElement("rect", {
+			"width": "16",
+			"height": "16",
+			"fill": "#000"
+	}));
+
+	defs.append(tex1);
+
+	const tex2 = createSVGElement("symbol", {
+		id: "tex" + nextTextureId++
+	});
+
+	tex2.append(createSVGElement("rect", {
+			"width": "16",
+			"height": "16",
+			"fill": "#fff"
+	}));
+
+	defs.append(tex2);
+
 	const background = createSVGElement("g", {
 		'class': 'background'
 	});
@@ -50,13 +82,13 @@ const initContext = virtual(function initContext() {
 	for (let i = 0; i < 10 * 11; i++) {
 		const x = (i % 10) * 16;
 		const y = (i / 10 | 0) * 16;
-		const color = (i + y / 16) % 2 ? "#000" : "#fff";
-		const tile = createSVGElement("rect", {
+		const texture = (i + y / 16) % 2 ? "#tex0" : "#tex1";
+		const tile = createSVGElement("use", {
 			"x": x,
 			"y": y,
 			"width": "16",
 			"height": "16",
-			"fill": color
+			"href": texture
 		});
 
 		tiles.push(tile);
@@ -98,9 +130,11 @@ const initContext = virtual(function initContext() {
 	return {
 		game,
 		view,
+		defs,
 		background,
 		tiles,
-		sprites
+		sprites,
+		nextTextureId
 	};
 });
 
@@ -151,6 +185,10 @@ const resize = virtual(function resize(event, game, ctx) {
 });
 
 const visibilityChange = virtual(function visibilityChange(event, game, ctx) {
+});
+
+const reload = virtual(function reload(url, game, ctx) {
+	alert("reload " + url);
 });
 
 function createSVGElement(name, attrs = {}, style = {}) {
