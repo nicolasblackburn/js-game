@@ -1,4 +1,4 @@
-import {addReloadListener, virtual} from "./client.js";
+import {addDirListener, addReloadListener, virtual} from "./client.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -23,25 +23,58 @@ const load = virtual(async function load() {
 		update(game, ctx);
 		requestAnimationFrame(updateFrame);
 	})();
-	
-	const svg = document.createElementNS(SVG_NS, "svg");
-	svg.innerHTML = await (await fetch("assets/spritesheet.svg")).text();
-	svg.style.display = "none";
 
-	ctx.game.append(svg);
+	const files = await new Promise(addDirListener);
+	for (const file of files) {
+		const ext = getExtension(file);
+		if (ext === "svg") {
+			ctx.resources[file] = await loadSVG(file);
+		} else if (ext === "json") {
+			ctx.resources[file] = await loadJSON(file);
+		}
+	}
+	alert(JSON.stringify(ctx.resources));
+});
 
+const loadSVG = virtual(async function loadSVG(url) {
+	const svg = createSVGElement("svg");
+	svg.innerHTML = await (await fetch(url)).text();
+	return svg;
+});
+
+const loadJSON = virtual(async function loadJSON(url) {
+	try {
+		return await (await fetch(url)).json();
+	} catch(e) {
+	}
 });
 
 const initContext = virtual(function initContext() {
 	const game = document.createElement('div');
 	game.setAttribute('class', 'game');
 
+	const canvas = createSVGElement('svg', {
+		'class': 'canvas',
+		width: window.innerWidth,
+		height: window.innerHeight
+	});
+	
+	game.append(canvas);
+
 	const view = createSVGElement('svg', {
 		'class': 'view',
-		"width": window.innerWidth,
-		"height": window.innerWidth * 10 / 9,
-		"viewBox": `0 0 ${16 * 9} ${16 * 10}`
+		width: window.innerWidth,
+		height: window.innerWidth * 10 / 9,
+		viewBox: `0 0 ${16 * 9} ${16 * 10}`
 	});
+
+	canvas.append(createSVGElement('rect', {
+		width: '100%',
+		height: '100%',
+		fill: '#c09'
+	}));
+
+	canvas.append(view);
 
 	const defs = createSVGElement("defs");
 	view.append(defs);
@@ -53,9 +86,9 @@ const initContext = virtual(function initContext() {
 	});
 
 	tex1.append(createSVGElement("rect", {
-			"width": "16",
-			"height": "16",
-			"fill": "#000"
+		width: "16",
+		height: "16",
+		fill: "#000"
 	}));
 
 	defs.append(tex1);
@@ -65,9 +98,9 @@ const initContext = virtual(function initContext() {
 	});
 
 	tex2.append(createSVGElement("rect", {
-			"width": "16",
-			"height": "16",
-			"fill": "#fff"
+		width: "16",
+		height: "16",
+		fill: "#fff"
 	}));
 
 	defs.append(tex2);
@@ -84,17 +117,17 @@ const initContext = virtual(function initContext() {
 		const y = (i / 10 | 0) * 16;
 		const texture = (i + y / 16) % 2 ? "#tex0" : "#tex1";
 		const tile = createSVGElement("use", {
-			"x": x,
-			"y": y,
-			"width": "16",
-			"height": "16",
-			"href": texture
+			x: x,
+			y: y,
+			width: "16",
+			height: "16",
+			href: texture
 		});
 
 		tiles.push(tile);
 		background.append(tile);
 	}
-	
+
 	const spritesContainer = createSVGElement("g", {
 		'class': 'sprites'
 	});
@@ -104,10 +137,10 @@ const initContext = virtual(function initContext() {
 	for (let i = 0; i < 64; i++) {
 		const display = i ? "none" : "";
 		const sprite = createSVGElement("circle", {
-			"cx": 8,
-			"cy": 8,
-			"r": 8,
-			"fill": "#0c9"
+			cx: 8,
+			cy: 8,
+			r: 8,
+			fill: "#0c9"
 		}, {
 			display
 		});
@@ -115,26 +148,29 @@ const initContext = virtual(function initContext() {
 		sprites.push(sprite);
 		spritesContainer.append(sprite);
 	}
-	
+
 	const border = createSVGElement("rect", {
-		"width": 16 * 9,
-		"height": 16 * 10,
-		"stroke": "#000",
-		"fill": "transparent"
+		width: 16 * 9,
+		height: 16 * 10,
+		stroke: "#000",
+		fill: "transparent"
 	});
 	view.append(border);
 
-	game.append(view);
 	document.body.append(game);
+
+	const resources = {};
 
 	return {
 		game,
+		canvas,
 		view,
 		defs,
 		background,
 		tiles,
 		sprites,
-		nextTextureId
+		nextTextureId,
+		resources
 	};
 });
 
@@ -188,7 +224,7 @@ const visibilityChange = virtual(function visibilityChange(event, game, ctx) {
 });
 
 const reload = virtual(function reload(url, game, ctx) {
-	alert("reload " + url);
+	//alert("reload " + url);
 });
 
 function createSVGElement(name, attrs = {}, style = {}) {
@@ -200,6 +236,10 @@ function createSVGElement(name, attrs = {}, style = {}) {
 		e.style[key] = value;
 	}
 	return e;
+}
+
+function getExtension(path) {
+	return path.match(/\.([^.]+)$/)[1];
 }
 
 window.addEventListener("load", load);

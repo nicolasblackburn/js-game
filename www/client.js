@@ -19,6 +19,11 @@ const serverFns = {
 		for (const listener of reloadListeners) {
 			listener(url);
 		}
+	},
+	dir: files => {
+		for (const listener of dirListeners) {
+			listener(files);
+		}
 	}
 };
 
@@ -56,6 +61,13 @@ const reloadListeners = [];
 export function addReloadListener(listener) {
 	if (!reloadListeners.includes(listener)) {
 		reloadListeners.push(listener);
+	}
+}
+
+const dirListeners = [];
+export function addDirListener(listener) {
+	if (!dirListeners.includes(listener)) {
+		dirListeners.push(listener);
 	}
 }
 

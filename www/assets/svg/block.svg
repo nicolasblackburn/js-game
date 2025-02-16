@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <defs>
+    <symbol id="s" width="16" height="16" viewBox="0 0 16 16">
+      <g transform="translate(0.0625 0.0625)">
+      <rect width="15.875" height="15.875" fill="none" stroke="#000" stroke-width="0.125" />
+      <line x2="16" y2="16" stroke="#000" stroke-width="0.125" />
+      <line y1="15.875" x2="16" stroke="#000" stroke-width="0.125" />
+      </g>
+    </symbol> 
+    <pattern id="p" width="16" height="16" patternUnits="userSpaceOnUse">
+      <use href="#s" />
+      <use href="#s" x="16" />
+      <use href="#s" y="16" />
+      <use href="#s" x="16" y="16" />
+    </pattern>
+  </defs>
+  <rect fill="url(#p)" width="100%" height="100%"/>
+</svg>
+

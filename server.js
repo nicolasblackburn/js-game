@@ -5,12 +5,17 @@ const path = require('path');
 const fs = require('fs');
 const chokidar = require("chokidar");
 const util = require("util");
+const nocache = require('nocache');
 
 // Create an Express app
 const app = express();
 const host = "localhost";
 const port = 3000;
 const wwwdir = path.join(__dirname, 'www');
+
+// Do not cache responses
+app.set('etag', false);
+app.use(nocache());
 
 // Serve static files (e.g., HTML, JS, CSS)
 app.use(express.static(wwwdir));
@@ -57,7 +62,7 @@ function send(ws, fn, ...args) {
 
 const fns = {
 	log: (...args) => console.log(...args),
-	error: (...args) => console.error(...args.map(value => util.styleText("red", value)))
+	error: (...args) => console.error(...args.map(value => util.styleText("red", value))),
 };
 
 
@@ -65,6 +70,7 @@ const fns = {
 // WebSocket connection event
 wss.on('connection', (ws) => {
 	console.log(util.styleText('greenBright', 'New WebSocket connection'));
+	send(ws, "dir", getDirectoryContents(wwwdir));
 
 	// Listen for messages from the client
 	ws.on('message', (data) => {
@@ -77,3 +83,26 @@ wss.on('connection', (ws) => {
 	});
 });
 
+function getDirectoryContents(dirPath) {
+    let results = [];
+
+    // Read the contents of the directory
+    const list = fs.readdirSync(dirPath);
+
+	list.forEach(file => {
+		const filePath = path.join(dirPath, file);
+		const stat = fs.statSync(filePath);
+
+		if (stat && stat.isDirectory()) {
+			// If it's a directory, recurse into it
+			results.push(
+				...getDirectoryContents(filePath)
+			);
+		} else {
+			// Otherwise, it's a file
+			results.push(path.relative(wwwdir, path.join(dirPath, file)));
+		}
+	});
+
+	return results;
+}

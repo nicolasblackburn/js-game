@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <defs>
+    <pattern id="p" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="translate(8 8) rotate(0) scale(1 1) translate(-4 -4)">
+      <rect width="8" height="8" fill="none" stroke="#000" x="8" y="-8" stroke-width="0.125"/>
+      <rect width="8" height="8" fill="none" stroke="#000" stroke-width="0.125" />
+      <rect width="8" height="8" fill="none" stroke="#000" x="16" stroke-width="0.125"/>
+      <rect width="8" height="8" fill="none" stroke="#000" x="-8" y="8" stroke-width="0.125"/>
+      <rect width="8" height="8" fill="none" stroke="#000" x="8" y="8" stroke-width="0.125"/>
+      <rect width="8" height="8" y="16" fill="none" stroke="#000" stroke-width="0.125" />
+      <rect width="8" height="8" fill="none" stroke="#000" x="16" y="16" stroke-width="0.125"/>
+    </pattern>
+  </defs>
+  <rect fill="url(#p)" width="100%" height="100%"/>
+</svg>
+
