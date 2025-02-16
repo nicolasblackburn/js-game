@@ -6,6 +6,7 @@ const fs = require('fs');
 const chokidar = require("chokidar");
 const util = require("util");
 const nocache = require('nocache');
+const serveIndex = require('serve-index');
 
 // Create an Express app
 const app = express();
@@ -18,7 +19,7 @@ app.set('etag', false);
 app.use(nocache());
 
 // Serve static files (e.g., HTML, JS, CSS)
-app.use(express.static(wwwdir));
+app.use(express.static(wwwdir), serveIndex(wwwdir));
 
 // Start the HTTP server
 const server = app.listen(port, () => {
