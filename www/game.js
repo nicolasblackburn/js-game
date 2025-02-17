@@ -1,50 +1,62 @@
-import {addDirListener, addReloadListener, virtual} from "./client.js";
+import {addDirListener, addReloadListener, virtual} from './client.js';
 
-const SVG_NS = "http://www.w3.org/2000/svg";
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const load = virtual(async function load() {
 	const ctx = initContext();
 	const game = initGame(ctx);
 
-	window.addEventListener("pointercancel", event => pointerCancel(event, game, ctx));
-	window.addEventListener("pointerdown", event => pointerDown(event, game, ctx));
-	window.addEventListener("pointerenter", event => pointerEnter(event, game, ctx));
-	window.addEventListener("pointerleave", event => pointerLeave(event, game, ctx));
-	window.addEventListener("pointermove", event => pointerMove(event, game, ctx));
-	window.addEventListener("pointerout", event => pointerOut(event, game, ctx));
-	window.addEventListener("pointerover", event => pointerOver(event, game, ctx));
-	window.addEventListener("pointerup", event => pointerUp(event, game, ctx));
-	window.addEventListener("resize", event => resize(event, game, ctx));
-	window.addEventListener("visibilitychange", event => visibilityChange(event, game, ctx));
+	window.addEventListener('pointercancel', event => pointerCancel(event, game, ctx));
+	window.addEventListener('pointerdown', event => pointerDown(event, game, ctx));
+	window.addEventListener('pointerenter', event => pointerEnter(event, game, ctx));
+	window.addEventListener('pointerleave', event => pointerLeave(event, game, ctx));
+	window.addEventListener('pointermove', event => pointerMove(event, game, ctx));
+	window.addEventListener('pointerout', event => pointerOut(event, game, ctx));
+	window.addEventListener('pointerover', event => pointerOver(event, game, ctx));
+	window.addEventListener('pointerup', event => pointerUp(event, game, ctx));
+	window.addEventListener('resize', event => resize(event, game, ctx));
+	window.addEventListener('visibilitychange', event => visibilityChange(event, game, ctx));
 	
 	addReloadListener(url => reload(url, game, ctx));
 
+	const files = await new Promise(addDirListener);
+	for (const file of files) {
+		const ext = pathExtension(file);
+		if (ext === 'svg') {
+			await loadSVG(file, game, ctx);
+		} else if (ext === 'json') {
+			await loadJSON(file, game, ctx);
+		}
+	}
+
+	alert(ctx.defs.innerHTML);
+	
 	(function updateFrame () {
 		update(game, ctx);
 		requestAnimationFrame(updateFrame);
 	})();
 
-	const files = await new Promise(addDirListener);
-	for (const file of files) {
-		const ext = getExtension(file);
-		if (ext === "svg") {
-			ctx.resources[file] = await loadSVG(file);
-		} else if (ext === "json") {
-			ctx.resources[file] = await loadJSON(file);
-		}
-	}
-	alert(JSON.stringify(ctx.resources));
 });
 
-const loadSVG = virtual(async function loadSVG(url) {
-	const svg = createSVGElement("svg");
-	svg.innerHTML = await (await fetch(url)).text();
-	return svg;
+const loadSVG = virtual(async function loadSVG(url, game, ctx) {
+	const tmp = createSVGElement('svg');
+	tmp.innerHTML = await (await fetch(url)).text();
+	const svg = tmp.querySelector('svg');
+	ctx.resources[url] = svg;
+  svg.setAttribute('id', 'tex' + ctx.nextTextureId++); 
+  ctx.defs.append(svg);
+  const key = pathFilename(url);
+  ctx.textures[key] = svg;
 });
 
-const loadJSON = virtual(async function loadJSON(url) {
+const loadJSON = virtual(async function loadJSON(url, game, ctx) {
 	try {
-		return await (await fetch(url)).json();
+		const data = await (await fetch(url)).json();
+	  ctx.resources[url] = data;
+		if (data.tiledversion) {
+		  const key = pathFilename(url);
+		  ctx.maps[key] = data;
+    }
 	} catch(e) {
 	}
 });
@@ -68,44 +80,22 @@ const initContext = virtual(function initContext() {
 		viewBox: `0 0 ${16 * 9} ${16 * 10}`
 	});
 
-	canvas.append(createSVGElement('rect', {
-		width: '100%',
-		height: '100%',
-		fill: '#c09'
-	}));
-
 	canvas.append(view);
 
-	const defs = createSVGElement("defs");
+	const defs = createSVGElement('defs');
 	view.append(defs);
 
 	let nextTextureId = 0;
 
-	const tex1 = createSVGElement("symbol", {
-		id: "tex" + nextTextureId++
-	});
+	const textures = {
+		EMPTY: createSVGElement('symbol', {
+			id: 'tex' + nextTextureId++
+		})
+	};
 
-	tex1.append(createSVGElement("rect", {
-		width: "16",
-		height: "16",
-		fill: "#000"
-	}));
+	defs.append(textures.EMPTY);
 
-	defs.append(tex1);
-
-	const tex2 = createSVGElement("symbol", {
-		id: "tex" + nextTextureId++
-	});
-
-	tex2.append(createSVGElement("rect", {
-		width: "16",
-		height: "16",
-		fill: "#fff"
-	}));
-
-	defs.append(tex2);
-
-	const background = createSVGElement("g", {
+	const background = createSVGElement('g', {
 		'class': 'background'
 	});
 	view.append(background);
@@ -115,12 +105,12 @@ const initContext = virtual(function initContext() {
 	for (let i = 0; i < 10 * 11; i++) {
 		const x = (i % 10) * 16;
 		const y = (i / 10 | 0) * 16;
-		const texture = (i + y / 16) % 2 ? "#tex0" : "#tex1";
-		const tile = createSVGElement("use", {
+		const texture = '#tex0';
+		const tile = createSVGElement('use', {
 			x: x,
 			y: y,
-			width: "16",
-			height: "16",
+			width: 16,
+			height: 16,
 			href: texture
 		});
 
@@ -128,19 +118,19 @@ const initContext = virtual(function initContext() {
 		background.append(tile);
 	}
 
-	const spritesContainer = createSVGElement("g", {
+	const spritesContainer = createSVGElement('g', {
 		'class': 'sprites'
 	});
 	view.append(spritesContainer);
 
 	const sprites = [];
 	for (let i = 0; i < 64; i++) {
-		const display = i ? "none" : "";
-		const sprite = createSVGElement("circle", {
+		const display = i ? 'none' : '';
+		const sprite = createSVGElement('circle', {
 			cx: 8,
 			cy: 8,
 			r: 8,
-			fill: "#0c9"
+			fill: '#000'
 		}, {
 			display
 		});
@@ -149,17 +139,19 @@ const initContext = virtual(function initContext() {
 		spritesContainer.append(sprite);
 	}
 
-	const border = createSVGElement("rect", {
+	const border = createSVGElement('rect', {
 		width: 16 * 9,
 		height: 16 * 10,
-		stroke: "#000",
-		fill: "transparent"
+		stroke: '#000',
+		fill: 'none'
 	});
 	view.append(border);
 
 	document.body.append(game);
 
 	const resources = {};
+
+	const maps = {};
 
 	return {
 		game,
@@ -169,19 +161,40 @@ const initContext = virtual(function initContext() {
 		background,
 		tiles,
 		sprites,
+		resources,
+		textures,
 		nextTextureId,
-		resources
+		maps
 	};
 });
 
 const initGame = virtual(function initGame(ctx) {
 	return {
-		state: "load"
+		state: 'load',
+		map: 'map'
 	};
 })
 
 const update = virtual(function update(game, ctx) {
-	const {view} = ctx;
+	const {tiles, textures} = ctx;
+  const map = ctx.maps[game.map];
+  const mapData = map.layers[0].data;
+  const tileSet = ['floor', 'block'];
+  for (let i = 0; i < tiles.length; i++) {
+    const tile = tiles[i];
+    const x = i % (map.width + 1);
+    const y = i / (map.width + 1) | 0;
+    if (x >= map.width || y >= map.height) {
+      tile.setAttribute('href', textures.EMPTY.getAttribute('id'));
+    } else {
+      const index = y * map.width + x;
+      //alert(index + ' ' + mapData[index]);
+      const name = tileSet[mapData[index]] ?? EMPTY;
+      const id = textures[name].getAttribute('id');
+      //alert(index + ' ' + id);
+      tile.setAttribute('href', '#' + id);
+    }
+  }
 
 	/*
 (px: pixel, sx: subpixel, s: second, f: frame)
@@ -238,9 +251,17 @@ function createSVGElement(name, attrs = {}, style = {}) {
 	return e;
 }
 
-function getExtension(path) {
-	return path.match(/\.([^.]+)$/)[1];
+function pathSplit(path) {
+  return (path && path.split('/') || []);
 }
 
-window.addEventListener("load", load);
+function pathFilename(path) {
+  return pathSplit(path).slice(-1)[0].split('.')[0];
+}
+
+function pathExtension(path) {
+  return pathSplit(path).slice(-1)[0].split('.').slice(1).join('.');
+}
+
+window.addEventListener('load', load);
 

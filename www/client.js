@@ -52,10 +52,14 @@ async function send(fn, ...args) {
 }
 
 
-window.onerror = function (message, url, line, col, error) {
+window.onerror = function(message, url, line, col, error) {
 	send("error", `${message}
 \tat ${url}:${line}:${col}`);
 };
+
+window.addEventListener('unhandledrejection', event => {
+	send("error", `${event.reason.stack}`);
+});
 
 const reloadListeners = [];
 export function addReloadListener(listener) {

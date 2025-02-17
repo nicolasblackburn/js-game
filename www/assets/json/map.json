@@ -1,71 +1,28 @@
 {
 	"backgroundcolor": "#656667",
-	"height": 4,
+	"height": 10,
 	"layers": [
 		{
 			"data":  [
-				1, 1, 1, 1, 
-				1, 0, 0, 1, 
-				1, 0, 0, 1, 
-				1, 1, 1, 1
+				1, 1, 1, 1, 1, 1, 1, 1, 1,      
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 0, 0, 0, 0, 0, 0, 0, 1, 
+				1, 1, 1, 1, 1, 1, 1, 1, 1 
 			],
-			"height": 4,
-			"name": "ground",
-			"opacity": 1,
-			"properties": [
-				{
-					"name": "tileLayerProp",
-					"type": "int",
-					"value": 1
-				}
-			],
-			"type": "tilelayer",
-			"visible": true,
-			"width": 4,
-			"x": 0,
-			"y": 0
+			"name": "background"
 		}
 
 	],
 	"nextobjectid": 1,
-	"orientation": "orthogonal",
-	"properties": [
-		{
-			"name": "mapProperty1",
-			"type": "string",
-			"value": "one"
-		},
-		{
-			"name": "mapProperty2",	    	                          	            "type": "string",
-			"value": "two"
-		}
-	],
-	"renderorder": "right-down",
-	"tileheight": 32,
-	"tilesets": [ 
-		{
-			"columns": 19,
-			"firstgid": 1,
-			"image": "..\/image\/fishbaddie_parts.png",
-			"imageheight": 480,
-			"imagewidth": 640,
-			"margin": 3,
-			"name": "",
-			"properties": [
-				{
-					"name": "myProperty1",
-					"type": "string",
-					"value": "myProperty1_value"
-				}
-			],
-			"spacing": 1,
-			"tilecount": 266,
-			"tileheight": 32,
-			"tilewidth": 32
-		}
-	],
-	"tilewidth": 32,
+	"tileheight": 16,
+	"tilewidth": 16,
 	"version": 1,
 	"tiledversion": "1.0.3",
-	"width": 4
+	"width": 9
 }
