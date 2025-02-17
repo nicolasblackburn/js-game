@@ -29,13 +29,10 @@ const load = virtual(async function load() {
 		}
 	}
 
-	alert(ctx.defs.innerHTML);
-	
 	(function updateFrame () {
 		update(game, ctx);
 		requestAnimationFrame(updateFrame);
 	})();
-
 });
 
 const loadSVG = virtual(async function loadSVG(url, game, ctx) {
@@ -76,8 +73,8 @@ const initContext = virtual(function initContext() {
 	const view = createSVGElement('svg', {
 		'class': 'view',
 		width: window.innerWidth,
-		height: window.innerWidth * 10 / 9,
-		viewBox: `0 0 ${16 * 9} ${16 * 10}`
+		height: window.innerWidth * 9 / 10,
+		viewBox: `0 0 ${16 * 10} ${16 * 9}`
 	});
 
 	canvas.append(view);
@@ -103,15 +100,17 @@ const initContext = virtual(function initContext() {
 	// Background tiles
 	const tiles = [];
 	for (let i = 0; i < 10 * 11; i++) {
-		const x = (i % 10) * 16;
-		const y = (i / 10 | 0) * 16;
-		const texture = '#tex0';
+		const x = (i % 11) * 16;
+		const y = (i / 11 | 0) * 16;
+		const width = 16;
+		const height = 16;
+		const href = '#tex0';
 		const tile = createSVGElement('use', {
-			x: x,
-			y: y,
-			width: 16,
-			height: 16,
-			href: texture
+			x,
+			y,
+			width,
+			height,
+			href
 		});
 
 		tiles.push(tile);
@@ -140,8 +139,8 @@ const initContext = virtual(function initContext() {
 	}
 
 	const border = createSVGElement('rect', {
-		width: 16 * 9,
-		height: 16 * 10,
+		width: 16 * 10,
+		height: 16 * 9,
 		stroke: '#000',
 		fill: 'none'
 	});
