@@ -265,6 +265,8 @@ const reload = virtual(async function reload(url, game, ctx) {
 
 	if (extension === 'svg') {
 	  await reloadSVG(url, game, ctx);
+  } else if (extension === 'json') {
+    await loadJSON(url, game, ctx);
   }
 });
 
