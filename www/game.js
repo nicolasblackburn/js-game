@@ -213,10 +213,8 @@ const update = virtual(function update(game, ctx) {
       tile.setAttribute('href', textures.EMPTY.getAttribute('id'));
     } else {
       const index = y * map.width + x;
-      //alert(index + ' ' + mapData[index]);
       const name = tileSet[mapData[index]] ?? EMPTY;
       const id = textures[name].getAttribute('id');
-      //alert(index + ' ' + id);
       tile.setAttribute('href', '#' + id);
     }
   }
@@ -261,8 +259,20 @@ const resize = virtual(function resize(event, game, ctx) {
 const visibilityChange = virtual(function visibilityChange(event, game, ctx) {
 });
 
-const reload = virtual(function reload(url, game, ctx) {
+const reload = virtual(async function reload(url, game, ctx) {
 	//alert("reload " + url);
+	const extension = pathExtension(url);
+
+	if (extension === 'svg') {
+	  await reloadSVG(url, game, ctx);
+  }
+});
+
+const reloadSVG = virtual(async function reloadSVG(url, game, ctx) {
+	const name = pathFilename(url);
+	const tex = ctx.textures[name];
+  await loadSVG(url, game, ctx);
+	ctx.defs.removeChild(tex);
 });
 
 function createSVGElement(name, attrs = {}, style = {}) {
