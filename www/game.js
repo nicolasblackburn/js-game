@@ -42,6 +42,30 @@ const loadSVG = virtual(async function loadSVG(url, game, ctx) {
 	ctx.resources[url] = svg;
   svg.setAttribute('id', 'tex' + ctx.nextTextureId++); 
   ctx.defs.append(svg);
+
+  // Replace all element ids
+  const subs = [];
+  for (const elem of svg.querySelectorAll('[id]')) {
+    const oldId = elem.id;
+    const newId = 'id' + ctx.nextElementId++;
+    elem.id = newId;
+    subs.push([oldId, newId]);
+  }
+
+  for (const [oldId, newId] of subs) {
+    for(const elem of svg.querySelectorAll(`[href="#${oldId}"]`)) {
+      elem.setAttribute('href', '#' + newId);
+    }
+
+    for(const elem of svg.querySelectorAll(`[fill="url(#${oldId})"]`)) {
+      elem.setAttribute('fill', `url(#${newId})`);
+    }
+
+    for(const elem of svg.querySelectorAll(`[stroke="url(#${oldId})"]`)) {
+      elem.setAttribute('stroke', `url(#${newId})`);
+    }
+  }
+
   const key = pathFilename(url);
   ctx.textures[key] = svg;
 });
@@ -83,6 +107,7 @@ const initContext = virtual(function initContext() {
 	view.append(defs);
 
 	let nextTextureId = 0;
+	let nextElementId = 0;
 
 	const textures = {
 		EMPTY: createSVGElement('symbol', {
@@ -163,6 +188,7 @@ const initContext = virtual(function initContext() {
 		resources,
 		textures,
 		nextTextureId,
+    nextElementId,
 		maps
 	};
 });
