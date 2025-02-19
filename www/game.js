@@ -1,7 +1,8 @@
 import {listDir, addReloadListener, virtual} from './client.js';
+import {loadResources, reload} from './src/loader.js';
 import {createSVGElement} from './src/svg.js';
 
-const load = virtual(async function load() {
+const start = virtual(async function start() {
 	const ctx = createContext();
 	const game = createGameState(ctx);
 
@@ -18,72 +19,12 @@ const load = virtual(async function load() {
 	
 	addReloadListener(url => reload(url, game, ctx));
 
-	const files = await listDir();
-	for (const file of files) {
-		const ext = pathExtension(file);
-		if (ext === 'svg') {
-			await loadSVG(file, game, ctx);
-		} else if (ext === 'json') {
-			await loadJSON(file, game, ctx);
-		}
-	}
+	await loadResources(await listDir(), game, ctx);
 
 	(function updateFrame () {
 		update(game, ctx);
 		requestAnimationFrame(updateFrame);
 	})();
-});
-
-const loadSVG = virtual(async function loadSVG(url, game, ctx) {
-	const tmp = createSVGElement('svg');
-	tmp.innerHTML = await (await fetch(url)).text();
-	const svg = tmp.querySelector('svg');
-
-  if (!svg) {
-    return;
-  }
-	
-	ctx.resources[url] = svg;
-  svg.setAttribute('id', 'tex' + ctx.nextTextureId++); 
-  ctx.defs.append(svg);
-
-  // Replace all element ids
-  const subs = [];
-  for (const elem of svg.querySelectorAll('[id]')) {
-    const oldId = elem.id;
-    const newId = 'id' + ctx.nextElementId++;
-    elem.id = newId;
-    subs.push([oldId, newId]);
-  }
-
-  for (const [oldId, newId] of subs) {
-    for(const elem of svg.querySelectorAll(`[href="#${oldId}"]`)) {
-      elem.setAttribute('href', '#' + newId);
-    }
-
-    for(const elem of svg.querySelectorAll(`[fill="url(#${oldId})"]`)) {
-      elem.setAttribute('fill', `url(#${newId})`);
-    }
-
-    for(const elem of svg.querySelectorAll(`[stroke="url(#${oldId})"]`)) {
-      elem.setAttribute('stroke', `url(#${newId})`);
-    }
-  }
-
-  const key = pathFilename(url);
-  ctx.textures[key] = svg;
-});
-
-const loadJSON = virtual(async function loadJSON(url, game, ctx) {
-	try {
-		const data = await (await fetch(url)).json();
-	  ctx.resources[url] = data;
-		if (data.tiledversion) {
-		  const key = pathFilename(url);
-		  ctx.maps[key] = data;
-    }
-	} catch(e) {
-	}
 });
 
 const createContext = virtual(function createContext() {
@@ -263,35 +204,5 @@ const resize = virtual(function resize(event, game, ctx) {
 const visibilityChange = virtual(function visibilityChange(event, game, ctx) {
 });
 
-const reload = virtual(async function reload(url, game, ctx) {
-	//alert("reload " + url);
-	const extension = pathExtension(url);
-
-	if (extension === 'svg') {
-	  await reloadSVG(url, game, ctx);
-  } else if (extension === 'json') {
-    await loadJSON(url, game, ctx);
-  }
-});
-
-const reloadSVG = virtual(async function reloadSVG(url, game, ctx) {
-	const name = pathFilename(url);
-	const tex = ctx.textures[name];
-  await loadSVG(url, game, ctx);
-	ctx.defs.removeChild(tex);
-});
-
-function pathSplit(path) {
-  return (path && path.split('/') || []);
-}
-
-function pathFilename(path) {
-  return pathSplit(path).slice(-1)[0].split('.')[0];
-}
-
-function pathExtension(path) {
-  return pathSplit(path).slice(-1)[0].split('.').slice(1).join('.');
-}
-
-window.addEventListener('load', load);
+window.addEventListener('load', start);
 
