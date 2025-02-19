@@ -1,5 +1,4 @@
 {
-	"backgroundcolor": "#656667",
 	"height": 9,
 	"layers": [
 		{
@@ -13,15 +12,25 @@
 				1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
 				1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
 				1, 1, 1, 1, 1, 1, 1, 1, 1, 1 
-			],
-			"name": "background"
+			]
 		}
 
 	],
-	"nextobjectid": 1,
 	"tileheight": 16,
 	"tilewidth": 16,
-	"version": 1,
 	"tiledversion": "1.0.3",
-	"width": 10
+	"width": 10,
+	"tilesets": [
+    {
+      "firstgid": 0,
+      "tiles": [
+        {
+          "image": "tiles/floor.svg"
+        },
+        {
+          "image": "tiles/block.svg"
+        }
+      ]
+    }
+	]
 }

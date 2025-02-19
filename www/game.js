@@ -39,6 +39,11 @@ const loadSVG = virtual(async function loadSVG(url, game, ctx) {
 	const tmp = createSVGElement('svg');
 	tmp.innerHTML = await (await fetch(url)).text();
 	const svg = tmp.querySelector('svg');
+
+  if (!svg) {
+    return;
+  }
+	
 	ctx.resources[url] = svg;
   svg.setAttribute('id', 'tex' + ctx.nextTextureId++); 
   ctx.defs.append(svg);
@@ -196,7 +201,7 @@ const initContext = virtual(function initContext() {
 const initGame = virtual(function initGame(ctx) {
 	return {
 		state: 'load',
-		map: 'map'
+		map: 'main'
 	};
 })
 
