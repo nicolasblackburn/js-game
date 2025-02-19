@@ -1,8 +1,30 @@
-import {listDir, addReloadListener, virtual} from '../client.js';
+import {virtual} from '../client.js';
 import {createSVGElement} from './svg.js';
 
-export const loadResources = virtual(async function load(urls, game, ctx) {
+export const initLoader = virtual(function initLoader(ctx) {
+	let nextTextureId = 0;
+	let nextElementId = 0;
+
+	ctx.resources = {};
+	ctx.nextTextureId = nextTextureId;
+  ctx.nextElementId = nextElementId;
+  ctx.maps = {};
+
+	ctx.textures = {
+		EMPTY: createSVGElement('symbol', {
+			id: 'tex' + ctx.nextTextureId++
+		})
+	};
+
+	ctx.defs.append(ctx.textures.EMPTY);
+
+});
+
+export const loadResources = virtual(async function loadResources(urls, game, ctx) {
 	for (const url of urls) {
+	  if (ctx.resources[url]) {
+	    continue;
+    }
 		const ext = pathExtension(url);
 		if (ext === 'svg') {
 			await loadSVG(url, game, ctx);

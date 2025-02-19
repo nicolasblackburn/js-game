@@ -1,7 +1,9 @@
-import {addDirListener, addReloadListener, virtual} from '../client.js';
+import {virtual} from '../client.js';
+import {initEvents} from './events.js'
+import {initLoader} from './loader.js';;
 import {createSVGElement} from './svg.js';
 
-export const initContext = virtual(function initContext() {
+export const createContext = virtual(function createContext() {
 	const game = document.createElement('div');
 	game.setAttribute('class', 'game');
 
@@ -24,17 +26,6 @@ export const initContext = virtual(function initContext() {
 
 	const defs = createSVGElement('defs');
 	view.append(defs);
-
-	let nextTextureId = 0;
-	let nextElementId = 0;
-
-	const textures = {
-		EMPTY: createSVGElement('symbol', {
-			id: 'tex' + nextTextureId++
-		})
-	};
-
-	defs.append(textures.EMPTY);
 
 	const background = createSVGElement('g', {
 		'class': 'background'
@@ -92,11 +83,7 @@ export const initContext = virtual(function initContext() {
 
 	document.body.append(game);
 
-	const resources = {};
-
-	const maps = {};
-
-	return {
+	const ctx = {
 		game,
 		canvas,
 		view,
@@ -104,11 +91,12 @@ export const initContext = virtual(function initContext() {
 		background,
 		tiles,
 		sprites,
-		resources,
-		textures,
-		nextTextureId,
-    nextElementId,
-		maps
 	};
+
+	initLoader(ctx);
+
+	initEvents(ctx);
+
+	return ctx;
 });
 
