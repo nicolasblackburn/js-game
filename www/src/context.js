@@ -1,6 +1,7 @@
 import {virtual} from '../client.js';
-import {initEvents} from './events.js'
-import {initLoader} from './loader.js';;
+import {initEvents} from './events.js';
+import {initLoader} from './loader.js';
+import {initTouch} from './touch.js';
 import {createSVGElement} from './svg.js';
 
 export const createContext = virtual(function createContext() {
@@ -94,8 +95,8 @@ export const createContext = virtual(function createContext() {
 	};
 
 	initLoader(ctx);
-
 	initEvents(ctx);
+	initTouch(ctx);
 
 	return ctx;
 });

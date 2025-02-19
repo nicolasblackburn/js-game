@@ -15,10 +15,11 @@ const serverFns = {
 			} catch (e) {
 				send("error", `${e.stack}`);
 			}
-		}
-		for (const listener of reloadListeners) {
-			listener(url);
-		}
+		} else {
+      for (const listener of reloadListeners) {
+        listener(url);
+      }
+    }
 	},
 	dir: files => {
 		for (const listener of dirListeners) {
@@ -79,6 +80,20 @@ export function addReloadListener(listener) {
 	}
 }
 
+const functionReloadListeners = [];
+export function functionReloadListener(listener) {
+	if (!functionReloadListeners.includes(listener)) {
+		functionReloadListeners.push(listener);
+	}
+}
+
+const classReloadListeners = [];
+export function addClassReloadListener(listener) {
+	if (!classReloadListeners.includes(listener)) {
+		classReloadListeners.push(listener);
+	}
+}
+
 const functionTable = {};
 const classTable = {};
 
@@ -92,42 +107,53 @@ export function virtual(fn) {
 	const isClassName = fn.name[0].match(/[A-Z]/);
 
 	if (!isClassName) {
-	
+
+    const isReload = !!functionTable[fn.name];	
 		functionTable[fn.name] = fn;
+    
+    if (isReload) {
+      for (const listener of functionReloadListeners) {
+        listener(fn);
+      }
+    }
 
-	} else if (!classTable[fn.name]) {
+  } else if (!classTable[fn.name]) {
 
-		// First time we define the class
-		classTable[fn.name] = fn;
+    // First time we define the class
+    classTable[fn.name] = fn;
 
-	} else {
+  } else {
 
-		// Hot reloading the class
-		for (const field of Object.getOwnPropertyNames(fn.prototype)) {
-			classTable[fn.name].prototype[field] = fn.prototype[field];
-		}
+    // Hot reloading the class
+    for (const field of Object.getOwnPropertyNames(fn.prototype)) {
+      classTable[fn.name].prototype[field] = fn.prototype[field];
+    }
 
-		// This is not ideal, because that will
-		// execute the constructor side effects but
-		// I do not have a better way to assign
-		// new properties.
-		const instance = new fn();
+    // This is not ideal, because that will
+    // execute the constructor side effects but
+    // I do not have a better way to assign
+    // new properties.
+    const instance = new fn();
 
-		// We assign all instance's properties to
-		// the class prototype. This allows to
-		// assign values to new properties that did 
-		// not exist in previous class definition.
-		for (const field of Object.getOwnPropertyNames(instance)) {
-			classTable[fn.name].prototype[field] = instance[field];
-		}
-	}
+    // We assign all instance's properties to
+    // the class prototype. This allows to
+    // assign values to new properties that did 
+    // not exist in previous class definition.
+    for (const field of Object.getOwnPropertyNames(instance)) {
+      classTable[fn.name].prototype[field] = instance[field];
+    }
 
-	return new Proxy(fn, {
-		apply(target, thisArg, args) {
-			return functionTable[target.name](...args);
-		},
-		construct(target, args) {
-			return new classTable[target.name](...args);
-		}
-	});
+    for (const listener of classReloadListeners) {
+      listener(fn);
+    }
+  }
+
+  return new Proxy(fn, {
+    apply(target, thisArg, args) {
+      return functionTable[target.name](...args);
+    },
+    construct(target, args) {
+      return new classTable[target.name](...args);
+    }
+  });
 }
