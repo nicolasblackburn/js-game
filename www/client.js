@@ -27,6 +27,17 @@ const serverFns = {
 	}
 };
 
+const dirListeners = [];
+function addDirListener(listener) {
+	if (!dirListeners.includes(listener)) {
+		dirListeners.push(listener);
+	}
+}
+const asyncDir = new Promise(addDirListener);
+export async function listDir() {
+  return await asyncDir;
+}
+
 const ws = new WebSocket('ws://localhost:3000');
 
 // Log messages from the server to the page
@@ -65,13 +76,6 @@ const reloadListeners = [];
 export function addReloadListener(listener) {
 	if (!reloadListeners.includes(listener)) {
 		reloadListeners.push(listener);
-	}
-}
-
-const dirListeners = [];
-export function addDirListener(listener) {
-	if (!dirListeners.includes(listener)) {
-		dirListeners.push(listener);
 	}
 }
 

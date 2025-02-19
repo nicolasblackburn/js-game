@@ -1,10 +1,9 @@
-import {addDirListener, addReloadListener, virtual} from './client.js';
-
-const SVG_NS = 'http://www.w3.org/2000/svg';
+import {listDir, addReloadListener, virtual} from './client.js';
+import {createSVGElement} from './src/svg.js';
 
 const load = virtual(async function load() {
-	const ctx = initContext();
-	const game = initGame(ctx);
+	const ctx = createContext();
+	const game = createGameState(ctx);
 
 	window.addEventListener('pointercancel', event => pointerCancel(event, game, ctx));
 	window.addEventListener('pointerdown', event => pointerDown(event, game, ctx));
@@ -19,7 +18,7 @@ const load = virtual(async function load() {
 	
 	addReloadListener(url => reload(url, game, ctx));
 
-	const files = await new Promise(addDirListener);
+	const files = await listDir();
 	for (const file of files) {
 		const ext = pathExtension(file);
 		if (ext === 'svg') {
@@ -87,7 +86,7 @@ const loadJSON = virtual(async function loadJSON(url, game, ctx) {
 	}
 });
 
-const initContext = virtual(function initContext() {
+const createContext = virtual(function createContext() {
 	const game = document.createElement('div');
 	game.setAttribute('class', 'game');
 
@@ -198,7 +197,7 @@ const initContext = virtual(function initContext() {
 	};
 });
 
-const initGame = virtual(function initGame(ctx) {
+const createGameState = virtual(function createGameState(ctx) {
 	return {
 		state: 'load',
 		map: 'main'
@@ -281,17 +280,6 @@ const reloadSVG = virtual(async function reloadSVG(url, game, ctx) {
   await loadSVG(url, game, ctx);
 	ctx.defs.removeChild(tex);
 });
-
-function createSVGElement(name, attrs = {}, style = {}) {
-	const e = document.createElementNS(SVG_NS, name);
-	for (const [key, value] of Object.entries(attrs)) {
-		e.setAttribute(key, value);
-	}
-	for (const [key, value] of Object.entries(style)) {
-		e.style[key] = value;
-	}
-	return e;
-}
 
 function pathSplit(path) {
   return (path && path.split('/') || []);
