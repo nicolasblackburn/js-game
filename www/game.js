@@ -17,6 +17,7 @@ const load = virtual(async function load() {
 		update(game, ctx);
 		requestAnimationFrame(updateFrame);
 	})();
+
 });
 
 const createGameState = virtual(function createGameState(ctx) {

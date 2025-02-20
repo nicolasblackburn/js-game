@@ -102,14 +102,18 @@ const classTable = {};
  * hot code reloaded.
  */
 export function virtual(fn) {
+  const url = new Error().stack.split('\n')[2].match(/^\s+at\s+(.*)/)[1].split(':').slice(0, -2).join(':').split('?')[0];
+
+	const fnName = url + '/' + fn.name;
+
 	// Detect classes by convention. Not very robust
 	// but did not find something much better yet.
 	const isClassName = fn.name[0].match(/[A-Z]/);
 
 	if (!isClassName) {
 
-    const isReload = !!functionTable[fn.name];	
-		functionTable[fn.name] = fn;
+    const isReload = !!functionTable[fnName];	
+		functionTable[fnName] = fn;
     
     if (isReload) {
       for (const listener of functionReloadListeners) {
@@ -117,16 +121,16 @@ export function virtual(fn) {
       }
     }
 
-  } else if (!classTable[fn.name]) {
+  } else if (!classTable[fnName]) {
 
     // First time we define the class
-    classTable[fn.name] = fn;
+    classTable[fnName] = fn;
 
   } else {
 
     // Hot reloading the class
     for (const field of Object.getOwnPropertyNames(fn.prototype)) {
-      classTable[fn.name].prototype[field] = fn.prototype[field];
+      classTable[fnName].prototype[field] = fn.prototype[field];
     }
 
     // This is not ideal, because that will
@@ -140,7 +144,7 @@ export function virtual(fn) {
     // assign values to new properties that did 
     // not exist in previous class definition.
     for (const field of Object.getOwnPropertyNames(instance)) {
-      classTable[fn.name].prototype[field] = instance[field];
+      classTable[fnName].prototype[field] = instance[field];
     }
 
     for (const listener of classReloadListeners) {
@@ -150,10 +154,10 @@ export function virtual(fn) {
 
   return new Proxy(fn, {
     apply(target, thisArg, args) {
-      return functionTable[target.name](...args);
+      return functionTable[url + '/' + target.name](...args);
     },
     construct(target, args) {
-      return new classTable[target.name](...args);
+      return new classTable[url + '/' + target.name](...args);
     }
   });
 }
