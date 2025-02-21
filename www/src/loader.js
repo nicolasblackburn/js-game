@@ -20,21 +20,21 @@ export const initLoader = virtual(function initLoader(ctx) {
 
 });
 
-export const loadResources = virtual(async function loadResources(urls, game, ctx) {
+export const loadResources = virtual(async function loadResources(game, ctx, urls) {
 	for (const url of urls) {
 	  if (ctx.resources[url]) {
 	    continue;
     }
 		const ext = pathExtension(url);
 		if (ext === 'svg') {
-			await loadSVG(url, game, ctx);
+			await loadSVG(game, ctx, url);
 		} else if (ext === 'json') {
-			await loadJSON(url, game, ctx);
+			await loadJSON(game, ctx, url);
 		}
 	}
 });
 
-export const loadSVG = virtual(async function loadSVG(url, game, ctx) {
+export const loadSVG = virtual(async function loadSVG(game, ctx, url) {
 	const tmp = createSVGElement('svg');
 	tmp.innerHTML = await (await fetch(url)).text();
 	const svg = tmp.querySelector('svg');
@@ -74,7 +74,7 @@ export const loadSVG = virtual(async function loadSVG(url, game, ctx) {
   ctx.textures[key] = svg;
 });
 
-export const loadJSON = virtual(async function loadJSON(url, game, ctx) {
+export const loadJSON = virtual(async function loadJSON(game, ctx, url) {
 	try {
 		const data = await (await fetch(url)).json();
 	  ctx.resources[url] = data;
@@ -86,17 +86,17 @@ export const loadJSON = virtual(async function loadJSON(url, game, ctx) {
 	}
 });
 
-export const reload = virtual(async function reload(url, game, ctx) {
+export const reload = virtual(async function reload(game, ctx, url) {
 	const extension = pathExtension(url);
 
 	if (extension === 'svg') {
-	  await reloadSVG(url, game, ctx);
+	  await reloadSVG(game, ctx, url);
   } else if (extension === 'json') {
-    await loadJSON(url, game, ctx);
+    await loadJSON(game, ctx, url);
   }
 });
 
-const reloadSVG = virtual(async function reloadSVG(url, game, ctx) {
+const reloadSVG = virtual(async function reloadSVG(game, ctx, url) {
 	const name = pathFilename(url);
 	const tex = ctx.textures[name];
   await loadSVG(url, game, ctx);

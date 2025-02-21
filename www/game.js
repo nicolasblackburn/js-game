@@ -9,9 +9,9 @@ const load = virtual(async function load() {
 
 	addEventListeners(game, ctx);
 
-	addReloadListener(url => reload(url, game, ctx));
+	addReloadListener(url => reload(game, ctx, url));
 
-	await loadResources(await listDir(), game, ctx);
+	await loadResources(game, ctx, await listDir());
 
 	(function updateFrame () {
 		update(game, ctx);

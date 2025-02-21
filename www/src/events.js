@@ -1,4 +1,5 @@
 import {virtual} from '../client.js';
+import {addTouchEventListeners} from './touch.js';
 
 const EVENTS = [
   'pointercancel',
@@ -25,9 +26,11 @@ export function addEventListeners(game, ctx) {
     window.addEventListener(name, event => {
       ctx.listeners[name].forEach(listener => listener(event, game, ctx));
     }));
+
+  addTouchEventListeners(game, ctx);
 }
 
-export function addEventListener(ctx, event, listener) {
+export function addEventListener(game, ctx, event, listener) {
 
   const listeners = ctx.listeners[event];
   if (!listeners.includes(listener)) {
@@ -35,7 +38,7 @@ export function addEventListener(ctx, event, listener) {
   }
 }
 
-export function removeEventListener(ctx, event, listener) {
+export function removeEventListener(game, ctx, event, listener) {
   const listeners = ctx.listeners[event];
   const index = listeners.indexOf(listener);
   if (index > -1) {
