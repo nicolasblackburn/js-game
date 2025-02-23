@@ -99,7 +99,7 @@ export const reload = virtual(async function reload(game, ctx, url) {
 const reloadSVG = virtual(async function reloadSVG(game, ctx, url) {
 	const name = pathFilename(url);
 	const tex = ctx.textures[name];
-  await loadSVG(url, game, ctx);
+  await loadSVG(game, ctx, url);
 	ctx.defs.removeChild(tex);
 });
 
