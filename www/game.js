@@ -28,7 +28,7 @@ const createGameState = virtual(function createGameState(ctx) {
 })
 
 const update = virtual(function update(game, ctx) {
-	const {tiles, textures} = ctx;
+	const {tiles, textures, sprites} = ctx;
   const map = ctx.maps[game.map];
   const mapData = map.layers[0].data;
   const tileSet = ['floor', 'block'];
@@ -45,6 +45,11 @@ const update = virtual(function update(game, ctx) {
       tile.setAttribute('href', '#' + id);
     }
   }
+
+  const x = Number(sprites[0].getAttribute('cx'));
+  const y = Number(sprites[0].getAttribute('cy'));
+  sprites[0].setAttribute('cx', x + ctx.gamepad.axes[0]);
+  sprites[0].setAttribute('cy', y + ctx.gamepad.axes[1]);
 
 	/*
 (px: pixel, sx: subpixel, s: second, f: frame)

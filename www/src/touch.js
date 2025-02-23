@@ -16,7 +16,7 @@ export function initTouch(ctx) {
     buttons: [{
       pressed: false
     }],
-    axisDistanceMax: 64,
+    axisDistanceMax: 256,
     touchstartDistanceThreshold: 49,
     tapTimeThreshold: 100
   };
@@ -58,12 +58,12 @@ const touchPointerMove = virtual(function touchPointerMove(game, ctx, event) {
   touch.x = event.x;
   touch.y = event.y;
 
-  const dist = touch.moveX ** 2 + touch.moveY ** 2;
+  let dist = touch.moveX ** 2 + touch.moveY ** 2;
 
   if (!touch.type) {
-    const {touchmoveDistanceThreshold} = ctx.gamepad;
+    const {touchstartDistanceThreshold} = ctx.gamepad;
 
-    if (dist >= touchmoveDistanceThreshold) {
+    if (dist >= touchstartDistanceThreshold) {
       touch.type = 'move';
       dispatchEvent(game, ctx, 'touchstart', touch);
 
@@ -80,6 +80,7 @@ const touchPointerMove = virtual(function touchPointerMove(game, ctx, event) {
     dispatchEvent(game, ctx, 'touchmove', touch);
 
     const {axisDistanceMax} = ctx.gamepad;
+    //let scalar = 1 / axisDistanceMax;
 
     ctx.gamepad.axes[0] = touch.moveX;
     ctx.gamepad.axes[1] = touch.moveY;
@@ -87,10 +88,14 @@ const touchPointerMove = virtual(function touchPointerMove(game, ctx, event) {
     if (dist > axisDistanceMax) {
       // Cap moveX and MoveY so that it stays within
       // axes boundaries.
-      const scalar = axisDistanceMax / dist;
+      const scalar = (axisDistanceMax / dist)**0.5;
       ctx.gamepad.axes[0] *= scalar;
       ctx.gamepad.axes[1] *= scalar;
     }
+
+    const scalar = axisDistanceMax**0.5;
+    ctx.gamepad.axes[0] /= scalar;
+    ctx.gamepad.axes[1] /= scalar;
 
     dispatchEvent(game, ctx, 'axischange', {
       ...ctx.gamepad,
@@ -123,7 +128,7 @@ function createTouch({x, y}) {
     moveX: 0,
     moveY: 0,
     startX: x,
-    startY: x,
+    startY: y,
     type: undefined // 'move' or 'press'
   }
   return touchState;

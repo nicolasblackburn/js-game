@@ -8,6 +8,9 @@ export const createContext = virtual(function createContext() {
 	const game = document.createElement('div');
 	game.setAttribute('class', 'game');
 
+	const debug = document.createElement('pre');
+	game.append(debug);
+
 	const canvas = createSVGElement('svg', {
 		'class': 'canvas',
 		width: window.innerWidth,
@@ -92,6 +95,7 @@ export const createContext = virtual(function createContext() {
 		background,
 		tiles,
 		sprites,
+		debug
 	};
 
 	initLoader(ctx);
