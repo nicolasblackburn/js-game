@@ -1,5 +1,5 @@
 import {virtual} from '../client.js';
-import {addTouchEventListeners} from './touch.js';
+import {addGamepadEventListeners} from './gamepad.js';
 
 const EVENT_TYPES = [
   'pointercancel',
@@ -26,7 +26,7 @@ export function addEventListeners(game, ctx) {
     window.addEventListener(type, event => 
       dispatchEvent(game, ctx, type, event)));
 
-  addTouchEventListeners(game, ctx);
+  addGamepadEventListeners(game, ctx);
 }
 
 export function dispatchEvent(game, ctx, type, ...args) {

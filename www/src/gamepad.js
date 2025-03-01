@@ -10,13 +10,13 @@ const TOUCH_EVENT_TYPES = [
   'axisrelease'
 ];
 
-export function initTouch(ctx) {
+export function initGamepad(ctx) {
   ctx.gamepad = {
     axes: [0, 0],
     buttons: [{
       pressed: false
     }],
-    axisDistanceMax: 256,
+    axisDistanceMax: 32**2,
     touchstartDistanceThreshold: 49,
     tapTimeThreshold: 100
   };
@@ -36,7 +36,7 @@ export function initTouch(ctx) {
   };
 }
 
-export function addTouchEventListeners(game, ctx) {
+export function addGamepadEventListeners(game, ctx) {
   document.body.style.touchAction = 'none';
 
   addEventListener(game, ctx, 'pointerdown', event => touchPointerDown(game, ctx, event));

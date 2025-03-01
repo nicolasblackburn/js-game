@@ -17,18 +17,30 @@ const load = virtual(async function load() {
 		update(game, ctx);
 		requestAnimationFrame(updateFrame);
 	})();
-
 });
 
 const createGameState = virtual(function createGameState(ctx) {
 	return {
 		state: 'load',
-		map: 'main'
-	};
+		map: 'main',
+    sprites: [
+      {
+        texture: 'walkcycle_r_0',
+        x: 0,
+        y: 0
+      }
+    ],
+  };
 })
 
 const update = virtual(function update(game, ctx) {
-	const {tiles, textures, sprites} = ctx;
+  const {tiles, textures} = ctx;
+
+  for (const sprite of game.sprites) {
+    sprite.x += ctx.gamepad.axes[0];
+    sprite.y += ctx.gamepad.axes[1];
+  }
+
   const map = ctx.maps[game.map];
   const mapData = map.layers[0].data;
   const tileSet = ['floor', 'block'];
@@ -46,12 +58,16 @@ const update = virtual(function update(game, ctx) {
     }
   }
 
-  const x = Number(sprites[0].getAttribute('cx'));
-  const y = Number(sprites[0].getAttribute('cy'));
-  sprites[0].setAttribute('cx', x + ctx.gamepad.axes[0]);
-  sprites[0].setAttribute('cy', y + ctx.gamepad.axes[1]);
+  for (let i = 0; i < Math.min(ctx.sprites.length, game.sprites.length); i++) {
+    const {texture, x, y} = game.sprites[i];
+    ctx.sprites[i].setAttribute('href', '#' + textures[texture].getAttribute('id'));
+    ctx.sprites[i].setAttribute('transform', 
+      `translate(${x}, ${y})`);
+  }
 
-	/*
+  //ctx.debug.innerText = JSON.stringify(ctx.gamepad);
+
+  /*
 (px: pixel, sx: subpixel, s: second, f: frame)
 256 sx = 1 px
 64 f = 1 s

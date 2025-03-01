@@ -60,7 +60,7 @@ function frame(t) {
     <g transform="translate(2.5, 4) rotate(${angle})">
       <use href="#arm_l" />
     </g>
-    <g transform="translate(-.5, 5)">
+    <g transform="translate(0, 5)">
       <use href="#body" />
     </g>
     <g transform="translate(-1.5, 7.5) rotate(${angle})">

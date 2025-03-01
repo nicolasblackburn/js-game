@@ -1,7 +1,7 @@
 import {virtual} from '../client.js';
 import {initEvents} from './events.js';
 import {initLoader} from './loader.js';
-import {initTouch} from './touch.js';
+import {initGamepad} from './gamepad.js';
 import {createSVGElement} from './svg.js';
 
 export const createContext = virtual(function createContext() {
@@ -61,11 +61,12 @@ export const createContext = virtual(function createContext() {
 	const sprites = [];
 	for (let i = 0; i < 64; i++) {
 		const display = i ? 'none' : '';
-		const sprite = createSVGElement('circle', {
-			cx: 8,
-			cy: 8,
-			r: 8,
-			fill: '#000'
+		const sprite = createSVGElement('use', {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+			href: '#tex0'
 		}, {
 			display
 		});
@@ -83,6 +84,11 @@ export const createContext = virtual(function createContext() {
 	view.append(border);
 
 	const debug = document.createElement('pre');
+	Object.assign(debug.style, {
+    position: 'absolute',
+    top: 0,
+    left: 0
+	});
 	game.append(debug);
 
 	document.body.append(game);
@@ -100,7 +106,7 @@ export const createContext = virtual(function createContext() {
 
 	initLoader(ctx);
 	initEvents(ctx);
-	initTouch(ctx);
+	initGamepad(ctx);
 
 	return ctx;
 });
