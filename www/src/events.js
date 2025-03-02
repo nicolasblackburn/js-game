@@ -21,22 +21,22 @@ export function initEvents(ctx) {
   );
 }
 
-export function addEventListeners(game, ctx) {
+export function addEventListeners(ctx) {
   EVENT_TYPES.forEach(type => 
     window.addEventListener(type, event => 
-      dispatchEvent(game, ctx, type, event)));
+      dispatchEvent(ctx, type, event)));
 
-  addGamepadEventListeners(game, ctx);
+  addGamepadEventListeners(ctx);
 }
 
-export function dispatchEvent(game, ctx, type, ...args) {
+export function dispatchEvent(ctx, type, ...args) {
   ctx.listeners[type]?.forEach(listener => {
     listener(...args);
   });
 }
 
 
-export function addEventListener(game, ctx, type, listener) {
+export function addEventListener(ctx, type, listener) {
 
   let listeners = ctx.listeners[type];
   if (!listeners) {
@@ -49,7 +49,7 @@ export function addEventListener(game, ctx, type, listener) {
   }
 }
 
-export function removeEventListener(game, ctx, type, listener) {
+export function removeEventListener(ctx, type, listener) {
   const listeners = ctx.listeners[type] ?? [];
   const index = listeners.indexOf(listener);
   if (index > -1) {

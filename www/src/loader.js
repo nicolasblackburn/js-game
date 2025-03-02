@@ -16,25 +16,25 @@ export const initLoader = virtual(function initLoader(ctx) {
 		})
 	};
 
-	ctx.defs.append(ctx.textures.EMPTY);
+	ctx.dom.defs.append(ctx.textures.EMPTY);
 
 });
 
-export const loadResources = virtual(async function loadResources(game, ctx, urls) {
+export const loadResources = virtual(async function loadResources(ctx, urls) {
 	for (const url of urls) {
 	  if (ctx.resources[url]) {
 	    continue;
     }
 		const ext = pathExtension(url);
 		if (ext === 'svg') {
-			await loadSVG(game, ctx, url);
+			await loadSVG(ctx, url);
 		} else if (ext === 'json') {
-			await loadJSON(game, ctx, url);
+			await loadJSON(ctx, url);
 		}
 	}
 });
 
-export const loadSVG = virtual(async function loadSVG(game, ctx, url) {
+export const loadSVG = virtual(async function loadSVG(ctx, url) {
 	const tmp = createSVGElement('svg');
 	tmp.innerHTML = await (await fetch(url)).text();
 	const svg = tmp.querySelector('svg');
@@ -45,7 +45,7 @@ export const loadSVG = virtual(async function loadSVG(game, ctx, url) {
 	
 	ctx.resources[url] = svg;
   svg.setAttribute('id', 'tex' + ctx.nextTextureId++); 
-  ctx.defs.append(svg);
+  ctx.dom.defs.append(svg);
 
   // Replace all element ids
   const subs = [];
@@ -74,7 +74,7 @@ export const loadSVG = virtual(async function loadSVG(game, ctx, url) {
   ctx.textures[key] = svg;
 });
 
-export const loadJSON = virtual(async function loadJSON(game, ctx, url) {
+export const loadJSON = virtual(async function loadJSON(ctx, url) {
 	try {
 		const data = await (await fetch(url)).json();
 	  ctx.resources[url] = data;
@@ -86,20 +86,20 @@ export const loadJSON = virtual(async function loadJSON(game, ctx, url) {
 	}
 });
 
-export const reload = virtual(async function reload(game, ctx, url) {
+export const reload = virtual(async function reload(ctx, url) {
 	const extension = pathExtension(url);
 
 	if (extension === 'svg') {
-	  await reloadSVG(game, ctx, url);
+	  await reloadSVG(ctx, url);
   } else if (extension === 'json') {
-    await loadJSON(game, ctx, url);
+    await loadJSON(ctx, url);
   }
 });
 
-const reloadSVG = virtual(async function reloadSVG(game, ctx, url) {
+const reloadSVG = virtual(async function reloadSVG(ctx, url) {
 	const name = pathFilename(url);
 	const tex = ctx.textures[name];
-  await loadSVG(game, ctx, url);
+  await loadSVG(ctx, url);
 	ctx.defs.removeChild(tex);
 });
 
@@ -115,3 +115,6 @@ function pathExtension(path) {
   return pathSplit(path).slice(-1)[0].split('.').slice(1).join('.');
 }
 
+export function getTextureId(ctx, name) {
+  return '#' + ctx.textures[name].getAttribute('id');
+}

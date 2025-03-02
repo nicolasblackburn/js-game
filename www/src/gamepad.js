@@ -36,23 +36,23 @@ export function initGamepad(ctx) {
   };
 }
 
-export function addGamepadEventListeners(game, ctx) {
+export function addGamepadEventListeners(ctx) {
   document.body.style.touchAction = 'none';
 
-  addEventListener(game, ctx, 'pointerdown', event => touchPointerDown(game, ctx, event));
-  addEventListener(game, ctx, 'pointermove', event => {
-    touchPointerMove(game, ctx, event);
+  addEventListener(ctx, 'pointerdown', event => touchPointerDown(ctx, event));
+  addEventListener(ctx, 'pointermove', event => {
+    touchPointerMove(ctx, event);
   });
-  addEventListener(game, ctx, 'pointerup', event => touchPointerUp(game, ctx, event));
+  addEventListener(ctx, 'pointerup', event => touchPointerUp(ctx, event));
 }
 
-const touchPointerDown = virtual(function touchPointerDown(game, ctx, event) {
+const touchPointerDown = virtual(function touchPointerDown(ctx, event) {
   const touch = createTouch(event);
   ctx.touch.touches.push(touch);
 });
 
-const touchPointerMove = virtual(function touchPointerMove(game, ctx, event) {
-  const touch = findClosestTouch(game, ctx, event);
+const touchPointerMove = virtual(function touchPointerMove(ctx, event) {
+  const touch = findClosestTouch(ctx, event);
   touch.moveX = event.x - touch.startX;
   touch.moveY = event.y - touch.startY;
   touch.x = event.x;
@@ -65,19 +65,19 @@ const touchPointerMove = virtual(function touchPointerMove(game, ctx, event) {
 
     if (dist >= touchstartDistanceThreshold) {
       touch.type = 'move';
-      dispatchEvent(game, ctx, 'touchstart', touch);
+      dispatchEvent(ctx, 'touchstart', touch);
 
       ctx.gamepad.axes[0] = 0;
       ctx.gamepad.axes[1] = 0;
 
-      dispatchEvent(game, ctx, 'axispress', {
+      dispatchEvent(ctx, 'axispress', {
         ...ctx.gamepad,
         touch
       });
     }
   }
   if (touch.type === 'move') {
-    dispatchEvent(game, ctx, 'touchmove', touch);
+    dispatchEvent(ctx, 'touchmove', touch);
 
     const {axisDistanceMax} = ctx.gamepad;
     //let scalar = 1 / axisDistanceMax;
@@ -97,24 +97,24 @@ const touchPointerMove = virtual(function touchPointerMove(game, ctx, event) {
     ctx.gamepad.axes[0] /= scalar;
     ctx.gamepad.axes[1] /= scalar;
 
-    dispatchEvent(game, ctx, 'axischange', {
+    dispatchEvent(ctx, 'axischange', {
       ...ctx.gamepad,
       touch
     });
   }
 });
 
-const touchPointerUp = virtual(function touchPointerUp(game, ctx, event) {
+const touchPointerUp = virtual(function touchPointerUp(ctx, event) {
   const index = {value: undefined};
-  const touch = findClosestTouch(game, ctx, event, index);
+  const touch = findClosestTouch(ctx, event, index);
   ctx.touch.touches.splice(index.value, 1);
   if (touch.type === 'move') {
-    dispatchEvent(game, ctx, 'touchend', touch);
+    dispatchEvent(ctx, 'touchend', touch);
 
     ctx.gamepad.axes[0] = 0;
     ctx.gamepad.axes[1] = 0;
 
-    dispatchEvent(game, ctx, 'axischange', {
+    dispatchEvent(ctx, 'axischange', {
       ...ctx.gamepad,
       touch
     });
@@ -134,7 +134,7 @@ function createTouch({x, y}) {
   return touchState;
 }
 
-function findClosestTouch(game, ctx, {x, y}, index = {value: null}) {
+function findClosestTouch(ctx, {x, y}, index = {value: null}) {
   let distance = Number.POSITIVE_INFINITY;
   let closest;
   let i = 0;

@@ -34,5 +34,20 @@ The development server supports hot code reload. Saving changes in a code file o
 
 It also support error capture and messaging in the server's standard output.
 
+## Backlog
 
+- Tools - Error reporting is finicky sometimes
+- Tools - From client being able to log infos in server stdout
+- Tools - Hot code reload for constants
+- Tools - Hot code reload for states
+- Physics - Collisions
+- Gameplay - Monster movements
+- Gameplay - Player health
+- Gameplay - Player death
+- Gameplay - Room movements
+- Graphics - Animations
+- Gameplay - Attack
+- Gameplay - Monster health
+- Gameplay - Boss & victory
+- Inputs - Inputs feedback
 

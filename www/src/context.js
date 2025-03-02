@@ -5,33 +5,33 @@ import {initGamepad} from './gamepad.js';
 import {createSVGElement} from './svg.js';
 
 export const createContext = virtual(function createContext() {
-	const game = document.createElement('div');
-	game.setAttribute('class', 'game');
+	const gameDiv = document.createElement('div');
+	gameDiv.setAttribute('class', 'game');
 
-	const canvas = createSVGElement('svg', {
+	const canvasSvg = createSVGElement('svg', {
 		'class': 'canvas',
 		width: window.innerWidth,
 		height: window.innerHeight
 	});
 	
-	game.append(canvas);
+	gameDiv.append(canvasSvg);
 
-	const view = createSVGElement('svg', {
+	const viewSvg = createSVGElement('svg', {
 		'class': 'view',
 		width: window.innerWidth,
 		height: window.innerWidth * 9 / 10,
 		viewBox: `0 0 ${16 * 10} ${16 * 9}`
 	});
 
-	canvas.append(view);
+	canvasSvg.append(viewSvg);
 
 	const defs = createSVGElement('defs');
-	view.append(defs);
+	viewSvg.append(defs);
 
 	const background = createSVGElement('g', {
 		'class': 'background'
 	});
-	view.append(background);
+	viewSvg.append(background);
 
 	// Background tiles
 	const tiles = [];
@@ -56,7 +56,7 @@ export const createContext = virtual(function createContext() {
 	const spritesContainer = createSVGElement('g', {
 		'class': 'sprites'
 	});
-	view.append(spritesContainer);
+	viewSvg.append(spritesContainer);
 
 	const sprites = [];
 	for (let i = 0; i < 64; i++) {
@@ -81,7 +81,7 @@ export const createContext = virtual(function createContext() {
 		stroke: '#000',
 		fill: 'none'
 	});
-	view.append(border);
+	viewSvg.append(border);
 
 	const debug = document.createElement('pre');
 	Object.assign(debug.style, {
@@ -89,25 +89,52 @@ export const createContext = virtual(function createContext() {
     top: 0,
     left: 0
 	});
-	game.append(debug);
+	gameDiv.append(debug);
 
-	document.body.append(game);
+	document.body.append(gameDiv);
 
 	const ctx = {
-		game,
-		canvas,
-		view,
-		defs,
-		background,
-		tiles,
-		sprites,
-		debug
-	};
+    dom: {
+      gameDiv,
+      canvasSvg,
+      viewSvg,
+      defs,
+      background,
+      tiles,
+      sprites,
+      debug
+    },
+    lastTime: null,
+    fixedTimeLeft: 0,
+    fixedTimeStepDuration: 1000 / 60
+  };
 
-	initLoader(ctx);
-	initEvents(ctx);
-	initGamepad(ctx);
+  initLoader(ctx);
+  initEvents(ctx);
+  initGamepad(ctx);
 
-	return ctx;
+  initGameState(ctx);
+
+  return ctx;
 });
+
+const initGameState = virtual(function createGameState(ctx) {
+  const player = {
+    texture: 'walkcycle_r_0',
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    ax: 0,
+    ay: 0
+  };
+
+  const enemies = [];
+  ctx.gameState = {
+    state: 'load',
+    map: 'main',
+    player,
+    enemies
+  };
+})
 
