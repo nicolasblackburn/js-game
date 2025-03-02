@@ -38,9 +38,10 @@ It also support error capture and messaging in the server's standard output.
 
 - Tools - Error reporting is finicky sometimes
 - Tools - From client being able to log infos in server stdout
-- Tools - Hot code reload for constants
-- Tools - Hot code reload for states
+- Tools - Hot code reload for immutable constants
+- Tools - Hot code reload for mutable states
 - Physics - Collisions
+- AI - Some minimal AI system
 - Gameplay - Monster movements
 - Gameplay - Player health
 - Gameplay - Player death
@@ -50,4 +51,5 @@ It also support error capture and messaging in the server's standard output.
 - Gameplay - Monster health
 - Gameplay - Boss & victory
 - Inputs - Inputs feedback
+- Events - Should event be queued and processed all together?
 

@@ -18,7 +18,8 @@ export function initGamepad(ctx) {
     }],
     axisDistanceMax: 32**2,
     touchstartDistanceThreshold: 49,
-    tapTimeThreshold: 100
+    tapTimeThreshold: 100,
+    clampAxes: true
   };
   ctx.listeners.touchstart = [];
   ctx.listeners.touchmove = [];
@@ -96,6 +97,18 @@ const touchPointerMove = virtual(function touchPointerMove(ctx, event) {
     const scalar = axisDistanceMax**0.5;
     ctx.gamepad.axes[0] /= scalar;
     ctx.gamepad.axes[1] /= scalar;
+
+    if (ctx.gamepad.clampAxes) {
+      let angle = Math.atan2(
+        ctx.gamepad.axes[1],
+        ctx.gamepad.axes[0]
+      );
+      angle = Math.round(angle * 4 / Math.PI) / 4 * Math.PI;
+      const mag = (ctx.gamepad.axes[0]**2 + ctx.gamepad.axes[1]**2)**0.5;
+
+      ctx.gamepad.axes[0] = mag * Math.cos(angle);
+      ctx.gamepad.axes[1] = mag * Math.sin(angle);
+    }
 
     dispatchEvent(ctx, 'axischange', {
       ...ctx.gamepad,
