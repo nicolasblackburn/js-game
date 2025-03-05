@@ -73,6 +73,14 @@ window.addEventListener('unhandledrejection', event => {
 	send("error", `${event.reason.stack}`);
 });
 
+export function printError(msg) {
+	send("error", msg);
+}
+
+export function printInfo(msg) {
+  send("info", msg);
+}
+
 const reloadListeners = [];
 export function addReloadListener(listener) {
 	if (!reloadListeners.includes(listener)) {

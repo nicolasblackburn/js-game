@@ -62,7 +62,7 @@ function send(ws, fn, ...args) {
 }
 
 const fns = {
-	log: (...args) => console.log(...args),
+	info: (...args) => console.log(...args.map(value => util.styleText("blue", value))),
 	error: (...args) => console.error(...args.map(value => util.styleText("red", value))),
 };
 

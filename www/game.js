@@ -27,9 +27,8 @@ const update = virtual(function update(ctx, currentTime) {
     fixedUpdate(ctx);
     ctx.fixedTimeLeft -= ctx.fixedTimeStepDuration;
   }
-
-  updateMapTiles(ctx);
-  updateSprites(ctx);
+  
+  render(ctx);
 
   ctx.lastTime = currentTime;
   //ctx.dom.debug.innerText = JSON.stringify(game.player);
@@ -48,10 +47,12 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
   const {gamepad} = ctx;
   const {player, enemies} = ctx.gameState;
 
-  player.x += gamepad.axes[0];
-  player.y += gamepad.axes[1];
+  player.vx = gamepad.axes[0];
+  player.vy = gamepad.axes[1];
 
-  for (const entity of enemies) {
+  const entities = [player, ...enemies];
+
+  for (const entity of entities) {
     entity.vx += entity.ax;
     entity.vy += entity.ay;
     entity.x += entity.vx;
@@ -60,7 +61,12 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
 
 });
 
-const updateMapTiles = virtual(function updateMapTiles(ctx) {
+const render = virtual(function render(ctx) {
+  renderMap(ctx);
+  renderSprites(ctx);
+});
+
+const renderMap = virtual(function renderMap(ctx) {
   const {dom, gameState, maps, textures} = ctx;
   const {tiles} = dom;
 
@@ -86,15 +92,15 @@ const updateMapTiles = virtual(function updateMapTiles(ctx) {
 
 });
 
-const updateSprites = virtual(function updateSprites(ctx) {
+const renderSprites = virtual(function renderSprites(ctx) {
   const {player, enemies} = ctx.gameState;
   const {sprites} = ctx.dom;
-  const spriteStates = [player, ...enemies];
+  const entities = [player, ...enemies];
 
-  for (let i = 0; i < Math.min(sprites.length, spriteStates.length); i++) {
-    const state = spriteStates[i];
+  for (let i = 0; i < Math.min(sprites.length, entities.length); i++) {
+    const entity = entities[i];
     const sprite = sprites[i];
-    const {texture, x, y} = state;
+    const {texture, x, y} = entity;
     setAttributes(sprite, {
       href: getTextureId(ctx, texture),
       transform: `translate(${x}, ${y})`

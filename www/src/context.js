@@ -121,8 +121,8 @@ export const createContext = virtual(function createContext() {
 const initGameState = virtual(function createGameState(ctx) {
   const player = {
     texture: 'walkcycle_r_0',
-    x: 0,
-    y: 0,
+    x: 16,
+    y: 16,
     vx: 0,
     vy: 0,
     ax: 0,

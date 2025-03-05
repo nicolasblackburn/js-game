@@ -1,4 +1,4 @@
-import {virtual} from '../client.js';
+import {printError, virtual} from '../client.js';
 import {createSVGElement} from './svg.js';
 
 export const initLoader = virtual(function initLoader(ctx) {
@@ -83,6 +83,7 @@ export const loadJSON = virtual(async function loadJSON(ctx, url) {
 		  ctx.maps[key] = data;
     }
 	} catch(e) {
+	  printError(e.stack);
 	}
 });
 
