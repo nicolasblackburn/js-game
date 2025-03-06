@@ -1,4 +1,4 @@
-import {listDir, addReloadListener, virtual} from './client.js';
+import {addReloadListener, listDir, printInfo, virtual} from './client.js';
 import {createContext} from './src/context.js';
 import {loadResources, reload, getTextureId} from './src/loader.js';
 import {addEventListeners} from './src/events.js';
@@ -31,6 +31,8 @@ const update = virtual(function update(ctx, currentTime) {
   render(ctx);
 
   ctx.lastTime = currentTime;
+
+
   //ctx.dom.debug.innerText = JSON.stringify(game.player);
 
   /*
@@ -57,8 +59,21 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
     entity.vy += entity.ay;
     entity.x += entity.vx;
     entity.y += entity.vy;
+    checkCollisions(ctx, entity);
   }
 
+});
+
+const checkCollisions = virtual(function checkCollisions(ctx, entity) {
+  const map = getMap(ctx); 
+  const mapData = map.layers[0].data;
+  const {tileHeight, tileWidth} = map;
+  // For each sensor point (four corners of collision
+  // rectangle plus extra vertexes to ensure the map's 
+  // tile size is bigger than sensors distance), 
+  // check if the sensor hit a solid tile. If that is
+  // the case, find the shortest penetration vector 
+  // that puts the entity in a non-collision position.
 });
 
 const render = virtual(function render(ctx) {
@@ -66,11 +81,17 @@ const render = virtual(function render(ctx) {
   renderSprites(ctx);
 });
 
+function getMap(ctx) {
+  const {gameState, maps} = ctx;
+  const map = maps[gameState.map];
+  return map;
+}
+
 const renderMap = virtual(function renderMap(ctx) {
-  const {dom, gameState, maps, textures} = ctx;
+  const {dom, textures} = ctx;
   const {tiles} = dom;
 
-  const map = maps[gameState.map];
+  const map = getMap(ctx);
   const mapData = map.layers[0].data;
   const tileSet = ['floor', 'block'];
   for (let i = 0; i < tiles.length; i++) {
