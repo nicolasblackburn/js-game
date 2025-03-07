@@ -1,12 +1,8 @@
-function call(fn, ...args) {
-	(serverFns[fn] ?? (() => undefined))(...args);
-}
-
 const restricted = [
 	"client.js"
 ];
 
-const serverFns = {
+const fns = {
 	reload: (url) => {
 		if (!restricted.includes(url) && url.match(/\.js$/)) {
 			try {
@@ -34,72 +30,76 @@ function addDirListener(listener) {
 		dirListeners.push(listener);
 	}
 }
+
 const asyncDir = new Promise(addDirListener);
 export async function listDir() {
   return await asyncDir;
 }
 
-const ws = new WebSocket('ws://localhost:3000');
+function call(fn, ...args) {
+	(fns[fn] ?? (() => undefined))(...args);
+}
 
-// Log messages from the server to the page
-ws.onmessage = function(event) {
-	call(...JSON.parse(event.data));
-};
+const connection = new Promise(resolve => {
+  const ws = new WebSocket('ws://localhost:3000');
 
-// Log errors to the console
-ws.onerror = function(error) {
-	console.log('WebSocket Error:', error);
-};
+  // Send a message to the server
+  ws.onopen = function() {
+    resolve(ws);
+  };
 
-const connected = new Promise(resolve => {
-	// Send a message to the server
-	ws.onopen = function() {
-		resolve();
-	};
+  // Log messages from the server to the page
+  ws.onmessage = function(event) {
+    call(...JSON.parse(event.data));
+  };
+
+  // Log errors to the console
+  ws.onerror = function(error) {
+    console.log('WebSocket Error:', error);
+  };
 });
 
 async function send(fn, ...args) {
-	await connected;
-	ws.send(JSON.stringify([fn, ...args]));
+  const ws = await connection;
+  ws.send(JSON.stringify([fn, ...args]));
 }
 
-
 window.onerror = function(message, url, line, col, error) {
-	send("error", `${message}
+  send("error", `${message}
 \tat ${url}:${line}:${col}`);
 };
 
 window.addEventListener('unhandledrejection', event => {
-	send("error", `${event.reason.stack}`);
+  send("error", `${event.reason.stack}`);
 });
 
-export function printError(msg) {
-	send("error", msg);
+export async function printError(msg) {
+  await send("error", msg);
 }
 
-export function printInfo(msg) {
-  send("info", msg);
+export async function printInfo(msg) {
+  await send("info", msg);
 }
 
 const reloadListeners = [];
 export function addReloadListener(listener) {
-	if (!reloadListeners.includes(listener)) {
-		reloadListeners.push(listener);
-	}
+  if (!reloadListeners.includes(listener)) {
+    reloadListeners.push(listener);
+  }
 }
 
 const functionReloadListeners = [];
 export function functionReloadListener(listener) {
-	if (!functionReloadListeners.includes(listener)) {
-		functionReloadListeners.push(listener);
-	}
+  if (!functionReloadListeners.includes(listener)) {
+    functionReloadListeners.push(listener);
+  }
 }
 
 const classReloadListeners = [];
 export function addClassReloadListener(listener) {
-	if (!classReloadListeners.includes(listener)) {
-		classReloadListeners.push(listener);
-	}
+  if (!classReloadListeners.includes(listener)) {
+    classReloadListeners.push(listener);
+  }
 }
 
 const functionTable = {};
@@ -112,17 +112,17 @@ const classTable = {};
 export function virtual(fn) {
   const url = new Error().stack.split('\n')[2].match(/^\s+at\s+(.*)/)[1].split(':').slice(0, -2).join(':').split('?')[0];
 
-	const fnName = url + '/' + fn.name;
+  const fnName = url + '/' + fn.name;
 
-	// Detect classes by convention. Not very robust
-	// but did not find something much better yet.
-	const isClassName = fn.name[0].match(/[A-Z]/);
+  // Detect classes by convention. Not very robust
+  // but did not find something much better yet.
+  const isClassName = fn.name[0].match(/[A-Z]/);
 
-	if (!isClassName) {
+  if (!isClassName) {
 
     const isReload = !!functionTable[fnName];	
-		functionTable[fnName] = fn;
-    
+    functionTable[fnName] = fn;
+
     if (isReload) {
       for (const listener of functionReloadListeners) {
         listener(fn);

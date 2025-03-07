@@ -52,7 +52,6 @@ chokidar.watch(wwwdir).on("change" , (filename) => {
 
 console.log(`Watching changes in ${wwwdir}`);
 
-
 function call(fn, ...args) {
 	(fns[fn] ?? (() => undefined))(...args);
 }
@@ -65,8 +64,6 @@ const fns = {
 	info: (...args) => console.log(...args.map(value => util.styleText("blue", value?.toString() ?? ''))),
 	error: (...args) => console.error(...args.map(value => util.styleText("red", value?.toString() ?? ''))),
 };
-
-
 
 // WebSocket connection event
 wss.on('connection', (ws) => {
