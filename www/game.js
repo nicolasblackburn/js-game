@@ -1,8 +1,9 @@
 import {addReloadListener, listDir, printInfo, virtual} from './client.js';
 import {createContext} from './src/context.js';
-import {loadResources, reload, getTextureId, pathDirname, pathJoin} from './src/loader.js';
+import {loadResources, reload, getTextureId} from './src/loader.js';
 import {addEventListeners} from './src/events.js';
 import {setAttributes} from './src/svg.js';
+import {getMap, renderMap} from './src/map.js'
 
 const load = virtual(async function load() {
 	const ctx = createContext();
@@ -120,44 +121,6 @@ const checkCollisions = virtual(function checkCollisions(ctx, entity) {
 const render = virtual(function render(ctx) {
   renderMap(ctx);
   renderSprites(ctx);
-});
-
-function getMap(ctx) {
-  const {gameState, maps} = ctx;
-  const map = maps[gameState.map];
-  return map;
-}
-
-const renderMap = virtual(function renderMap(ctx) {
-  const {dom, textures} = ctx;
-  const {tiles} = dom;
-
-  const map = getMap(ctx);
-  const mapData = map.layers[0].data;
-  const tileset = map.tilesets[0].tiles;
-  for (let i = 0; i < tiles.length; i++) {
-    const tile = tiles[i];
-    const x = i % (map.width + 1);
-    const y = i / (map.width + 1) | 0;
-    if (x >= map.width || y >= map.height) {
-      setAttributes(tile, {
-        href: getTextureId(ctx, 'EMPTY')
-      });
-    } else {
-      const index = y * map.width + x;
-      let name = 'EMPTY';
-      if (tileset[mapData[index]]) {
-        name = pathJoin(
-          pathDirname(map.url),
-          tileset[mapData[index]]?.image
-        );
-      }
-      setAttributes(tile, {
-        href: getTextureId(ctx, name)
-      });
-    }
-  }
-
 });
 
 const renderSprites = virtual(function renderSprites(ctx) {

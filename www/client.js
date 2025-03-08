@@ -177,3 +177,12 @@ export function virtual(fn) {
     }
   });
 }
+
+// Load the main game module
+const script = document.createElement('script');
+script.onerror = event => {
+  printError('Failed to load module game.js');
+};
+script.type = 'module';
+script.src = 'game.js';
+document.body.append(script);

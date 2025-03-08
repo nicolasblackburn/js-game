@@ -16,9 +16,15 @@ export const initGameState = virtual(function createGameState(ctx) {
   };
 
   const enemies = [];
+
+  const map = {
+    current: 'main',
+    x: 0,
+    y: 0
+  }
   ctx.gameState = {
     state: 'load',
-    map: 'main',
+    map,
     player,
     enemies
   };

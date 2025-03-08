@@ -6,6 +6,13 @@ import {createSVGElement} from './svg.js';
 import {initGameState} from './gameState.js';
 
 export const createContext = virtual(function createContext() {
+  const view = {
+    width: 10,
+    height: 9,
+    tilewidth: 16,
+    tileheight: 16
+  };
+
 	const gameDiv = document.createElement('div');
 	gameDiv.setAttribute('class', 'game');
 
@@ -20,8 +27,8 @@ export const createContext = virtual(function createContext() {
 	const viewSvg = createSVGElement('svg', {
 		'class': 'view',
 		width: window.innerWidth,
-		height: window.innerWidth * 9 / 10,
-		viewBox: `0 0 ${16 * 10} ${16 * 9}`
+		height: window.innerWidth * view.height / view.width,
+		viewBox: `0 0 ${view.tilewidth * view.width} ${view.tileheight * view.height}`
 	});
 
 	canvasSvg.append(viewSvg);
@@ -36,11 +43,16 @@ export const createContext = virtual(function createContext() {
 
 	// Background tiles
 	const tiles = [];
-	for (let i = 0; i < 10 * 11; i++) {
-		const x = (i % 11) * 16;
-		const y = (i / 11 | 0) * 16;
-		const width = 16;
-		const height = 16;
+	const horizontalTilesCount = view.width + 1;
+	const verticalTilesCount = view.height + 1;
+	const tilesCount = horizontalTilesCount * verticalTilesCount;
+
+	for (let i = 0; i < tilesCount; i++) {
+		const width = view.tilewidth;
+		const height = view.tileheight;
+
+		const x = (i % horizontalTilesCount) * width;
+		const y = (i / horizontalTilesCount | 0) * height;
 		const href = '#tex0';
 		const tile = createSVGElement('use', {
 			x,
@@ -65,8 +77,8 @@ export const createContext = virtual(function createContext() {
 		const sprite = createSVGElement('use', {
       x: 0,
       y: 0,
-      width: 16,
-      height: 16,
+      width: view.tilewidth,
+      height: view.tileheight,
 			href: '#tex0'
 		}, {
 			display
@@ -105,6 +117,7 @@ export const createContext = virtual(function createContext() {
       sprites,
       debug
     },
+    view,
     lastTime: null,
     fixedTimeLeft: 0,
     fixedTimeStepDuration: 1000 / 60

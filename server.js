@@ -61,8 +61,8 @@ function send(ws, fn, ...args) {
 }
 
 const fns = {
-	info: (...args) => console.log(...args.map(value => util.styleText("blue", value?.toString() ?? ''))),
-	error: (...args) => console.error(...args.map(value => util.styleText("red", value?.toString() ?? ''))),
+	info: (...args) => console.log(...args.map(value => util.styleText("blue", value?.toString() ?? '')), '\n'),
+	error: (...args) => console.error(...args.map(value => util.styleText("red", value?.toString() ?? '')), '\n'),
 };
 
 // WebSocket connection event

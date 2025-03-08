@@ -36,16 +36,18 @@ It also support error capture and messaging in the server's standard output.
 
 ## Backlog
 
+✔ Tools - From client being able to log infos in server stdout
+✔ Physics - Collisions
 - Tools - Error reporting is finicky sometimes
-- Tools - From client being able to log infos in server stdout
 - Tools - Hot code reload for immutable constants
 - Tools - Hot code reload for mutable states
-- Physics - Collisions
+- Rendering - Viewport resize
+- Maps - Camera
+- Maps - Room movements
 - AI - Some minimal AI system
 - Gameplay - Monster movements
 - Gameplay - Player health
 - Gameplay - Player death
-- Gameplay - Room movements
 - Graphics - Animations
 - Gameplay - Attack
 - Gameplay - Monster health
