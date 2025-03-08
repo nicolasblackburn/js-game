@@ -1,5 +1,5 @@
 const restricted = [
-	"client.js"
+	'client.js'
 ];
 
 const fns = {
@@ -9,7 +9,7 @@ const fns = {
 				const cacheBust = new Date().getTime();
 				import(`./${url}?${cacheBust}`);
 			} catch (e) {
-				send("error", `${e.stack}`);
+				send('error', `${e.stack}`);
 			}
 		} else {
       for (const listener of reloadListeners) {
@@ -55,7 +55,7 @@ const connection = new Promise(resolve => {
 
   // Log errors to the console
   ws.onerror = function(error) {
-    console.log('WebSocket Error:', error);
+    printError(error);
   };
 });
 
@@ -65,20 +65,20 @@ async function send(fn, ...args) {
 }
 
 window.onerror = function(message, url, line, col, error) {
-  send("error", `${message}
+  printError(`${message}
 \tat ${url}:${line}:${col}`);
 };
 
 window.addEventListener('unhandledrejection', event => {
-  send("error", `${event.reason.stack}`);
+  printError(`${event.reason.stack}`);
 });
 
 export async function printError(msg) {
-  await send("error", msg);
+  await send('error', msg);
 }
 
 export async function printInfo(msg) {
-  await send("info", msg);
+  await send('info', msg);
 }
 
 const reloadListeners = [];
@@ -162,10 +162,18 @@ export function virtual(fn) {
 
   return new Proxy(fn, {
     apply(target, thisArg, args) {
-      return functionTable[url + '/' + target.name](...args);
+      try {
+        return functionTable[url + '/' + target.name](...args);
+      } catch(e) {
+        printError(e.stack);
+      }
     },
     construct(target, args) {
-      return new classTable[url + '/' + target.name](...args);
+      try {
+        return new classTable[url + '/' + target.name](...args);
+      } catch(e) {
+        printError(e.stack);
+      }
     }
   });
 }

@@ -24,7 +24,7 @@ const load = virtual(async function load() {
   player.y -= 8;
   checkCollisions(ctx, player);
   */
-  printInfo(JSON.stringify(ctx.textures, null, 2));
+  //printInfo(JSON.stringify(ctx.textures, null, 2));
 });
 
 const update = virtual(function update(ctx, currentTime) {
