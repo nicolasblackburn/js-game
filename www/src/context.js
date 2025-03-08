@@ -3,6 +3,7 @@ import {initEvents} from './events.js';
 import {initLoader} from './loader.js';
 import {initGamepad} from './gamepad.js';
 import {createSVGElement} from './svg.js';
+import {initGameState} from './gameState.js';
 
 export const createContext = virtual(function createContext() {
 	const gameDiv = document.createElement('div');
@@ -117,24 +118,4 @@ export const createContext = virtual(function createContext() {
 
   return ctx;
 });
-
-const initGameState = virtual(function createGameState(ctx) {
-  const player = {
-    texture: 'walkcycle_r_0',
-    x: 16,
-    y: 16,
-    vx: 0,
-    vy: 0,
-    ax: 0,
-    ay: 0
-  };
-
-  const enemies = [];
-  ctx.gameState = {
-    state: 'load',
-    map: 'main',
-    player,
-    enemies
-  };
-})
 

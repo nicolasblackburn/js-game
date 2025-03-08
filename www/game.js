@@ -17,6 +17,13 @@ const load = virtual(async function load() {
 		update(ctx, currentTime);
 		requestAnimationFrame(updateFrame);
 	})();
+ 
+  /*
+  const {player} = ctx.gameState;
+  player.x -= 8;
+  player.y -= 8;
+  checkCollisions(ctx, player);
+  */
 });
 
 const update = virtual(function update(ctx, currentTime) {
@@ -57,9 +64,19 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
   for (const entity of entities) {
     entity.vx += entity.ax;
     entity.vy += entity.ay;
+
     entity.x += entity.vx;
+   
+    if (checkCollisions(ctx, entity)) {
+      entity.x -= entity.vx;
+    }
+
     entity.y += entity.vy;
-    checkCollisions(ctx, entity);
+    
+    if (checkCollisions(ctx, entity)) {
+      entity.y -= entity.vy;
+    }
+
   }
 
 });
@@ -67,13 +84,36 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
 const checkCollisions = virtual(function checkCollisions(ctx, entity) {
   const map = getMap(ctx); 
   const mapData = map.layers[0].data;
-  const {tileHeight, tileWidth} = map;
+  const {height, width, tileheight, tilewidth} = map;
+  const {x, y, vx, vy, bbx, bby, bbw, bbh} = entity;
+  
   // For each sensor point (four corners of collision
   // rectangle plus extra vertexes to ensure the map's 
   // tile size is bigger than sensors distance), 
   // check if the sensor hit a solid tile. If that is
   // the case, find the shortest penetration vector 
   // that puts the entity in a non-collision position.
+  
+  const startx = (x + bbx) / tilewidth | 0;
+  const endx = (x + bbx + bbw) / tilewidth | 0;
+  const starty = (y + bby) / tileheight | 0;
+  const endy = (y + bby + bbh) / tileheight | 0;
+
+  for (let y = starty; y <= endy; y++) {
+    for (let x = startx; x <= endx; x++) {
+      if (x >= 0 && x < width && y >= 0 && y < height) {
+        // Get tile at x, y
+        const tileId = mapData[width * y + x];
+        
+        // Is it a solid tile?
+        if (tileId) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 });
 
 const render = virtual(function render(ctx) {
