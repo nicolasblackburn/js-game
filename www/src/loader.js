@@ -71,6 +71,8 @@ export const loadSVG = virtual(async function loadSVG(ctx, url) {
   }
 
   const key = pathFilename(url);
+  const qualifiedName = removeSearch(url);
+  ctx.textures[qualifiedName] = svg;
   ctx.textures[key] = svg;
 });
 
@@ -79,6 +81,7 @@ export const loadJSON = virtual(async function loadJSON(ctx, url) {
 		const data = await (await fetch(url)).json();
 	  ctx.resources[url] = data;
 		if (data.tiledversion) {
+		  data.url = removeSearch(url);
 		  const key = pathFilename(url);
 		  ctx.maps[key] = data;
     }
@@ -104,18 +107,32 @@ const reloadSVG = virtual(async function reloadSVG(ctx, url) {
 	ctx.defs.removeChild(tex);
 });
 
-function pathSplit(path) {
+export function pathSplit(path) {
   return (path && path.split('/') || []);
 }
 
-function pathFilename(path) {
+export function pathFilename(path) {
   return pathSplit(path).slice(-1)[0].split('.')[0];
 }
 
-function pathExtension(path) {
+export function pathExtension(path) {
   return pathSplit(path).slice(-1)[0].split('.').slice(1).join('.');
 }
 
+export function removeSearch(url) {
+  return url.split('?')[0];
+}
+
+export function pathDirname(path) {
+  return pathSplit(path).slice(0, -1).join('/');
+}
+
+export function pathJoin(...parts) {
+  return [].concat(...parts.map(pathSplit)).join('/');
+}
+
 export function getTextureId(ctx, name) {
-  return '#' + ctx.textures[name].getAttribute('id');
+  if (ctx.textures[name]) {
+    return '#' + ctx.textures[name].getAttribute('id');
+  }
 }

@@ -1,6 +1,6 @@
 import {addReloadListener, listDir, printInfo, virtual} from './client.js';
 import {createContext} from './src/context.js';
-import {loadResources, reload, getTextureId} from './src/loader.js';
+import {loadResources, reload, getTextureId, pathDirname, pathJoin} from './src/loader.js';
 import {addEventListeners} from './src/events.js';
 import {setAttributes} from './src/svg.js';
 
@@ -24,6 +24,7 @@ const load = virtual(async function load() {
   player.y -= 8;
   checkCollisions(ctx, player);
   */
+  printInfo(JSON.stringify(ctx.textures, null, 2));
 });
 
 const update = virtual(function update(ctx, currentTime) {
@@ -133,7 +134,7 @@ const renderMap = virtual(function renderMap(ctx) {
 
   const map = getMap(ctx);
   const mapData = map.layers[0].data;
-  const tileSet = ['floor', 'block'];
+  const tileset = map.tilesets[0].tiles;
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i];
     const x = i % (map.width + 1);
@@ -144,7 +145,13 @@ const renderMap = virtual(function renderMap(ctx) {
       });
     } else {
       const index = y * map.width + x;
-      const name = tileSet[mapData[index]] ?? 'EMPTY';
+      let name = 'EMPTY';
+      if (tileset[mapData[index]]) {
+        name = pathJoin(
+          pathDirname(map.url),
+          tileset[mapData[index]]?.image
+        );
+      }
       setAttributes(tile, {
         href: getTextureId(ctx, name)
       });

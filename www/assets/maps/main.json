@@ -22,13 +22,18 @@
 	"width": 10,
 	"tilesets": [
     {
-      "firstgid": 0,
       "tiles": [
         {
-          "image": "tiles/floor.svg"
+          "image": "tiles/floor.svg",
+          "properties": [
+            {"name": "collisionMask", "type": "int", "value": 0}
+          ]
         },
         {
-          "image": "tiles/block.svg"
+          "image": "tiles/block.svg",
+          "properties": [
+            {"name": "collisionMask", "type": "int", "value": 1}
+          ]
         }
       ]
     }
