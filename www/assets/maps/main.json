@@ -27,13 +27,21 @@
         {
           "image": "tiles/floor.svg",
           "properties": [
-            {"name": "collisionMask", "type": "int", "value": 0}
+            {
+              "name": "collision", 
+              "type": "int", 
+              "value": 0
+            }
           ]
         },
         {
           "image": "tiles/block.svg",
           "properties": [
-            {"name": "collisionMask", "type": "int", "value": 1}
+            {
+              "name": "collision", 
+              "type": "int", 
+              "value": 1
+            }
           ]
         }
       ]

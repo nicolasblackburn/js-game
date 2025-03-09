@@ -3,7 +3,7 @@ import {createContext} from './src/context.js';
 import {loadResources, reload, getTextureId} from './src/loader.js';
 import {addEventListeners} from './src/events.js';
 import {setAttributes} from './src/svg.js';
-import {getMap, renderMap} from './src/map.js'
+import {getMap, getMapProperty, renderMap} from './src/map.js'
 
 const load = virtual(async function load() {
 	const ctx = createContext();
@@ -84,16 +84,17 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
   const map = getMap(ctx);
   const viewwidth = view.width * view.tilewidth;
   const viewheight = view.height * view.tileheight;
-  gameState.map.x = player.x - viewwidth / 2;
-  gameState.map.y = player.y - viewheight / 2;
+  gameState.map.x = player.x + player.px - viewwidth / 2;
+  gameState.map.y = player.y + player.py - viewheight / 2;
 
 });
 
 const checkCollisions = virtual(function checkCollisions(ctx, entity) {
   const map = getMap(ctx); 
   const mapData = map.layers[0].data;
-  const {height, width, tileheight, tilewidth} = map;
+  const {height, width, tileheight, tilewidth, tilesets} = map;
   const {x, y, vx, vy, bbx, bby, bbw, bbh} = entity;
+  const tilesCollision = tilesets[0].tiles.map(tile => getMapProperty(tile, 'collision'));
   
   // For each sensor point (four corners of collision
   // rectangle plus extra vertexes to ensure the map's 
@@ -114,7 +115,7 @@ const checkCollisions = virtual(function checkCollisions(ctx, entity) {
         const tileId = mapData[width * y + x];
         
         // Is it a solid tile?
-        if (tileId) {
+        if (tilesCollision[tileId]) {
           return true;
         }
       }
@@ -137,10 +138,14 @@ const renderSprites = virtual(function renderSprites(ctx) {
   for (let i = 0; i < Math.min(sprites.length, entities.length); i++) {
     const entity = entities[i];
     const sprite = sprites[i];
-    const {texture, x, y} = entity;
+    const {texture, x, y, px, py} = entity;
     setAttributes(sprite, {
       href: getTextureId(ctx, texture),
-      transform: `translate(${x - map.x}, ${y - map.y})`
+      transform: `translate(${
+        x - map.x
+      }, ${
+        y - map.y
+      })`
     });
   }
 

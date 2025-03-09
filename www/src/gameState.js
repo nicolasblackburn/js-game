@@ -9,6 +9,8 @@ export const initGameState = virtual(function createGameState(ctx) {
     vy: 0,
     ax: 0,
     ay: 0,
+    px: 8,
+    py: 8,
     bbx: 0,
     bby: 0,
     bbw: 16,

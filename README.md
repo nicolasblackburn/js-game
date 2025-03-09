@@ -38,12 +38,12 @@ It also support error capture and messaging in the server's standard output.
 
 ✔ Tools - From client being able to log infos in server stdout
 ✔ Physics - Collisions
-- Tools - Error reporting is finicky sometimes
-- Tools - Hot code reload for immutable constants
-- Tools - Hot code reload for mutable states
+✔ Tools - Error reporting is finicky sometimes
+✔ Maps - Scrolling
+- Tools - Hot code reload for constants
+- Tools - Modifying state from remote console
 - Rendering - Viewport resize
-- Maps - Camera
-- Maps - Room movements
+- Maps - Rooms
 - AI - Some minimal AI system
 - Gameplay - Monster movements
 - Gameplay - Player health
