@@ -82,10 +82,19 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
   }
 
   const map = getMap(ctx);
+  const layer = map.layers[gameState.map.layer];
+  const layerwidth = layer.width * map.tilewidth;
+  const layerheight = layer.height * map.tileheight;
   const viewwidth = view.width * view.tilewidth;
   const viewheight = view.height * view.tileheight;
-  gameState.map.x = player.x - viewwidth / 2;
-  gameState.map.y = player.y - viewheight / 2;
+  const midpointx = (viewwidth - layerwidth) / 2;
+  const midpointy = (viewheight - layerheight) / 2;
+  const lowboundx = 0;
+  const upboundx = layer.width * map.tilewidth - viewwidth;
+  const lowboundy = 0;
+  const upboundy = layer.height * map.tileheight - viewheight;
+  gameState.map.x = Math.min(Math.max(lowboundx, player.x - viewwidth / 2), upboundx);
+  gameState.map.y = Math.min(Math.max(lowboundy, player.y - viewheight / 2), upboundy);
 
 });
 
