@@ -24,10 +24,17 @@ export const createContext = virtual(function createContext() {
 	
 	gameDiv.append(canvasSvg);
 
+  const width = Math.min(window.innerWidth, window.innerHeight * view.width / view.height);
+  const height = Math.min(window.innerHeight, window.innerWidth * view.height / view.width);
+  const x = Math.max(0, (window.innerWidth - width) / 2);
+  const y = Math.max(0, (window.innerHeight - height) / 2);
+
 	const viewSvg = createSVGElement('svg', {
 		'class': 'view',
-		width: window.innerWidth,
-		height: window.innerWidth * view.height / view.width,
+		//x,
+		//y,
+		width,
+		height,
 		viewBox: `0 0 ${view.tilewidth * view.width} ${view.tileheight * view.height}`
 	});
 

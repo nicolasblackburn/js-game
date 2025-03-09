@@ -1,7 +1,7 @@
 import {addReloadListener, listDir, printInfo, virtual} from './client.js';
 import {createContext} from './src/context.js';
 import {loadResources, reload, getTextureId} from './src/loader.js';
-import {addEventListeners} from './src/events.js';
+import {addEventListeners, addEventListener} from './src/events.js';
 import {setAttributes} from './src/svg.js';
 import {getMap, getMapProperty, renderMap} from './src/map.js'
 
@@ -11,6 +11,7 @@ const load = virtual(async function load() {
 	addEventListeners(ctx);
 
 	addReloadListener(url => reload(ctx, url));
+	addEventListener(ctx, 'resize', resize.bind(null, ctx));
 
 	await loadResources(ctx, await listDir());
 
@@ -19,13 +20,37 @@ const load = virtual(async function load() {
 		requestAnimationFrame(updateFrame);
 	})();
  
-  /*
-  const {player} = ctx.gameState;
-  player.x -= 8;
-  player.y -= 8;
-  checkCollisions(ctx, player);
-  */
-  //printInfo(JSON.stringify(ctx.textures, null, 2));
+});
+
+const resize = virtual(function resize(ctx, event) {
+  const {view, dom} = ctx;
+  const {gameDiv, viewSvg} = dom;
+  const {innerWidth, innerHeight} = window;
+  const width = Math.min(innerWidth, innerHeight * view.width / view.height);
+  const height = Math.min(innerHeight, innerWidth * view.height / view.width);
+  const x = Math.max(0, (innerWidth - width) / 2);
+  const y = Math.max(0, (innerHeight - height) / 2);
+
+  setAttributes(gameDiv, {
+    width: innerWidth,
+    height: innerHeight
+  });
+
+  setAttributes(viewSvg, {
+    //x,
+    //y,
+		width,
+		height
+  });
+
+  printInfo('resize', JSON.stringify({
+    x,
+    y,
+    width,
+    height,
+    innerWidth,
+    innerHeight
+  }, null, 2));
 });
 
 const update = virtual(function update(ctx, currentTime) {
