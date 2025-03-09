@@ -84,15 +84,16 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
   const map = getMap(ctx);
   const viewwidth = view.width * view.tilewidth;
   const viewheight = view.height * view.tileheight;
-  gameState.map.x = player.x + player.px - viewwidth / 2;
-  gameState.map.y = player.y + player.py - viewheight / 2;
+  gameState.map.x = player.x - viewwidth / 2;
+  gameState.map.y = player.y - viewheight / 2;
 
 });
 
 const checkCollisions = virtual(function checkCollisions(ctx, entity) {
-  const map = getMap(ctx); 
-  const mapData = map.layers[0].data;
-  const {height, width, tileheight, tilewidth, tilesets} = map;
+  const map = getMap(ctx);
+  const layer = map.layers[0];
+  const {data, width, height} = layer;;
+  const {tileheight, tilewidth, tilesets} = map;
   const {x, y, vx, vy, bbx, bby, bbw, bbh} = entity;
   const tilesCollision = tilesets[0].tiles.map(tile => getMapProperty(tile, 'collision'));
   
@@ -112,7 +113,7 @@ const checkCollisions = virtual(function checkCollisions(ctx, entity) {
     for (let x = startx; x <= endx; x++) {
       if (x >= 0 && x < width && y >= 0 && y < height) {
         // Get tile at x, y
-        const tileId = mapData[width * y + x];
+        const tileId = data[width * y + x];
         
         // Is it a solid tile?
         if (tilesCollision[tileId]) {
@@ -142,9 +143,9 @@ const renderSprites = virtual(function renderSprites(ctx) {
     setAttributes(sprite, {
       href: getTextureId(ctx, texture),
       transform: `translate(${
-        x - map.x
+        x - map.x - px
       }, ${
-        y - map.y
+        y - map.y - py
       })`
     });
   }

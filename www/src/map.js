@@ -17,7 +17,11 @@ export const renderMap = virtual(function renderMap(ctx, map) {
   
   const {dom, gameState, textures, view} = ctx;
   const {background, tiles} = dom;
-
+  
+  const layer = map.layers[gameState.map.layer];
+  const mapData = layer.data;
+  const tileset = map.tilesets[0].tiles;
+  
   const viewx = -gameState.map.x % view.tilewidth;
   const viewy = -gameState.map.y % view.tileheight;
   const mapx = gameState.map.x / view.tilewidth | 0;
@@ -27,14 +31,11 @@ export const renderMap = virtual(function renderMap(ctx, map) {
     transform: `translate(${viewx}, ${viewy})`
   });
 
-  const mapData = map.layers[0].data;
-  const tileset = map.tilesets[0].tiles;
-  
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i];
     const x = mapx + (i % (view.width + 1));
     const y = mapy + (i / (view.width + 1) | 0);
-    if (x < 0 || y < 0 || x >= map.width || y >= map.height) {
+    if (x < 0 || y < 0 || x >= layer.width || y >= layer.height) {
       setAttributes(tile, {
         href: getTextureId(ctx, 'EMPTY')
       });

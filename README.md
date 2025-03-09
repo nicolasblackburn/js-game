@@ -52,6 +52,9 @@ It also support error capture and messaging in the server's standard output.
 - Gameplay - Attack
 - Gameplay - Monster health
 - Gameplay - Boss & victory
+- Collisions - Soft corners
+- Collisions - Half-tiles
+- Collisions - Diagonals
 - Inputs - Inputs feedback
 - Events - Should event be queued and processed all together?
 
