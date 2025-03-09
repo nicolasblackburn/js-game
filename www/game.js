@@ -55,8 +55,8 @@ const update = virtual(function update(ctx, currentTime) {
 });
 
 const fixedUpdate = virtual(function fixedUpdate(ctx) {
-  const {gamepad} = ctx;
-  const {player, enemies} = ctx.gameState;
+  const {gamepad, gameState, view} = ctx;
+  const {player, enemies} = gameState;
 
   player.vx = gamepad.axes[0];
   player.vy = gamepad.axes[1];
@@ -80,6 +80,12 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
     }
 
   }
+
+  const map = getMap(ctx);
+  const viewwidth = view.width * view.tilewidth;
+  const viewheight = view.height * view.tileheight;
+  gameState.map.x = player.x - viewwidth / 2;
+  gameState.map.y = player.y - viewheight / 2;
 
 });
 
@@ -124,7 +130,7 @@ const render = virtual(function render(ctx) {
 });
 
 const renderSprites = virtual(function renderSprites(ctx) {
-  const {player, enemies} = ctx.gameState;
+  const {player, enemies, map} = ctx.gameState;
   const {sprites} = ctx.dom;
   const entities = [player, ...enemies];
 
@@ -134,7 +140,7 @@ const renderSprites = virtual(function renderSprites(ctx) {
     const {texture, x, y} = entity;
     setAttributes(sprite, {
       href: getTextureId(ctx, texture),
-      transform: `translate(${x}, ${y})`
+      transform: `translate(${x - map.x}, ${y - map.y})`
     });
   }
 

@@ -13,11 +13,6 @@ export const renderMap = virtual(function renderMap(ctx, map) {
   
   const {dom, gameState, textures, view} = ctx;
   const {background, tiles} = dom;
-  gameState.map.x += 0.1;
-  gameState.map.y += 0.1;
-  gameState.map.x = 32;
-  gameState.map.y = 0;
-
 
   const viewx = -gameState.map.x % view.tilewidth;
   const viewy = -gameState.map.y % view.tileheight;
