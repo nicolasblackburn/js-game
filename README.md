@@ -40,9 +40,9 @@ It also support error capture and messaging in the server's standard output.
 ✔ Physics - Collisions
 ✔ Tools - Error reporting is finicky sometimes
 ✔ Maps - Scrolling
+✔ Rendering - Viewport resize
 - Tools - Hot code reload for constants
 - Tools - Modifying state from remote console
-- Rendering - Viewport resize
 - Maps - Rooms
 - AI - Some minimal AI system
 - Gameplay - Monster movements

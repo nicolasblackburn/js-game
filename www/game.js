@@ -24,33 +24,25 @@ const load = virtual(async function load() {
 
 const resize = virtual(function resize(ctx, event) {
   const {view, dom} = ctx;
-  const {gameDiv, viewSvg} = dom;
+  const {canvasSvg, viewSvg} = dom;
   const {innerWidth, innerHeight} = window;
   const width = Math.min(innerWidth, innerHeight * view.width / view.height);
   const height = Math.min(innerHeight, innerWidth * view.height / view.width);
   const x = Math.max(0, (innerWidth - width) / 2);
   const y = Math.max(0, (innerHeight - height) / 2);
 
-  setAttributes(gameDiv, {
+  setAttributes(canvasSvg, {
     width: innerWidth,
     height: innerHeight
   });
 
   setAttributes(viewSvg, {
-    //x,
-    //y,
+    x,
+    y,
 		width,
 		height
   });
 
-  printInfo('resize', JSON.stringify({
-    x,
-    y,
-    width,
-    height,
-    innerWidth,
-    innerHeight
-  }, null, 2));
 });
 
 const update = virtual(function update(ctx, currentTime) {
@@ -66,8 +58,6 @@ const update = virtual(function update(ctx, currentTime) {
 
   ctx.lastTime = currentTime;
 
-
-  //ctx.dom.debug.innerText = JSON.stringify(game.player);
 
   /*
 (px: pixel, sx: subpixel, s: second, f: frame)

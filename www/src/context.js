@@ -31,8 +31,8 @@ export const createContext = virtual(function createContext() {
 
 	const viewSvg = createSVGElement('svg', {
 		'class': 'view',
-		//x,
-		//y,
+		x,
+		y,
 		width,
 		height,
 		viewBox: `0 0 ${view.tilewidth * view.width} ${view.tileheight * view.height}`
@@ -103,14 +103,6 @@ export const createContext = virtual(function createContext() {
 	});
 	viewSvg.append(border);
 
-	const debug = document.createElement('pre');
-	Object.assign(debug.style, {
-    position: 'absolute',
-    top: 0,
-    left: 0
-	});
-	gameDiv.append(debug);
-
 	document.body.append(gameDiv);
 
 	const ctx = {
@@ -121,8 +113,7 @@ export const createContext = virtual(function createContext() {
       defs,
       background,
       tiles,
-      sprites,
-      debug
+      sprites
     },
     view,
     lastTime: null,
