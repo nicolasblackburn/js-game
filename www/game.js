@@ -79,9 +79,13 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
   const entities = [player, ...enemies];
 
   for (const entity of entities) {
+    processCollisions(ctx, entity);
     entity.vx += entity.ax;
     entity.vy += entity.ay;
+    entity.x += entity.vx;
+    entity.y += entity.vy;
 
+    /*
     entity.x += entity.vx;
    
     if (checkCollisions(ctx, entity)) {
@@ -93,6 +97,7 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
     if (checkCollisions(ctx, entity)) {
       entity.y -= entity.vy;
     }
+    */
 
   }
 
@@ -113,14 +118,35 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
 
 });
 
-const checkCollisions = virtual(function checkCollisions(ctx, entity) {
+function isSolid(ctx, x, y) {
+  const {gameState} = ctx;
   const map = getMap(ctx);
-  const layer = map.layers[0];
-  const {data, width, height} = layer;;
+  const layer = map.layers[gameState.map.layer];
+  const {data, width, height} = layer;
   const {tileheight, tilewidth, tilesets} = map;
-  const {x, y, vx, vy, bbx, bby, bbw, bbh} = entity;
   const tilesCollision = tilesets[0].tiles.map(tile => getMapProperty(tile, 'collision'));
-  
+
+  const tilex = x / tilewidth | 0;
+  const tiley = y / tileheight | 0;
+
+  if (0 <= tilex && tilex < width && 0 <= tiley && tiley < height) {
+    // Get tile at x, y
+    const tileId = data[width * tiley + tilex];
+
+    // Is it a solid tile?
+    return tilesCollision[tileId];
+
+  } else {
+    return false;
+
+  }
+}
+
+function collides(ctx, entity, x, y) {
+  const map = getMap(ctx);
+  const {tileheight, tilewidth} = map;
+  let {bbx, bby, bbw, bbh} = entity;
+
   // For each sensor point (four corners of collision
   // rectangle plus extra vertexes to ensure the map's 
   // tile size is bigger than sensors distance), 
@@ -128,26 +154,122 @@ const checkCollisions = virtual(function checkCollisions(ctx, entity) {
   // the case, find the shortest penetration vector 
   // that puts the entity in a non-collision position.
   
-  const startx = (x + bbx) / tilewidth | 0;
-  const endx = (x + bbx + bbw) / tilewidth | 0;
-  const starty = (y + bby) / tileheight | 0;
-  const endy = (y + bby + bbh) / tileheight | 0;
+  const startx = x + bbx;
+  const endx = x + bbx + bbh;
+  const starty = y + bby;
+  const endy = y + bby + bby;
 
-  for (let y = starty; y <= endy; y++) {
-    for (let x = startx; x <= endx; x++) {
-      if (x >= 0 && x < width && y >= 0 && y < height) {
-        // Get tile at x, y
-        const tileId = data[width * y + x];
-        
-        // Is it a solid tile?
-        if (tilesCollision[tileId]) {
-          return true;
-        }
+  for (let x = startx; x < endx; x += tilewidth) {
+    if (isSolid(ctx, x, starty) || isSolid(ctx, x, endy)) {
+      return true;
+    }
+  }
+
+  if (isSolid(ctx, endx, starty) || isSolid(ctx, endx, endy)) {
+    return true;
+  }
+
+  for (let y = starty + tileheight; y < endy; y += tileheight) {
+    if (isSolid(ctx, startx, y) || isSolid(ctx, endx, y)) {
+      return true;
+    }
+  }
+
+  return false;
+
+}
+
+const processCollisions = virtual(function checkCollisions(ctx, entity) {
+  const map = getMap(ctx);
+  const {tileheight, tilewidth} = map;
+  let {x, y, vx, vy, bbx, bby, bbw, bbh} = entity;
+
+  //printInfo(collides(ctx, entity, x, y));
+  /*
+  const xn = 2 ** Math.max(1, Math.ceil(Math.log(bbw / tilewidth) / Math.LN2));
+  const yn = 2 ** Math.max(1, Math.ceil(Math.log(bbh / tileheight) / Math.LN2));
+
+  const dx = bbw / xn;
+  const dy = bbh / yn;
+  */
+
+  /*
+  let newx = x + vx;
+  let newy = y + vy;
+
+
+  const solidl = isSolid(ctx, newx + bbx, y);
+  const solidr = isSolid(ctx, newx + bbx + bbw, y);
+  let solidtl = isSolid(ctx, newx + bbx, y + bby);
+  let solidtr = isSolid(ctx, newx + bbx + bbw, y + bby);
+  let solidbl = isSolid(ctx, newx + bbx, y + bby + bbh);
+  let solidbr = isSolid(ctx, newx + bbx + bbw, y + bby + bbh);
+
+  if (solidtl || solidl || solidbl) {
+    if (vx < 0) {
+      vx += -(newx + bbx) % tilewidth + tilewidth;
+      newx = x + vx;
+    }
+  } else if (solidtr || solidr || solidbr) {
+    if (vx > 0) {
+      vx += -(newx + bbx + bbw) % tilewidth;
+      newx = x + vx;
+    }
+  }
+
+  newy = y + vy;
+
+  const solidt = isSolid(ctx,
+    newx,
+    newy + bby
+  );
+  const solidb = isSolid(ctx, 
+    newx,
+    newy + bby + bbh
+  );
+  solidtl = isSolid(ctx, newx + bbx, newy + bby);
+  solidtr = isSolid(ctx, newx + bbx + bbw, newy + bby);
+  solidbl = isSolid(ctx, newx + bbx, newy + bby + bbh);
+  solidbr = isSolid(ctx, newx + bbx + bbw, newy + bby + bbh);
+
+
+  if (solidtl || solidt || solidtr) {
+    if (vy < 0) {
+      vy += -(newy + bby) % tileheight + tileheight;
+    }
+  } else if (solidbl || solidb || solidbr) {
+    if (vy > 0) {
+      vy += -(newy + bby + bbh) % tileheight;
+    }
+  }
+
+  entity.vx = vx;
+  entity.vy = vy;
+  //*
+  printInfo(JSON.stringify({
+    solidleft,
+    solidright
+  }));
+  //*/
+  
+  //entity.x += vx;
+  
+  /*
+  const startx = x + bbx;
+  const endx = x + bbx + bbw;
+  const starty = y + bby;
+  const endy = y + bby + bbh;
+
+  for (let y = starty; y <= endy; y += tileheight) {
+    for (let x = startx; x <= endx; x += tilewidth) {
+      if (isSolid(ctx, x, y)) {
+        return true;
       }
     }
   }
 
   return false;
+  */
 });
 
 const render = virtual(function render(ctx) {
