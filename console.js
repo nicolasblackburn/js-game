@@ -5,7 +5,6 @@ const host = "localhost";
 const port = 3000;
 const wwwdir = path.join(__dirname, 'www');
 
-
 const connection = new Promise(resolve => {
   // Connect to the WebSocket server
   const ws = new WebSocket(`ws://${host}:${port}`);
