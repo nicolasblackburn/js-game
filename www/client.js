@@ -78,6 +78,9 @@ export async function printError(msg) {
 }
 
 export async function printInfo(msg) {
+  if (typeof msg === 'object') {
+    msg = JSON.stringify(msg, null, 2);
+  }
   await send('info', msg);
 }
 
