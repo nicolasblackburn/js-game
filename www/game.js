@@ -3,7 +3,10 @@ import {createContext} from './src/context.js';
 import {loadResources, reload, getTextureId} from './src/loader.js';
 import {addEventListeners, addEventListener} from './src/events.js';
 import {setAttributes} from './src/svg.js';
-import {getMap, getMapProperty, renderMap} from './src/map.js'
+import {getMap, getMapProperty, renderMap} from './src/map.js';
+
+const EPSILON = 100 * Number.EPSILON;
+const SQRT_1_2 = 1 / 2**0.5
 
 const load = virtual(async function load() {
 	const ctx = createContext();
@@ -58,15 +61,6 @@ const update = virtual(function update(ctx, currentTime) {
 
   ctx.lastTime = currentTime;
 
-
-  /*
-(px: pixel, sx: subpixel, s: second, f: frame)
-256 sx = 1 px
-64 f = 1 s
-8 px / s
-= (2048 / 64) sx / f
-= 32 sx / f
-*/
 });
 
 const fixedUpdate = virtual(function fixedUpdate(ctx) {
@@ -79,33 +73,35 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
   const entities = [player, ...enemies];
 
   for (const entity of entities) {
+    if (Math.abs(entity.ax) < EPSILON) {
+      entity.ax = 0;
+    }
+
+    if (Math.abs(entity.ay) < EPSILON) {
+      entity.ay = 0;
+    }
+
+    if (Math.abs(entity.vx) < EPSILON) {
+      entity.vx = 0;
+    }
+
+    if (Math.abs(entity.vy) < EPSILON) {
+      entity.vy = 0;
+    }
+
     processCollisions(ctx, entity);
     entity.vx += entity.ax;
     entity.vy += entity.ay;
     entity.x += entity.vx;
     entity.y += entity.vy;
 
-    if (Math.abs(entity.x - Math.floor(entity.x)) <Number.EPSILON) {
+    if (Math.abs(entity.x - Math.floor(entity.x)) < EPSILON) {
       entity.x = Math.floor(entity.x);
     }
 
-    if (Math.abs(entity.y - Math.floor(entity.y)) <Number.EPSILON) {
+    if (Math.abs(entity.y - Math.floor(entity.y)) < EPSILON) {
       entity.y = Math.floor(entity.y);
     }
-
-    /*
-    entity.x += entity.vx;
-   
-    if (checkCollisions(ctx, entity)) {
-      entity.x -= entity.vx;
-    }
-
-    entity.y += entity.vy;
-    
-    if (checkCollisions(ctx, entity)) {
-      entity.y -= entity.vy;
-    }
-    */
 
   }
 
@@ -167,30 +163,28 @@ function collides(ctx, entity, x, y) {
   const starty = y + bby;
   const endy = y + bby + bbh;
 
+  // We must remove a small number when checking
+  // endpoints because we are dealing with
+  // open intervals. If we don't, it will result
+  // in false collision when the end positions
+  // are aligned to the grid.
 
   for (let x = startx; x < endx; x += tilewidth) {
-    if (isSolid(ctx, x, starty) || isSolid(ctx, x, endy)) {
+    if (isSolid(ctx, x, starty) || isSolid(ctx, x, endy - EPSILON)) {
       return true;
     }
   }
 
+  if (isSolid(ctx, endx - EPSILON, starty) || isSolid(ctx, endx - EPSILON, endy - EPSILON)) {
+    return true;
+  }
+
   for (let y = starty + tileheight; y < endy; y += tileheight) {
-    if (isSolid(ctx, startx, y) || isSolid(ctx, endx, y)) {
+    if (isSolid(ctx, startx, y) || isSolid(ctx, endx - EPSILON, y)) {
       return true;
     }
   }
   
-  // We must remove a small number when checking
-  // endpoints because we are dealing with right
-  // open intervals and otherwise it will result
-  // in false collision when the end positions
-  // are aligned to the grid.
-  const epsilon = 100 * Number.EPSILON;
-
-  if (isSolid(ctx, endx - epsilon, starty) || isSolid(ctx, startx, endy - epsilon) || isSolid(ctx, endx - epsilon, endy - epsilon)) {
-    return true;
-  }
-
   return false;
 
 }
@@ -207,12 +201,9 @@ const processCollisions = virtual(function checkCollisions(ctx, entity) {
   const collidex = collides(ctx, entity, x + vx, y);
   const collidey = collides(ctx, entity, x, y + vy);
 
-  //printInfo(JSON.stringify({collh, collv}));
-
   if (collidey && collidex) {
     // Both axis collides. Limit both vx and vy
     // so that x, y align on the grid
-    printInfo('collide xy');
     
     if (vy > 0) {
       const impulse = (y + bby + bbh + vy) % tileheight;
@@ -232,26 +223,92 @@ const processCollisions = virtual(function checkCollisions(ctx, entity) {
 
   } else if (collidey) {
     // Process vertical collision, align x on the grid
-    printInfo('collide y');
+    
     if (vy > 0) {
+      const collideleft = isSolid(ctx,
+        x + bbx + vx, 
+        y + bby + bbh + vy - EPSILON);
+
+      const collideright = isSolid(ctx,
+        x + bbx + bbw + vx - EPSILON, 
+        y + bby + bbh + vy - EPSILON);
+
+      const nudgeright = collideleft && !collideright;
+      const nudgeleft = !collideleft && collideleft;
+
       const impulse = (y + bby + bbh + vy) % tileheight;
       vy -= impulse;
-      vy = 0;
+
+      if (nudgeright && vx >= 0) {
+        vx = Math.max(SQRT_1_2 * impulse, vx);
+        
+        const maxnudge = -(x + bbx) % tilewidth + tilewidth; 
+
+        if (vx > maxnudge) {
+          vy = vx - maxnudge;
+          vx = maxnudge;
+        }
+        
+      } else if (nudgeleft && vx <= 0) {
+        
+        vx = Math.min(-SQRT_1_2 * impulse, vx);
+
+        const maxnudge = (x + bbx + bbw) % tilewidth + tilewidth; 
+
+        if (-vx > maxnudge) {
+          vy = -vx - maxnudge;
+          vx = -maxnudge;
+        }
+      }
+
     } else if (vy < 0) {
+      
+      const collideleft = isSolid(ctx,
+        x + bbx + vx, 
+        y + bby + vy);
+
+      const collideright = isSolid(ctx,
+        x + bbx + bbw + vx - EPSILON, 
+        y + bby + vy);
+
+      const nudgeright = collideleft && !collideright;
+      const nudgeleft = !collideleft && collideright;
+
       const impulse = (y + bby + vy) % tileheight - tileheight;
+
       vy -= impulse;
+      
+      if (nudgeright && vx >= 0) {
+        vx = Math.max(-SQRT_1_2 * impulse, vx);
+        
+        const maxnudge = -(x + bbx) % tilewidth + tilewidth; 
+
+        if (vx > maxnudge) {
+          vy = -vx + maxnudge;
+          vx = maxnudge;
+        }
+        
+      } else if (nudgeleft && vx <= 0) {
+        
+        vx = Math.min(SQRT_1_2 * impulse, vx);
+
+        const maxnudge = (x + bbx + bbw) % tilewidth + tilewidth; 
+
+        if (-vx > maxnudge) {
+          vy = vx + maxnudge;
+          vx = -maxnudge;
+        }
+      }
     }
 
     // If only corner collides nudge
 
   } else {
     // Process horizontal collision, align y on the grid
-    printInfo('collide x');
     if (vx > 0) {
       const impulse = (x + bbx + bbw + vx) % tilewidth;
       vx -= impulse;
 
-      x = x + bbx + bbw + vx;
     } else if (vx < 0) {
       const impulse = (x + bbx + vx) % tilewidth - tilewidth;
       vx -= impulse;
@@ -264,92 +321,6 @@ const processCollisions = virtual(function checkCollisions(ctx, entity) {
   entity.vx = vx;
   entity.vy = vy;
 
-  //printInfo(collides(ctx, entity, x, y));
-  /*
-  const xn = 2 ** Math.max(1, Math.ceil(Math.log(bbw / tilewidth) / Math.LN2));
-  const yn = 2 ** Math.max(1, Math.ceil(Math.log(bbh / tileheight) / Math.LN2));
-
-  const dx = bbw / xn;
-  const dy = bbh / yn;
-  */
-
-  /*
-  let newx = x + vx;
-  let newy = y + vy;
-
-
-  const solidl = isSolid(ctx, newx + bbx, y);
-  const solidr = isSolid(ctx, newx + bbx + bbw, y);
-  let solidtl = isSolid(ctx, newx + bbx, y + bby);
-  let solidtr = isSolid(ctx, newx + bbx + bbw, y + bby);
-  let solidbl = isSolid(ctx, newx + bbx, y + bby + bbh);
-  let solidbr = isSolid(ctx, newx + bbx + bbw, y + bby + bbh);
-
-  if (solidtl || solidl || solidbl) {
-    if (vx < 0) {
-      vx += -(newx + bbx) % tilewidth + tilewidth;
-      newx = x + vx;
-    }
-  } else if (solidtr || solidr || solidbr) {
-    if (vx > 0) {
-      vx += -(newx + bbx + bbw) % tilewidth;
-      newx = x + vx;
-    }
-  }
-
-  newy = y + vy;
-
-  const solidt = isSolid(ctx,
-    newx,
-    newy + bby
-  );
-  const solidb = isSolid(ctx, 
-    newx,
-    newy + bby + bbh
-  );
-  solidtl = isSolid(ctx, newx + bbx, newy + bby);
-  solidtr = isSolid(ctx, newx + bbx + bbw, newy + bby);
-  solidbl = isSolid(ctx, newx + bbx, newy + bby + bbh);
-  solidbr = isSolid(ctx, newx + bbx + bbw, newy + bby + bbh);
-
-
-  if (solidtl || solidt || solidtr) {
-    if (vy < 0) {
-      vy += -(newy + bby) % tileheight + tileheight;
-    }
-  } else if (solidbl || solidb || solidbr) {
-    if (vy > 0) {
-      vy += -(newy + bby + bbh) % tileheight;
-    }
-  }
-
-  entity.vx = vx;
-  entity.vy = vy;
-  //*
-  printInfo(JSON.stringify({
-    solidleft,
-    solidright
-  }));
-  //*/
-
-  //entity.x += vx;
-
-  /*
-  const startx = x + bbx;
-  const endx = x + bbx + bbw;
-  const starty = y + bby;
-  const endy = y + bby + bbh;
-
-  for (let y = starty; y <= endy; y += tileheight) {
-    for (let x = startx; x <= endx; x += tilewidth) {
-      if (isSolid(ctx, x, y)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-  */
 });
 
 const render = virtual(function render(ctx) {
