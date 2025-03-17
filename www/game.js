@@ -243,6 +243,55 @@ const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
 
   }
 
+  // Check if it can do a hook
+
+  if (vx > 0 && vy > 0) {
+    const vx2 = vx - (x + bbx + vx) % tilewidth;
+
+    if (fgte(vx2, 0) && !mapCollides(ctx, x + bbx + vx2, y + bby + vy, bbw, bbh)) {
+      entity.vx = vx2;
+      return true;
+    }
+
+    const vy2 = vy - (y + bby + vy) % tileheight;
+    
+    if (fgte(vy2, 0) && !mapCollides(ctx, x + bbx, y + bby + vy2, bbw, bbh)) {
+      entity.vy = vy2;
+      return true;
+    }
+
+  } else if (vx < 0 && vy > 0) {
+    const vx2 = vx + (x + bbx + bbw + vx) % tilewidth - tilewidth;
+
+    if (flte(vx2, 0) && !mapCollides(ctx, x + bbx + vx2, y + bby + vy, bbw, bbh)) {
+      entity.vx = vx2;
+      return true;
+    }
+
+    const vy2 = vy - (y + bby + vy) % tileheight;
+
+    if (fgte(vy2, 0)) {
+      printInfo({
+        x: x + bbx + vx,
+        y: y + bby + vy2,
+        w: bbw,
+        h: bbh
+      });
+    }
+    
+    if (fgte(vy2, 0) && !mapCollides(ctx, x + bbx, y + bby + vy2, bbw, bbh)) {
+      entity.vy = vy2;
+      return true;
+    }
+
+
+
+  } else if (vx < 0 && vy < 0) {
+
+  } else {
+
+  }
+
   const collidex = mapCollides(ctx, x + bbx + vx, y + bby, bbw, bbh);
   const collidey = mapCollides(ctx, x + bbx, y + bby + vy, bbw, bbh);
 
