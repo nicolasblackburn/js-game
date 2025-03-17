@@ -89,7 +89,8 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
       entity.vy = 0;
     }
 
-    processCollisions(ctx, entity);
+    updateMovement(ctx, entity);
+
     entity.vx += entity.ax;
     entity.vy += entity.ay;
     entity.x += entity.vx;
@@ -122,13 +123,17 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
 
 });
 
-function isSolid(ctx, x, y) {
+const isSolid = virtual(function isSolid(ctx, x, y) {
   const {gameState} = ctx;
   const map = getMap(ctx);
   const layer = map.layers[gameState.map.layer];
   const {data, width, height} = layer;
   const {tileheight, tilewidth, tilesets} = map;
   const tilesCollision = tilesets[0].tiles.map(tile => getMapProperty(tile, 'collision'));
+
+  // We could handle interval end cases better 
+  // here but, for now we'll just keep using
+  // an epsilon because it is simpler.
 
   const tilex = x / tilewidth | 0;
   const tiley = y / tileheight | 0;
@@ -144,12 +149,13 @@ function isSolid(ctx, x, y) {
     return false;
 
   }
-}
+});
 
-function collides(ctx, entity, x, y) {
-  const map = getMap(ctx);
+const mapCollides = virtual(function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
+  if (map === undefined) {
+    map = getMap(ctx);
+  }
   const {tileheight, tilewidth} = map;
-  let {bbx, bby, bbw, bbh} = entity;
 
   // For each sensor point (four corners of collision
   // rectangle plus extra vertexes to ensure the map's 
@@ -158,10 +164,10 @@ function collides(ctx, entity, x, y) {
   // the case, find the shortest penetration vector 
   // that puts the entity in a non-collision position.
   
-  const startx = x + bbx;
-  const endx = x + bbx + bbw;
-  const starty = y + bby;
-  const endy = y + bby + bbh;
+  const startx = bbx;
+  const endx = bbx + bbw;
+  const starty = bby;
+  const endy = bby + bbh;
 
   // We must remove a small number when checking
   // endpoints because we are dealing with
@@ -187,139 +193,191 @@ function collides(ctx, entity, x, y) {
   
   return false;
 
+});
+
+function feq(x, y) {
+  return Math.abs(x - y) < Number.EPSILON;
 }
 
-const processCollisions = virtual(function checkCollisions(ctx, entity) {
+function flt(x, y) {
+  return x < y && !feq(x, y);
+}
+
+function flte(x, y) {
+  return x < y || feq(x, y);
+}
+
+function fgt(x, y) {
+  return x > y && !feq(x, y);
+}
+
+function fgte(x, y) {
+  return x > y || feq(x, y);
+}
+
+const updateMovement = virtual(function updateMovement(ctx, entity) {
+
+  const {vx, vy} = entity;
+
+  if (!feq(vx, 0) && !feq(vy, 0)) {
+    updateMovementXY(ctx, entity);
+
+  } else if (!feq(vx, 0)) {
+    updateMovementX(ctx, entity);
+
+  } else if (!feq(vy, 0)) {
+    updateMovementY(ctx, entity);
+
+  }
+
+});
+
+const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
+  
   const map = getMap(ctx);
   const {tileheight, tilewidth} = map;
   let {x, y, vx, vy, bbx, bby, bbw, bbh} = entity;
 
-  if (!collides(ctx, entity, x + vx, y + vy)) {
+  if (!mapCollides(ctx, x + bbx + vx, y + bby + vy, bbw, bbh)) {
+    return true;
+
+  }
+
+  const collidex = mapCollides(ctx, x + bbx + vx, y + bby, bbw, bbh);
+  const collidey = mapCollides(ctx, x + bbx, y + bby + vy, bbw, bbh);
+
+  if (collidex && collidey) {
+    entity.vx = 0;
+    entity.vy = 0;
+    return true;
+
+  } else if (collidex) {
+    entity.vx = 0;
+    return true;
+
+  } else if (collidey) {
+    entity.vy = 0;
+    return true;
+
+  }
+
+});
+
+const updateMovementX = virtual(function updateMovementX(ctx, entity) {
+  
+  let {x, y, vx, bbx, bby, bbw, bbh} = entity;
+
+  if (!mapCollides(ctx, x + bbx + vx, y + bby, bbw, bbh)) {
+    return;
+  }
+  
+  let nudgeup = false;
+  let nudgedown = false;
+  
+  // If it is a corner collision nudge
+
+  if (vx > 0) {
+    const collidetop = isSolid(ctx, x + bbx + bbw + vx - EPSILON, y + bby, bbw, bbh);
+    const collidebottom = isSolid(ctx, x + bbx + bbw + vx - EPSILON, y + bby + bbh - EPSILON, bbw, bbh);
+    nudgeup = !collidetop && collidebottom;
+    nudgedown = collidetop && !collidebottom;
+
+    if (nudgedown) {
+      entity.vx = vx * SQRT_1_2;
+      entity.vy = vx * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
+    } else if (nudgeup) {
+      entity.vx = vx * SQRT_1_2;
+      entity.vy = -vx * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
+    }
+
+  } else {
+    const collidetop = isSolid(ctx, x + bbx + vx, y + bby, bbw, bbh);
+    const collidebottom = isSolid(ctx, x + bbx + vx, y + bby + bbh - EPSILON, bbw, bbh);
+    nudgeup = !collidetop && collidebottom;
+    nudgedown = collidetop && !collidebottom;
+
+    if (nudgedown) {
+      entity.vx = vx * SQRT_1_2;
+      entity.vy = -vx * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
+    } else if (nudgeup) {
+      entity.vx = vx * SQRT_1_2;
+      entity.vy = vx * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
+    }
+  }
+
+  // Not a corner collision cancel x movement
+  entity.vx = 0;
+
+});
+
+const updateMovementY = virtual(function updateMovementY(ctx, entity) {
+  
+  let {x, y, vy, bbx, bby, bbw, bbh} = entity;
+
+  if (!mapCollides(ctx, x + bbx, y + bby + vy, bbw, bbh)) {
     return;
   }
 
-  const collidex = collides(ctx, entity, x + vx, y);
-  const collidey = collides(ctx, entity, x, y + vy);
+  let nudgeleft = false;
+  let nudgeright = false;
+  
+  // If it is a corner collision nudge
 
-  if (collidey && collidex) {
-    // Both axis collides. Limit both vx and vy
-    // so that x, y align on the grid
-    
-    if (vy > 0) {
-      const impulse = (y + bby + bbh + vy) % tileheight;
-      vy -= impulse;
-    } else if (vy < 0) {
-      const impulse = (y + bby + vy) % tileheight - tileheight;
-      vy -= impulse;
+  if (vy > 0) {
+    const collideleft = isSolid(ctx, x + bbx, y + bby + bbh + vy - EPSILON, bbw, bbh);
+    const collideright = isSolid(ctx, x + bbx + bbw - EPSILON, y + bby + bbh + vy - EPSILON, bbw, bbh);
+    nudgeleft = !collideleft && collideright;
+    nudgeright = collideleft && !collideright;
+
+    if (nudgeright) {
+      entity.vy = vy * SQRT_1_2;
+      entity.vx = vy * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
+    } else if (nudgeleft) {
+      entity.vy = vy * SQRT_1_2;
+      entity.vx = -vy * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
     }
-
-    if (vx > 0) {
-      const impulse = (x + bbx + bbw + vx) % tilewidth;
-      vx -= impulse;
-    } else if (vx < 0) {
-      const impulse = (x + bbx + vx) % tilewidth - tilewidth;
-      vx -= impulse;
-    }
-
-  } else if (collidey) {
-    // Process vertical collision, align x on the grid
-    
-    if (vy > 0) {
-      const collideleft = isSolid(ctx,
-        x + bbx + vx, 
-        y + bby + bbh + vy - EPSILON);
-
-      const collideright = isSolid(ctx,
-        x + bbx + bbw + vx - EPSILON, 
-        y + bby + bbh + vy - EPSILON);
-
-      const nudgeright = collideleft && !collideright;
-      const nudgeleft = !collideleft && collideleft;
-
-      const impulse = (y + bby + bbh + vy) % tileheight;
-      vy -= impulse;
-
-      if (nudgeright && vx >= 0) {
-        vx = Math.max(SQRT_1_2 * impulse, vx);
-        
-        const maxnudge = -(x + bbx) % tilewidth + tilewidth; 
-
-        if (vx > maxnudge) {
-          vy = vx - maxnudge;
-          vx = maxnudge;
-        }
-        
-      } else if (nudgeleft && vx <= 0) {
-        
-        vx = Math.min(-SQRT_1_2 * impulse, vx);
-
-        const maxnudge = (x + bbx + bbw) % tilewidth + tilewidth; 
-
-        if (-vx > maxnudge) {
-          vy = -vx - maxnudge;
-          vx = -maxnudge;
-        }
-      }
-
-    } else if (vy < 0) {
-      
-      const collideleft = isSolid(ctx,
-        x + bbx + vx, 
-        y + bby + vy);
-
-      const collideright = isSolid(ctx,
-        x + bbx + bbw + vx - EPSILON, 
-        y + bby + vy);
-
-      const nudgeright = collideleft && !collideright;
-      const nudgeleft = !collideleft && collideright;
-
-      const impulse = (y + bby + vy) % tileheight - tileheight;
-
-      vy -= impulse;
-      
-      if (nudgeright && vx >= 0) {
-        vx = Math.max(-SQRT_1_2 * impulse, vx);
-        
-        const maxnudge = -(x + bbx) % tilewidth + tilewidth; 
-
-        if (vx > maxnudge) {
-          vy = -vx + maxnudge;
-          vx = maxnudge;
-        }
-        
-      } else if (nudgeleft && vx <= 0) {
-        
-        vx = Math.min(SQRT_1_2 * impulse, vx);
-
-        const maxnudge = (x + bbx + bbw) % tilewidth + tilewidth; 
-
-        if (-vx > maxnudge) {
-          vy = vx + maxnudge;
-          vx = -maxnudge;
-        }
-      }
-    }
-
-    // If only corner collides nudge
 
   } else {
-    // Process horizontal collision, align y on the grid
-    if (vx > 0) {
-      const impulse = (x + bbx + bbw + vx) % tilewidth;
-      vx -= impulse;
+    const collideleft = isSolid(ctx, x + bbx, y + bby + vy, bbw, bbh);
+    const collideright = isSolid(ctx, x + bbx + bbw - EPSILON, y + bby + vy, bbw, bbh);
+    nudgeleft = !collideleft && collideright;
+    nudgeright = collideleft && !collideright;
 
-    } else if (vx < 0) {
-      const impulse = (x + bbx + vx) % tilewidth - tilewidth;
-      vx -= impulse;
+    if (nudgeright) {
+      entity.vy = vy * SQRT_1_2;
+      entity.vx = -vy * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
+    } else if (nudgeleft) {
+      entity.vy = vy * SQRT_1_2;
+      entity.vx = vy * SQRT_1_2;
+
+      return updateMovementXY(ctx, entity);
+
     }
-
-    // If only corner collides nudge
   }
 
-
-  entity.vx = vx;
-  entity.vy = vy;
+  // Not a corner collision cancel y movement
+  entity.vy = 0;
 
 });
 
