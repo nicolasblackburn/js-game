@@ -244,51 +244,38 @@ const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
   }
 
   // Check if it can do a hook
+  const snapvxplus = tilewidth - (x + bbx) % tilewidth;
+  const snapvxneg = -(x + bbx + bbw) % tilewidth;
+  const snapvyplus = tileheight - (y + bby) % tileheight;
+  const snapvyneg = -(y + bby + bbh) % tileheight;
 
-  if (vx > 0 && vy > 0) {
-    const vx2 = vx - (x + bbx + vx) % tilewidth;
+  if (flt(0, snapvxplus) && 
+    flte(snapvxplus, vx) &&
+    !mapCollides(ctx, x + bbx + snapvxplus, y + bby + vy, bbw, bbh)) {
 
-    if (fgte(vx2, 0) && !mapCollides(ctx, x + bbx + vx2, y + bby + vy, bbw, bbh)) {
-      entity.vx = vx2;
-      return true;
-    }
+    entity.vx = snapvxplus;
+    return true;
 
-    const vy2 = vy - (y + bby + vy) % tileheight;
+  } else if (fgte(vx, snapvxneg) &&
+    fgt(snapvxneg, 0) &&
+    !mapCollides(ctx, x + bbx + snapvxneg, y + bby + vy, bbw, bbh)) {
+
+    entity.vx = snapvxneg;
+    return true;
+
+  } else if (flt(0, snapvyplus) &&
+    flte(snapvyplus, vy) &&
+    !mapCollides(ctx, x + bbx + vx, y + bby + snapvyplus, bbw, bbh)) {
+
+    entity.vy = snapvyplus;
+    return true;
     
-    if (fgte(vy2, 0) && !mapCollides(ctx, x + bbx, y + bby + vy2, bbw, bbh)) {
-      entity.vy = vy2;
-      return true;
-    }
+  } else if (fgte(vy, snapvyneg) &&
+    fgt(snapvyneg, 0) &&
+    !mapCollides(ctx, x + bbx + vx, y + bby + snapvyneg, bbw, bbh)) {
 
-  } else if (vx < 0 && vy > 0) {
-    const vx2 = vx + (x + bbx + bbw + vx) % tilewidth - tilewidth;
-
-    if (flte(vx2, 0) && !mapCollides(ctx, x + bbx + vx2, y + bby + vy, bbw, bbh)) {
-      entity.vx = vx2;
-      return true;
-    }
-
-    const vy2 = vy - (y + bby + vy) % tileheight;
-
-    if (fgte(vy2, 0)) {
-      printInfo({
-        x: x + bbx + vx,
-        y: y + bby + vy2,
-        w: bbw,
-        h: bbh
-      });
-    }
-    
-    if (fgte(vy2, 0) && !mapCollides(ctx, x + bbx, y + bby + vy2, bbw, bbh)) {
-      entity.vy = vy2;
-      return true;
-    }
-
-
-
-  } else if (vx < 0 && vy < 0) {
-
-  } else {
+    entity.vy = snapvyneg;
+    return true;
 
   }
 
