@@ -41,8 +41,9 @@ It also support error capture and messaging in the server's standard output.
 ✔ Tools - Error reporting is finicky sometimes
 ✔ Maps - Scrolling
 ✔ Rendering - Viewport resize
-- Tools - Hot code reload for constants
-- Tools - Modifying state from remote console
+✔ Collisions - Soft corners
+- Collisions - Half-tiles
+- Collisions - Diagonals
 - Maps - Rooms
 - AI - Some minimal AI system
 - Gameplay - Monster movements
@@ -52,9 +53,8 @@ It also support error capture and messaging in the server's standard output.
 - Gameplay - Attack
 - Gameplay - Monster health
 - Gameplay - Boss & victory
-- Collisions - Soft corners
-- Collisions - Half-tiles
-- Collisions - Diagonals
 - Inputs - Inputs feedback
+- Tools - Hot code reload for constants
+- Tools - Modifying state from remote console
 - Events - Should event be queued and processed all together?
 
