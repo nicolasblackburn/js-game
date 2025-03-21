@@ -48,9 +48,11 @@ const resize = virtual(function resize(ctx, event) {
 
 });
 
-const update = virtual(function update(ctx, currentTime) {
-  const deltaTime = !ctx.lastTime ? 0 : currentTime - ctx.lastTime;
-  ctx.fixedTimeLeft += deltaTime;
+const update = virtual(function update(ctx, currentTime = 0) {
+  ctx.currentTime = currentTime;
+  ctx.fixedTimeLeft += ctx.currentTime - ctx.lastTime;
+
+  updateAnimations(ctx);
 
   while (ctx.fixedTimeLeft > 0) {
     fixedUpdate(ctx);
@@ -61,6 +63,92 @@ const update = virtual(function update(ctx, currentTime) {
 
   ctx.lastTime = currentTime;
 
+});
+
+const updateAnimations = virtual(function updateAnimations(ctx) {
+  const {gamepad, gameState, currentTime, lastTime} = ctx;
+  const {player, enemies} = gameState;
+
+  if (gamepad.axes[0] === 0) {
+    if (player.animations[0].name.slice(-2) === '_r') {
+      player.animations[0].name = 'hero_idle_r';
+    } else if (player.animations[0].name.slice(-2) === '_l') {
+      player.animations[0].name = 'hero_idle_l';
+    }
+
+  } else if (gamepad.axes[0] > 0) {
+    player.animations[0].name = 'hero_walkcycle_r';
+
+  } else if (gamepad.axes[0] < 0) {
+    player.animations[0].name = 'hero_walkcycle_l';
+
+  }
+
+  // Calculate deltaTime
+  const deltaTime = currentTime - lastTime;
+
+  const entities = [player, ...enemies];
+
+  for (const entity of entities) {
+    const animations = entity.animations ?? [];
+    for (const state of animations) {
+      printInfo(state);
+      state.time += deltaTime;
+      const animation = getAnimation(ctx, state.name);
+      if (animation) {
+        if (animation.loop) {
+          state.time = state.time % animation.duration;
+        } 
+        applyAnimation(entity, animation, state.time);
+      }
+    }
+  }
+
+});
+
+const getAnimation = virtual(function getAnimation(ctx, name) {
+  return ctx.animations[name];
+});
+
+const applyAnimation = virtual(function applyAnimation(target, animation, time) {
+  const {duration, frames, properties} = animation;
+
+  let prevframe = 0;
+  let frame = 0;
+
+  if (time >= duration) {
+    frame = frames.length - 1;
+    prevframe = frame;
+  } else {
+
+    // Find frame before and after. Some 
+    // optimizations like searching from the last
+    // frame index or using binary search could 
+    // be more efficient but is it really needed?
+    while (frames[frame] < time) {
+      frame++;
+      prevframe = frame - 1;
+    }
+  }
+  
+  // These will be used for interpolation.
+  const t = time - frames[prevframe];
+  const d = (frames[frame] - frames[prevframe]) || 1;
+  const a = (d - t) / d;
+  const b = t / d;
+
+  for (let {path, values} of properties) {
+    let node = target;
+    while (path.length > 1) {
+      node = node[path.unshift()] ?? {};
+    }
+
+    if (typeof values[prevframe] === 'number') {
+      target[path[0]] = a * values[prevframe] + b * values[frame];
+    } else {
+      target[path[0]] = values[prevframe];
+    }
+  }
 });
 
 const fixedUpdate = virtual(function fixedUpdate(ctx) {
@@ -163,7 +251,7 @@ const mapCollides = virtual(function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
   // check if the sensor hit a solid tile. If that is
   // the case, find the shortest penetration vector 
   // that puts the entity in a non-collision position.
-  
+
   const startx = bbx;
   const endx = bbx + bbw;
   const starty = bby;
@@ -190,28 +278,28 @@ const mapCollides = virtual(function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
       return true;
     }
   }
-  
+
   return false;
 
 });
 
-function feq(x, y) {
+export function feq(x, y) {
   return Math.abs(x - y) < Number.EPSILON;
 }
 
-function flt(x, y) {
+export function flt(x, y) {
   return x < y && !feq(x, y);
 }
 
-function flte(x, y) {
+export function flte(x, y) {
   return x < y || feq(x, y);
 }
 
-function fgt(x, y) {
+export function fgt(x, y) {
   return x > y && !feq(x, y);
 }
 
-function fgte(x, y) {
+export function fgte(x, y) {
   return x > y || feq(x, y);
 }
 
@@ -233,7 +321,7 @@ const updateMovement = virtual(function updateMovement(ctx, entity) {
 });
 
 const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
-  
+
   const map = getMap(ctx);
   const {tileheight, tilewidth} = map;
   let {x, y, vx, vy, bbx, bby, bbw, bbh} = entity;
@@ -269,7 +357,7 @@ const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
 
     entity.vy = snapvyplus;
     return true;
-    
+
   } else if (fgte(vy, snapvyneg) &&
     fgt(snapvyneg, 0) &&
     !mapCollides(ctx, x + bbx + vx, y + bby + snapvyneg, bbw, bbh)) {
@@ -300,16 +388,16 @@ const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
 });
 
 const updateMovementX = virtual(function updateMovementX(ctx, entity) {
-  
+
   let {x, y, vx, bbx, bby, bbw, bbh} = entity;
 
   if (!mapCollides(ctx, x + bbx + vx, y + bby, bbw, bbh)) {
     return;
   }
-  
+
   let nudgeup = false;
   let nudgedown = false;
-  
+
   // If it is a corner collision nudge
 
   if (vx > 0) {
@@ -359,7 +447,7 @@ const updateMovementX = virtual(function updateMovementX(ctx, entity) {
 });
 
 const updateMovementY = virtual(function updateMovementY(ctx, entity) {
-  
+
   let {x, y, vy, bbx, bby, bbw, bbh} = entity;
 
   if (!mapCollides(ctx, x + bbx, y + bby + vy, bbw, bbh)) {
@@ -368,7 +456,7 @@ const updateMovementY = virtual(function updateMovementY(ctx, entity) {
 
   let nudgeleft = false;
   let nudgeright = false;
-  
+
   // If it is a corner collision nudge
 
   if (vy > 0) {
@@ -430,12 +518,12 @@ const renderSprites = virtual(function renderSprites(ctx) {
   for (let i = 0; i < Math.min(sprites.length, entities.length); i++) {
     const entity = entities[i];
     const sprite = sprites[i];
-    const {texture, x, y, px, py} = entity;
+    const {texture, x, y, px, py, scalex, scaley} = entity;
     setAttributes(sprite, {
       href: getTextureId(ctx, texture),
       transform: `translate(${
         x - map.x - px
-      }, ${
+      },${
         y - map.y - py
       })`
     });

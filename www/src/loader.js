@@ -1,4 +1,4 @@
-import {printError, virtual} from '../client.js';
+import {printInfo, printError, virtual} from '../client.js';
 import {createSVGElement} from './svg.js';
 
 export const initLoader = virtual(function initLoader(ctx) {
@@ -9,6 +9,7 @@ export const initLoader = virtual(function initLoader(ctx) {
 	ctx.nextTextureId = nextTextureId;
   ctx.nextElementId = nextElementId;
   ctx.maps = {};
+  ctx.animations = {};
 
 	ctx.textures = {
 		EMPTY: createSVGElement('symbol', {
@@ -79,11 +80,21 @@ export const loadSVG = virtual(async function loadSVG(ctx, url) {
 export const loadJSON = virtual(async function loadJSON(ctx, url) {
 	try {
 		const data = await (await fetch(url)).json();
+		data.url = removeSearch(url);
 	  ctx.resources[url] = data;
+		const key = pathFilename(url);
 		if (data.tiledversion) {
-		  data.url = removeSearch(url);
-		  const key = pathFilename(url);
+		  if (!ctx.maps) {
+		    ctx.maps = {};
+		  }
 		  ctx.maps[key] = data;
+    } if (data.animationsversion) {
+      if (!ctx.animations) {
+        ctx.animations = {};
+      }
+      for (const value of data.animations) {
+        ctx.animations[value.name] = value;
+      }
     }
 	} catch(e) {
 	  printError(e.stack);

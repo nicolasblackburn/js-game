@@ -14,7 +14,15 @@ export const initGameState = virtual(function createGameState(ctx) {
     bbx: -8,
     bby: -8,
     bbw: 16,
-    bbh: 16
+    bbh: 16,
+    scalex: 1,
+    scaley: 1,
+    animations: [
+      {
+        name: "hero_idle_r",
+        time: 0,
+      }
+    ]
   };
 
   const enemies = [];

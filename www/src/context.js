@@ -116,7 +116,8 @@ export const createContext = virtual(function createContext() {
       sprites
     },
     view,
-    lastTime: null,
+    currentTime: 0,
+    lastTime: 0,
     fixedTimeLeft: 0,
     fixedTimeStepDuration: 1000 / 60
   };

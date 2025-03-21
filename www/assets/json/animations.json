@@ -1,0 +1,63 @@
+{
+  "animationsversion": "1.0.0",
+  "animations": [
+    {
+      "name": "hero_idle_r",
+      "loop": true,
+      "duration": 320,
+      "frames": [0],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "walkcycle_r_0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hero_idle_l",
+      "loop": true,
+      "duration": 320,
+      "frames": [0],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "walkcycle_l_0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hero_walkcycle_r",
+      "loop": true,
+      "duration": 320,
+      "frames": [0, 160],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "walkcycle_r_0",
+            "walkcycle_r_1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hero_walkcycle_l",
+      "loop": true,
+      "duration": 320,
+      "frames": [0, 160],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "walkcycle_l_0",
+            "walkcycle_l_1"
+          ]
+        }
+      ]
+    }
+  ]
+}
