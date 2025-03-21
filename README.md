@@ -42,6 +42,7 @@ It also support error capture and messaging in the server's standard output.
 ✔ Maps - Scrolling
 ✔ Rendering - Viewport resize
 ✔ Collisions - Soft corners
+✔ Graphics - Animations
 - Collisions - Half-tiles
 - Collisions - Diagonals
 - Maps - Rooms
@@ -49,7 +50,6 @@ It also support error capture and messaging in the server's standard output.
 - Gameplay - Monster movements
 - Gameplay - Player health
 - Gameplay - Player death
-- Graphics - Animations
 - Gameplay - Attack
 - Gameplay - Monster health
 - Gameplay - Boss & victory

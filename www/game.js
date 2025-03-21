@@ -92,7 +92,6 @@ const updateAnimations = virtual(function updateAnimations(ctx) {
   for (const entity of entities) {
     const animations = entity.animations ?? [];
     for (const state of animations) {
-      printInfo(state);
       state.time += deltaTime;
       const animation = getAnimation(ctx, state.name);
       if (animation) {
