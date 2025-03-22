@@ -16,15 +16,37 @@ const fns = {
         listener(url);
       }
     }
-	}
+	},
+  getContext: async () => {
+    send(undefined, await asyncContext);
+  },
+  updateContext: async (updates) => {
+    const ctx = await asyncContext;
+    for (const [handler, path, value] of updates) {
+      let target = ctx;
+      while (path.length > 1) {
+        target = target[path.shift()] ?? {};
+      }
+      
+      target[path[0]] = value;
+    }
+  }
 };
+
+let setContextResolve;
+const asyncContext = new Promise(resolve => {
+  setContextResolve = resolve;
+});
+function setContext(ctx) {
+  setContextResolve(ctx);
+}
 
 function call(fn, ...args) {
 	(fns[fn] ?? (() => undefined))(...args);
 }
 
 const connection = new Promise(resolve => {
-  const ws = new WebSocket('ws://localhost:3000');
+  const ws = new WebSocket('ws://localhost:3000?useragent=game');
 
   // Send a message to the server
   ws.onopen = function() {
@@ -168,7 +190,8 @@ window.devEnv = {
   virtual,
   printError,
   printInfo,
-  addReloadListener
+  addReloadListener,
+  setContext
 };
 
 const {log, error} = console;

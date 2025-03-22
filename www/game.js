@@ -10,6 +10,8 @@ const SQRT_1_2 = 1 / 2**0.5;
 async function load() {
 	const ctx = createContext();
 
+	devEnv?.setContext(ctx);
+
 	addEventListeners(ctx);
 
 	devEnv?.addReloadListener(url => reload(ctx, url));
