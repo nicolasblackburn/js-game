@@ -21,6 +21,8 @@ app.use(nocache());
 // Serve static files (e.g., HTML, JS, CSS)
 app.use(express.static(wwwdir), serveIndex(wwwdir));
 
+app.get('/manifest.json', (req, res) => res.send(getDirectoryContents(wwwdir)));
+
 // Start the HTTP server
 const server = app.listen(port, () => {
   console.log(`Server running at http://${host}:${port}`);
@@ -68,7 +70,6 @@ const fns = {
 // WebSocket connection event
 wss.on('connection', (ws) => {
 	console.log(util.styleText('greenBright', 'New WebSocket connection'));
-	send(ws, "dir", getDirectoryContents(wwwdir));
 
 	// Listen for messages from the client
 	ws.on('message', (data) => {

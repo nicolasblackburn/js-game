@@ -16,25 +16,8 @@ const fns = {
         listener(url);
       }
     }
-	},
-	dir: files => {
-		for (const listener of dirListeners) {
-			listener(files);
-		}
 	}
 };
-
-const dirListeners = [];
-function addDirListener(listener) {
-	if (!dirListeners.includes(listener)) {
-		dirListeners.push(listener);
-	}
-}
-
-const asyncDir = new Promise(addDirListener);
-export async function listDir() {
-  return await asyncDir;
-}
 
 function call(fn, ...args) {
 	(fns[fn] ?? (() => undefined))(...args);
@@ -180,6 +163,23 @@ export function virtual(fn) {
     }
   });
 }
+
+window.devEnv = {
+  virtual,
+  printError,
+  printInfo,
+  addReloadListener
+};
+
+console.log = (...args) => {
+  printInfo(...args);
+  return console.log(...args);
+};
+
+console.error = (...args) => {
+  printError(...args);
+  return console.error(...args);
+};
 
 // Load the main game module
 const script = document.createElement('script');

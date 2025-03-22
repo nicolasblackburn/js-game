@@ -1,4 +1,3 @@
-import {addReloadListener, listDir, printInfo, virtual} from './client.js';
 import {createContext} from './src/context.js';
 import {loadResources, reload, getTextureId} from './src/loader.js';
 import {addEventListeners, addEventListener} from './src/events.js';
@@ -8,15 +7,16 @@ import {getMap, getMapProperty, renderMap} from './src/map.js';
 const EPSILON = 100 * Number.EPSILON;
 const SQRT_1_2 = 1 / 2**0.5
 
-const load = virtual(async function load() {
+const load = devEnv?.virtual(async function load() {
 	const ctx = createContext();
 
 	addEventListeners(ctx);
 
-	addReloadListener(url => reload(ctx, url));
+	devEnv?.addReloadListener(url => reload(ctx, url));
 	addEventListener(ctx, 'resize', resize.bind(null, ctx));
 
-	await loadResources(ctx, await listDir());
+  const urls = await (await fetch('manifest.json')).json();
+	await loadResources(ctx, urls);
 
 	(function updateFrame(currentTime) {
 		update(ctx, currentTime);
@@ -25,7 +25,7 @@ const load = virtual(async function load() {
  
 });
 
-const resize = virtual(function resize(ctx, event) {
+const resize = devEnv?.virtual(function resize(ctx, event) {
   const {view, dom} = ctx;
   const {canvasSvg, viewSvg} = dom;
   const {innerWidth, innerHeight} = window;
@@ -48,10 +48,11 @@ const resize = virtual(function resize(ctx, event) {
 
 });
 
-const update = virtual(function update(ctx, currentTime = 0) {
+const update = devEnv?.virtual(function update(ctx, currentTime = 0) {
   ctx.currentTime = currentTime;
   ctx.fixedTimeLeft += ctx.currentTime - ctx.lastTime;
 
+  updateStates(ctx);
   updateAnimations(ctx);
 
   while (ctx.fixedTimeLeft > 0) {
@@ -65,7 +66,34 @@ const update = virtual(function update(ctx, currentTime = 0) {
 
 });
 
-const updateAnimations = virtual(function updateAnimations(ctx) {
+function updateStates(ctx) {
+  const {gameState} = ctx;
+  const {player, enemies} = gameState;
+
+  const nodes = [gameState, player, ...enemies];
+  for (const node of nodes) {
+    for (const state of node.states ?? []) {
+      const top = state.pop();
+      const result = top(ctx, node);
+      if (result === 'continue') {
+        top.push(top);
+      } else if (result) {
+        const [action, name] = result;
+        const coroutine = ctx.coroutines[name];
+        if (action === 'push') {
+          state.push(top);
+        }
+        if (coroutine && (action === 'push' || action === 'replace')) {
+          state.push(coroutine);
+        }
+      }
+    }
+
+    node.states = node.states?.filter(stack => !stack.length) ?? [];
+  }
+}
+
+const updateAnimations = devEnv?.virtual(function updateAnimations(ctx) {
   const {gamepad, gameState, currentTime, lastTime} = ctx;
   const {player, enemies} = gameState;
 
@@ -105,11 +133,11 @@ const updateAnimations = virtual(function updateAnimations(ctx) {
 
 });
 
-const getAnimation = virtual(function getAnimation(ctx, name) {
+const getAnimation = devEnv?.virtual(function getAnimation(ctx, name) {
   return ctx.animations[name];
 });
 
-const applyAnimation = virtual(function applyAnimation(target, animation, time) {
+const applyAnimation = devEnv?.virtual(function applyAnimation(target, animation, time) {
   const {duration, frames, properties} = animation;
 
   let prevframe = 0;
@@ -150,7 +178,7 @@ const applyAnimation = virtual(function applyAnimation(target, animation, time) 
   }
 });
 
-const fixedUpdate = virtual(function fixedUpdate(ctx) {
+const fixedUpdate = devEnv?.virtual(function fixedUpdate(ctx) {
   const {gamepad, gameState, view} = ctx;
   const {player, enemies} = gameState;
 
@@ -210,7 +238,7 @@ const fixedUpdate = virtual(function fixedUpdate(ctx) {
 
 });
 
-const isSolid = virtual(function isSolid(ctx, x, y) {
+const isSolid = devEnv?.virtual(function isSolid(ctx, x, y) {
   const {gameState} = ctx;
   const map = getMap(ctx);
   const layer = map.layers[gameState.map.layer];
@@ -238,7 +266,7 @@ const isSolid = virtual(function isSolid(ctx, x, y) {
   }
 });
 
-const mapCollides = virtual(function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
+const mapCollides = devEnv?.virtual(function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
   if (map === undefined) {
     map = getMap(ctx);
   }
@@ -302,7 +330,7 @@ export function fgte(x, y) {
   return x > y || feq(x, y);
 }
 
-const updateMovement = virtual(function updateMovement(ctx, entity) {
+const updateMovement = devEnv?.virtual(function updateMovement(ctx, entity) {
 
   const {vx, vy} = entity;
 
@@ -319,7 +347,7 @@ const updateMovement = virtual(function updateMovement(ctx, entity) {
 
 });
 
-const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
+const updateMovementXY = devEnv?.virtual(function updateMovementXY(ctx, entity) {
 
   const map = getMap(ctx);
   const {tileheight, tilewidth} = map;
@@ -386,7 +414,7 @@ const updateMovementXY = virtual(function updateMovementXY(ctx, entity) {
 
 });
 
-const updateMovementX = virtual(function updateMovementX(ctx, entity) {
+const updateMovementX = devEnv?.virtual(function updateMovementX(ctx, entity) {
 
   let {x, y, vx, bbx, bby, bbw, bbh} = entity;
 
@@ -445,7 +473,7 @@ const updateMovementX = virtual(function updateMovementX(ctx, entity) {
 
 });
 
-const updateMovementY = virtual(function updateMovementY(ctx, entity) {
+const updateMovementY = devEnv?.virtual(function updateMovementY(ctx, entity) {
 
   let {x, y, vy, bbx, bby, bbw, bbh} = entity;
 
@@ -504,12 +532,12 @@ const updateMovementY = virtual(function updateMovementY(ctx, entity) {
 
 });
 
-const render = virtual(function render(ctx) {
+const render = devEnv?.virtual(function render(ctx) {
   renderMap(ctx);
   renderSprites(ctx);
 });
 
-const renderSprites = virtual(function renderSprites(ctx) {
+const renderSprites = devEnv?.virtual(function renderSprites(ctx) {
   const {player, enemies, map} = ctx.gameState;
   const {sprites} = ctx.dom;
   const entities = [player, ...enemies];
