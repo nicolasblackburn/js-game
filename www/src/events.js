@@ -1,4 +1,3 @@
-import {virtual} from '../client.js';
 import {addGamepadEventListeners} from './gamepad.js';
 
 const EVENT_TYPES = [

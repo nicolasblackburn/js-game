@@ -1,4 +1,3 @@
-import {printInfo, virtual} from '../client.js';
 import {getTextureId, pathDirname, pathJoin} from './loader.js';
 import {setAttributes} from './svg.js';
 
@@ -12,7 +11,7 @@ export function getMap(ctx, name) {
   return map;
 }
 
-export const renderMap = virtual(function renderMap(ctx, map) {
+export function renderMap(ctx, map) {
   map = map ?? getMap(ctx);
   
   const {dom, gameState, textures, view} = ctx;
@@ -53,6 +52,5 @@ export const renderMap = virtual(function renderMap(ctx, map) {
       });
     }
   }
-
-});
+}
 

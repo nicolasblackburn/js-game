@@ -1,11 +1,10 @@
-import {virtual} from '../client.js';
 import {initEvents} from './events.js';
 import {initLoader} from './loader.js';
 import {initGamepad} from './gamepad.js';
 import {createSVGElement} from './svg.js';
 import {initGameState} from './gameState.js';
 
-export const createContext = virtual(function createContext() {
+export function createContext() {
   const view = {
     width: 10,
     height: 9,
@@ -129,5 +128,5 @@ export const createContext = virtual(function createContext() {
   initGameState(ctx);
 
   return ctx;
-});
+}
 

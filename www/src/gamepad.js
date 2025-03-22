@@ -1,4 +1,3 @@
-import {virtual} from '../client.js';
 import {addEventListener, dispatchEvent} from './events.js';
 
 const TOUCH_EVENT_TYPES = [
@@ -47,12 +46,12 @@ export function addGamepadEventListeners(ctx) {
   addEventListener(ctx, 'pointerup', event => touchPointerUp(ctx, event));
 }
 
-const touchPointerDown = virtual(function touchPointerDown(ctx, event) {
+function touchPointerDown(ctx, event) {
   const touch = createTouch(event);
   ctx.touch.touches.push(touch);
-});
+}
 
-const touchPointerMove = virtual(function touchPointerMove(ctx, event) {
+function touchPointerMove(ctx, event) {
   const touch = findClosestTouch(ctx, event);
   touch.moveX = event.x - touch.startX;
   touch.moveY = event.y - touch.startY;
@@ -115,9 +114,9 @@ const touchPointerMove = virtual(function touchPointerMove(ctx, event) {
       touch
     });
   }
-});
+}
 
-const touchPointerUp = virtual(function touchPointerUp(ctx, event) {
+function touchPointerUp(ctx, event) {
   const index = {value: undefined};
   const touch = findClosestTouch(ctx, event, index);
   ctx.touch.touches.splice(index.value, 1);
@@ -132,7 +131,7 @@ const touchPointerUp = virtual(function touchPointerUp(ctx, event) {
       touch
     });
   }
-});
+}
 
 function createTouch({x, y}) {
   const touchState = {

@@ -1,12 +1,13 @@
 // Import required modules
 const express = require('express');
 const WebSocket = require('ws');
-const path = require('path');
-const fs = require('fs');
+const path = require('node:path');
+const fs = require('node:fs');
 const chokidar = require("chokidar");
-const util = require("util");
+const util = require("node:util");
 const nocache = require('nocache');
 const serveIndex = require('serve-index');
+const acorn = require('acorn');
 
 // Create an Express app
 const app = express();
@@ -18,10 +19,48 @@ const wwwdir = path.join(__dirname, 'www');
 app.set('etag', false);
 app.use(nocache());
 
+
+app.use(async (req, res, next) => {
+  if (req.url === '/manifest.json') {
+
+    res.send(getDirectoryContents(wwwdir));
+
+  } else if (path.extname(req.path) === '.js' && req.path !== '/client.js') {
+
+    const code = await (await fs.promises.readFile(path.join(wwwdir, req.path))).toString();
+    const ast = acorn.parse(code, {sourceType: 'module'});
+
+    let newcode = '';
+    for (const node of ast.body) {
+      if (
+        node.type === 'ExportNamedDeclaration' && 
+        (
+          node.declaration.type === 'FunctionDeclaration' || 
+          node.declaration.type === 'ClassDeclaration')
+      ) {
+        newcode += `export const ${node.declaration.id.name} = devEnv?.virtual(${code.slice(node.declaration.start, node.declaration.end)});` + '\n';
+      } else if (
+        node.type === 'FunctionDeclaration' || 
+        node.type === 'ClassDeclaration'
+      ) {
+        newcode += `const ${node.id.name} = devEnv?.virtual(${code.slice(node.start, node.end)});` + '\n';
+      } else {
+        newcode += code.slice(node.start, node.end)+ '\n';
+      }
+    }
+
+    res.setHeader('Content-Type', 'application/javascript');
+    res.send(newcode);
+
+  } else {
+
+    next();
+
+  }
+});
+
 // Serve static files (e.g., HTML, JS, CSS)
 app.use(express.static(wwwdir), serveIndex(wwwdir));
-
-app.get('/manifest.json', (req, res) => res.send(getDirectoryContents(wwwdir)));
 
 // Start the HTTP server
 const server = app.listen(port, () => {

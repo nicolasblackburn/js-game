@@ -171,14 +171,15 @@ window.devEnv = {
   addReloadListener
 };
 
+const {log, error} = console;
 console.log = (...args) => {
   printInfo(...args);
-  return console.log(...args);
+  return log(...args);
 };
 
 console.error = (...args) => {
   printError(...args);
-  return console.error(...args);
+  return error(...args);
 };
 
 // Load the main game module

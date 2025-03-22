@@ -5,9 +5,9 @@ import {setAttributes} from './src/svg.js';
 import {getMap, getMapProperty, renderMap} from './src/map.js';
 
 const EPSILON = 100 * Number.EPSILON;
-const SQRT_1_2 = 1 / 2**0.5
+const SQRT_1_2 = 1 / 2**0.5;
 
-const load = devEnv?.virtual(async function load() {
+async function load() {
 	const ctx = createContext();
 
 	addEventListeners(ctx);
@@ -23,9 +23,9 @@ const load = devEnv?.virtual(async function load() {
 		requestAnimationFrame(updateFrame);
 	})();
  
-});
+}
 
-const resize = devEnv?.virtual(function resize(ctx, event) {
+function resize(ctx, event) {
   const {view, dom} = ctx;
   const {canvasSvg, viewSvg} = dom;
   const {innerWidth, innerHeight} = window;
@@ -46,9 +46,9 @@ const resize = devEnv?.virtual(function resize(ctx, event) {
 		height
   });
 
-});
+}
 
-const update = devEnv?.virtual(function update(ctx, currentTime = 0) {
+function update(ctx, currentTime = 0) {
   ctx.currentTime = currentTime;
   ctx.fixedTimeLeft += ctx.currentTime - ctx.lastTime;
 
@@ -64,7 +64,7 @@ const update = devEnv?.virtual(function update(ctx, currentTime = 0) {
 
   ctx.lastTime = currentTime;
 
-});
+}
 
 function updateStates(ctx) {
   const {gameState} = ctx;
@@ -93,7 +93,7 @@ function updateStates(ctx) {
   }
 }
 
-const updateAnimations = devEnv?.virtual(function updateAnimations(ctx) {
+function updateAnimations(ctx) {
   const {gamepad, gameState, currentTime, lastTime} = ctx;
   const {player, enemies} = gameState;
 
@@ -131,13 +131,13 @@ const updateAnimations = devEnv?.virtual(function updateAnimations(ctx) {
     }
   }
 
-});
+}
 
-const getAnimation = devEnv?.virtual(function getAnimation(ctx, name) {
+function getAnimation(ctx, name) {
   return ctx.animations[name];
-});
+}
 
-const applyAnimation = devEnv?.virtual(function applyAnimation(target, animation, time) {
+function applyAnimation(target, animation, time) {
   const {duration, frames, properties} = animation;
 
   let prevframe = 0;
@@ -176,9 +176,9 @@ const applyAnimation = devEnv?.virtual(function applyAnimation(target, animation
       target[path[0]] = values[prevframe];
     }
   }
-});
+}
 
-const fixedUpdate = devEnv?.virtual(function fixedUpdate(ctx) {
+function fixedUpdate(ctx) {
   const {gamepad, gameState, view} = ctx;
   const {player, enemies} = gameState;
 
@@ -236,9 +236,9 @@ const fixedUpdate = devEnv?.virtual(function fixedUpdate(ctx) {
   gameState.map.x = Math.min(Math.max(lowboundx, player.x - viewwidth / 2), upboundx);
   gameState.map.y = Math.min(Math.max(lowboundy, player.y - viewheight / 2), upboundy);
 
-});
+}
 
-const isSolid = devEnv?.virtual(function isSolid(ctx, x, y) {
+function isSolid(ctx, x, y) {
   const {gameState} = ctx;
   const map = getMap(ctx);
   const layer = map.layers[gameState.map.layer];
@@ -264,9 +264,9 @@ const isSolid = devEnv?.virtual(function isSolid(ctx, x, y) {
     return false;
 
   }
-});
+}
 
-const mapCollides = devEnv?.virtual(function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
+function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
   if (map === undefined) {
     map = getMap(ctx);
   }
@@ -308,7 +308,7 @@ const mapCollides = devEnv?.virtual(function mapCollides(ctx, bbx, bby, bbw, bbh
 
   return false;
 
-});
+}
 
 export function feq(x, y) {
   return Math.abs(x - y) < Number.EPSILON;
@@ -330,7 +330,7 @@ export function fgte(x, y) {
   return x > y || feq(x, y);
 }
 
-const updateMovement = devEnv?.virtual(function updateMovement(ctx, entity) {
+function updateMovement(ctx, entity) {
 
   const {vx, vy} = entity;
 
@@ -345,9 +345,9 @@ const updateMovement = devEnv?.virtual(function updateMovement(ctx, entity) {
 
   }
 
-});
+}
 
-const updateMovementXY = devEnv?.virtual(function updateMovementXY(ctx, entity) {
+function updateMovementXY(ctx, entity) {
 
   const map = getMap(ctx);
   const {tileheight, tilewidth} = map;
@@ -412,9 +412,9 @@ const updateMovementXY = devEnv?.virtual(function updateMovementXY(ctx, entity) 
 
   }
 
-});
+}
 
-const updateMovementX = devEnv?.virtual(function updateMovementX(ctx, entity) {
+function updateMovementX(ctx, entity) {
 
   let {x, y, vx, bbx, bby, bbw, bbh} = entity;
 
@@ -471,9 +471,9 @@ const updateMovementX = devEnv?.virtual(function updateMovementX(ctx, entity) {
   // Not a corner collision cancel x movement
   entity.vx = 0;
 
-});
+}
 
-const updateMovementY = devEnv?.virtual(function updateMovementY(ctx, entity) {
+function updateMovementY(ctx, entity) {
 
   let {x, y, vy, bbx, bby, bbw, bbh} = entity;
 
@@ -530,14 +530,14 @@ const updateMovementY = devEnv?.virtual(function updateMovementY(ctx, entity) {
   // Not a corner collision cancel y movement
   entity.vy = 0;
 
-});
+}
 
-const render = devEnv?.virtual(function render(ctx) {
+function render(ctx) {
   renderMap(ctx);
   renderSprites(ctx);
-});
+}
 
-const renderSprites = devEnv?.virtual(function renderSprites(ctx) {
+function renderSprites(ctx) {
   const {player, enemies, map} = ctx.gameState;
   const {sprites} = ctx.dom;
   const entities = [player, ...enemies];
@@ -556,7 +556,7 @@ const renderSprites = devEnv?.virtual(function renderSprites(ctx) {
     });
   }
 
-});
+}
 
 window.addEventListener('load', load);
 

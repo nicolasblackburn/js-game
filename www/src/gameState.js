@@ -1,6 +1,4 @@
-import {virtual} from '../client.js';
-
-export const initGameState = virtual(function createGameState(ctx) {
+export function initGameState(ctx) {
   const player = {
     texture: 'walkcycle_r_0',
     x: 24,
@@ -39,5 +37,5 @@ export const initGameState = virtual(function createGameState(ctx) {
     player,
     enemies
   };
-})
+}
 

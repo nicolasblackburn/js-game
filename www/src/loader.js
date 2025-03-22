@@ -1,7 +1,6 @@
-import {printInfo, printError, virtual} from '../client.js';
 import {createSVGElement} from './svg.js';
 
-export const initLoader = virtual(function initLoader(ctx) {
+export function initLoader(ctx) {
 	let nextTextureId = 0;
 	let nextElementId = 0;
 
@@ -19,9 +18,9 @@ export const initLoader = virtual(function initLoader(ctx) {
 
 	ctx.dom.defs.append(ctx.textures.EMPTY);
 
-});
+}
 
-export const loadResources = virtual(async function loadResources(ctx, urls) {
+export async function loadResources(ctx, urls) {
 	for (const url of urls) {
 	  if (ctx.resources[url]) {
 	    continue;
@@ -33,9 +32,9 @@ export const loadResources = virtual(async function loadResources(ctx, urls) {
 			await loadJSON(ctx, url);
 		}
 	}
-});
+}
 
-export const loadSVG = virtual(async function loadSVG(ctx, url) {
+export async function loadSVG(ctx, url) {
 	const tmp = createSVGElement('svg');
 	tmp.innerHTML = await (await fetch(url)).text();
 	const svg = tmp.querySelector('svg');
@@ -75,9 +74,9 @@ export const loadSVG = virtual(async function loadSVG(ctx, url) {
   const qualifiedName = removeSearch(url);
   ctx.textures[qualifiedName] = svg;
   ctx.textures[key] = svg;
-});
+}
 
-export const loadJSON = virtual(async function loadJSON(ctx, url) {
+export async function loadJSON(ctx, url) {
 	try {
 		const data = await (await fetch(url)).json();
 		data.url = removeSearch(url);
@@ -97,11 +96,11 @@ export const loadJSON = virtual(async function loadJSON(ctx, url) {
       }
     }
 	} catch(e) {
-	  printError(e.stack);
+	  console.error(e.stack);
 	}
-});
+}
 
-export const reload = virtual(async function reload(ctx, url) {
+export async function reload(ctx, url) {
 	const extension = pathExtension(url);
 
 	if (extension === 'svg') {
@@ -109,14 +108,14 @@ export const reload = virtual(async function reload(ctx, url) {
   } else if (extension === 'json') {
     await loadJSON(ctx, url);
   }
-});
+}
 
-const reloadSVG = virtual(async function reloadSVG(ctx, url) {
+async function reloadSVG(ctx, url) {
 	const name = pathFilename(url);
 	const tex = ctx.textures[name];
   await loadSVG(ctx, url);
 	ctx.defs.removeChild(tex);
-});
+}
 
 export function pathSplit(path) {
   return (path && path.split('/') || []);
