@@ -43,6 +43,7 @@ It also support error capture and messaging in the server's standard output.
 ✔ Rendering - Viewport resize
 ✔ Collisions - Soft corners
 ✔ Graphics - Animations
+✔ Tools - Modifying state from remote console
 - Collisions - Half-tiles
 - Collisions - Diagonals
 - Maps - Rooms
@@ -55,6 +56,5 @@ It also support error capture and messaging in the server's standard output.
 - Gameplay - Boss & victory
 - Inputs - Inputs feedback
 - Tools - Hot code reload for constants
-- Tools - Modifying state from remote console
 - Events - Should event be queued and processed all together?
 

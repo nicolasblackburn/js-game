@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <defs>
+    
+    <g id="head">
+      
+  <ellipse rx="4" ry="3.5" stroke="#000" fill="#fff" />
+
+    </g>
+    
+    <g id="body">
+      
+  <ellipse cx="" rx="3.5" ry="4" stroke="#000" fill="#fff" />
+
+    </g>
+    
+    <g id="arm_r">
+      
+  <line x2="0" y2="4" stroke="#000" />
+
+    </g>
+    
+    <g id="arm_l">
+      
+  <line x2="0" y2="4" stroke="#000" />
+
+    </g>
+    
+    <g id="leg_r">
+      
+  <line x2="0" y2="4" stroke="#000" />
+
+    </g>
+    
+    <g id="leg_l">
+      
+  <line x2="0" y2="4" stroke="#000" />
+
+    </g>
+    
+  </defs>
+  <g transform="translate(8, 4.5) scale(-1, 1)">
+    <g transform="translate(-3.5, 3.5) rotate(22.5) scale(1, 0.75)">
+      <use href="#arm_l" />
+    </g>
+    <g transform="translate(3.5, 3.5) rotate(-11.25)">
+      <use href="#arm_r" />
+    </g>
+    <g transform="translate(-2.5, 7.5)">
+      <use href="#leg_l" />
+    </g>
+    <g transform="translate(2.5, 7.5) scale(1, 0.75)">
+      <use href="#leg_r" />
+    </g>
+    <g>
+      <use href="#head"/>
+    </g>
+    <g transform="translate(0, 5)">
+      <use href="#body" />
+    </g>
+  </g>
+</svg>

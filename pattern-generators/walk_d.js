@@ -20,8 +20,8 @@ let {
   strokeWidth: 0.125,
   width: 16,
   images: '.',
+  prefix: 'walk_d',
   output: '.',
-  prefix: 'frame',
   ...argv
 };
 
@@ -33,18 +33,36 @@ const openAngle = 66;
 const legHeight = 4;
 
 const keyFrames = [
+  /*
   {
     y: 0,
-    angle: 0
+    angle: 0,
+    scalearm: 1,
+    rotatearm: 11.25,
+    scaleleg: 1,
+    scalex: 1
+  },
+  */
+  {
+    y: legHeight * (1 - Math.cos(openAngle / 2 / 360 * 2 * Math.PI)),
+    angle: openAngle / 2,
+    scalearm: 0.75,
+    rotatearm: 22.5,
+    scaleleg: 0.75,
+    scalex: 1
   },
   {
     y: legHeight * (1 - Math.cos(openAngle / 2 / 360 * 2 * Math.PI)),
-    angle: openAngle / 2
+    angle: openAngle / 2,
+    scalearm: 0.75,
+    rotatearm: 22.5,
+    scaleleg: 0.75,
+    scalex: -1
   }
 ];
 
 function frame(t) {
-  const {y, angle} = keyFrames[t];
+  const {y, scalearm, rotatearm, scaleleg, scalex} = keyFrames[t];
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
   <defs>
     ${Object.entries(defs).map(([id, svg]) => `
@@ -53,24 +71,24 @@ function frame(t) {
     </g>
     `).join('')}
   </defs>
-  <g transform="translate(8.5, 4.5) translate(0, ${y})">
-    <g transform="translate(1.5, 7.5) rotate(${-angle})">
+  <g transform="translate(8, 4.5) scale(${scalex}, 1)">
+    <g transform="translate(-2.5, 7.5)">
       <use href="#leg_l" />
     </g>
-    <g transform="translate(2.5, 4) rotate(${angle})">
-      <use href="#arm_l" />
+    <g transform="translate(2.5, 7.5) scale(1, ${scaleleg})">
+      <use href="#leg_r" />
     </g>
     <g transform="translate(0, 5)">
       <use href="#body" />
     </g>
-    <g transform="translate(-1.5, 7.5) rotate(${angle})">
-      <use href="#leg_r" />
+    <g transform="translate(-3.5, 3.5) rotate(${rotatearm}) scale(1, ${scalearm})">
+      <use href="#arm_l" />
     </g>
-    <g transform="translate(-2.5, 4) rotate(${-angle})">
+    <g transform="translate(3.5, 3.5) rotate(-11.25)">
       <use href="#arm_r" />
     </g>
     <g>
-      <use href="#head" />
+      <use href="#head"/>
     </g>
   </g>
 </svg>

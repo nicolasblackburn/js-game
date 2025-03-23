@@ -10,7 +10,7 @@
         {
           "path": ["texture"],
           "values": [
-            "walkcycle_r_0"
+            "walk_r_0"
           ]
         }
       ]
@@ -24,13 +24,28 @@
         {
           "path": ["texture"],
           "values": [
-            "walkcycle_l_0"
+            "walk_l_0"
           ]
         }
       ]
     },
     {
-      "name": "hero_walkcycle_r",
+      "name": "hero_idle_t",
+      "loop": true,
+      "duration": 320,
+      "frames": [0],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "idle_t_0"
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "hero_walk_r",
       "loop": true,
       "duration": 320,
       "frames": [0, 160],
@@ -38,14 +53,14 @@
         {
           "path": ["texture"],
           "values": [
-            "walkcycle_r_0",
-            "walkcycle_r_1"
+            "walk_r_0",
+            "walk_r_1"
           ]
         }
       ]
     },
     {
-      "name": "hero_walkcycle_l",
+      "name": "hero_walk_l",
       "loop": true,
       "duration": 320,
       "frames": [0, 160],
@@ -53,11 +68,27 @@
         {
           "path": ["texture"],
           "values": [
-            "walkcycle_l_0",
-            "walkcycle_l_1"
+            "walk_l_0",
+            "walk_l_1"
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "hero_walk_t",
+      "loop": true,
+      "duration": 320,
+      "frames": [0, 160],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "walk_t_0",
+            "walk_t_1"
           ]
         }
       ]
     }
+
   ]
 }

@@ -1,3 +1,3 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="-8.5 -8.5 16 16">
-  <ellipse cx="-0.5" rx="3.5" ry="4" stroke="#000" fill="#fff" />
+  <line x2="0" y2="4" stroke="#000" />
 </svg>

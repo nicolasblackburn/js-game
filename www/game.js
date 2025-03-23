@@ -107,12 +107,28 @@ function updateAnimations(ctx) {
     }
 
   } else if (gamepad.axes[0] > 0) {
-    player.animations[0].name = 'hero_walkcycle_r';
+    player.animations[0].name = 'hero_walk_r';
 
   } else if (gamepad.axes[0] < 0) {
-    player.animations[0].name = 'hero_walkcycle_l';
+    player.animations[0].name = 'hero_walk_l';
 
   }
+
+  if (gamepad.axes[1] === 0) {
+    if (player.animations[0].name.slice(-2) === '_t') {
+      player.animations[0].name = 'hero_idle_t';
+    } else if (player.animations[0].name.slice(-2) === '_l') {
+      player.animations[0].name = 'hero_idle_t';
+    }
+
+  } else if (gamepad.axes[1] > 0) {
+    player.animations[0].name = 'hero_walk_t';
+
+  } else if (gamepad.axes[1] < 0) {
+    player.animations[0].name = 'hero_walk_t';
+
+  }
+
 
   // Calculate deltaTime
   const deltaTime = currentTime - lastTime;
