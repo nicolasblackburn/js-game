@@ -1,6 +1,6 @@
 export function initGameState(ctx) {
   const player = {
-    texture: 'walkcycle_r_0',
+    texture: 'EMPTY',
     x: 24,
     y: 24,
     vx: 0,
@@ -15,7 +15,7 @@ export function initGameState(ctx) {
     bbh: 16,
     scalex: 1,
     scaley: 1,
-    dir: 0, // 0: r, 1: t, 2: l, 3: d
+    dir: 0, // 0: r, 1: d, 2: l, 3: t
     animations: [],
     states: [['heroIdleState']]
   };
