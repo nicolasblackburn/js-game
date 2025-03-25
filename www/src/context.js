@@ -3,6 +3,7 @@ import {initLoader} from './loader.js';
 import {initGamepad} from './gamepad.js';
 import {createSVGElement} from './svg.js';
 import {initGameState} from './gameState.js';
+import {initStates} from './states.js';
 
 export function createContext() {
   const view = {
@@ -126,6 +127,7 @@ export function createContext() {
   initGamepad(ctx);
 
   initGameState(ctx);
+  initStates(ctx);
 
   return ctx;
 }

@@ -15,12 +15,9 @@ export function initGameState(ctx) {
     bbh: 16,
     scalex: 1,
     scaley: 1,
-    animations: [
-      {
-        name: "hero_idle_r",
-        time: 0,
-      }
-    ]
+    dir: 0, // 0: r, 1: t, 2: l, 3: d
+    animations: [],
+    states: [['heroIdleState']]
   };
 
   const enemies = [];

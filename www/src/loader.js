@@ -141,8 +141,3 @@ export function pathJoin(...parts) {
   return [].concat(...parts.map(pathSplit)).join('/');
 }
 
-export function getTextureId(ctx, name) {
-  if (ctx.textures[name]) {
-    return '#' + ctx.textures[name].getAttribute('id');
-  }
-}

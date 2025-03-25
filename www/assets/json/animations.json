@@ -88,7 +88,23 @@
           ]
         }
       ]
+    }, 
+    {
+      "name": "hero_walk_d",
+      "loop": true,
+      "duration": 320,
+      "frames": [0, 160],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "walk_d_0",
+            "walk_d_1"
+          ]
+        }
+      ]
     }
+
 
   ]
 }

@@ -28,25 +28,31 @@ app.use(async (req, res, next) => {
   } else if (path.extname(req.path) === '.js' && req.path !== '/client.js') {
 
     const code = await (await fs.promises.readFile(path.join(wwwdir, req.path))).toString();
-    const ast = acorn.parse(code, {sourceType: 'module'});
 
     let newcode = '';
-    for (const node of ast.body) {
-      if (
-        node.type === 'ExportNamedDeclaration' && 
-        (
-          node.declaration.type === 'FunctionDeclaration' || 
-          node.declaration.type === 'ClassDeclaration')
-      ) {
-        newcode += `export const ${node.declaration.id.name} = devEnv?.virtual(${code.slice(node.declaration.start, node.declaration.end)});` + '\n';
-      } else if (
-        node.type === 'FunctionDeclaration' || 
-        node.type === 'ClassDeclaration'
-      ) {
-        newcode += `const ${node.id.name} = devEnv?.virtual(${code.slice(node.start, node.end)});` + '\n';
-      } else {
-        newcode += code.slice(node.start, node.end)+ '\n';
+    try {
+      const ast = acorn.parse(code, {sourceType: 'module'});
+
+      for (const node of ast.body) {
+        if (
+          node.type === 'ExportNamedDeclaration' && 
+          (
+            node.declaration.type === 'FunctionDeclaration' || 
+            node.declaration.type === 'ClassDeclaration')
+        ) {
+          newcode += `export const ${node.declaration.id.name} = devEnv?.virtual(${code.slice(node.declaration.start, node.declaration.end)});` + '\n';
+        } else if (
+          node.type === 'FunctionDeclaration' || 
+          node.type === 'ClassDeclaration'
+        ) {
+          newcode += `const ${node.id.name} = devEnv?.virtual(${code.slice(node.start, node.end)});` + '\n';
+        } else {
+          newcode += code.slice(node.start, node.end)+ '\n';
+        }
       }
+    } catch (error) {
+      fns.error(`Cannot parse ${req.path}`);
+      newcode = code;
     }
 
     res.setHeader('Content-Type', 'application/javascript');

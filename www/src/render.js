@@ -1,17 +1,13 @@
-import {getTextureId, pathDirname, pathJoin} from './loader.js';
+import {pathDirname, pathJoin} from './loader.js';
+import {getMap} from './maps.js';
 import {setAttributes} from './svg.js';
 
-export function getMapProperty(map, pname) {
-  return map?.properties?.find?.(({name}) => name === pname)?.value;
+export function render(ctx) {
+  renderMap(ctx);
+  renderSprites(ctx);
 }
 
-export function getMap(ctx, name) {
-  const {gameState, maps} = ctx;
-  const map = maps[name ?? gameState.map.current];
-  return map;
-}
-
-export function renderMap(ctx, map) {
+function renderMap(ctx, map) {
   map = map ?? getMap(ctx);
   
   const {dom, gameState, textures, view} = ctx;
@@ -53,4 +49,32 @@ export function renderMap(ctx, map) {
     }
   }
 }
+
+function renderSprites(ctx) {
+  const {player, enemies, map} = ctx.gameState;
+  const {sprites} = ctx.dom;
+  const entities = [player, ...enemies];
+
+  for (let i = 0; i < Math.min(sprites.length, entities.length); i++) {
+    const entity = entities[i];
+    const sprite = sprites[i];
+    const {texture, x, y, px, py, scalex, scaley} = entity;
+    setAttributes(sprite, {
+      href: getTextureId(ctx, texture),
+      transform: `translate(${
+        x - map.x - px
+      },${
+        y - map.y - py
+      })`
+    });
+  }
+
+}
+
+export function getTextureId(ctx, name) {
+  if (ctx.textures[name]) {
+    return '#' + ctx.textures[name].getAttribute('id');
+  }
+}
+
 
