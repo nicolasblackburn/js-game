@@ -40,24 +40,24 @@ const bonesdata = [
 
 const timelines = [
   {
-    bone: 'arm_r', attribute: 'rotate', 
-    frames: [ 0,  1],
-    values: [45, 33]
+    bone: 'arm_r', attribute: 'r', 
+    frames: [ 0,  1,  2],
+    values: [45, 33, 45]
   },
   {
-    bone: 'arm_l', attribute: 'rotate', 
-    frames: [  0,   1],
-    values: [-45, -33]
+    bone: 'arm_l', attribute: 'r', 
+    frames: [  0,   1,   2],
+    values: [-45, -33, -45]
   },
   {
-    bone: 'leg_r', attribute: 'scaley', 
-    frames: [0.00, 1.00],
-    values: [0.75, 1.00]
+    bone: 'leg_r', attribute: 'sy', 
+    frames: [   0,    1,    2],
+    values: [0.75, 1.00, 0.75]
   },
   {
-    bone: 'leg_l', attribute: 'scaley', 
-    frames: [0.00, 1.00],
-    values: [1.00, 0.75]
+    bone: 'leg_l', attribute: 'sy', 
+    frames: [   0,    1,    2],
+    values: [1.00, 0.75, 1.00]
   },
 ];
 
@@ -70,9 +70,12 @@ const {root, nodes} = createhierarchy(bonesdata);
     defs[id] = innerHTML.trim();
   }
 
-  console.log(render(0));
-
-  for (let t = 0; t < 2; t++) {
+  for (let i = 0; i < 2; i++) {
+    for (const timeline of timelines) {
+      applytimeline(timeline, i);
+      const filename = path.join(output, `${prefix}_${i}.svg`);
+      await fs.writeFile(filename, render(i));
+    }
   }
 
 })();
@@ -80,6 +83,7 @@ const {root, nodes} = createhierarchy(bonesdata);
 function createbone(attrs = {}) {
   return {
     id: 'root', 
+    index: 0,
     x: 0, 
     y: 0, 
     r: 0,
@@ -87,11 +91,6 @@ function createbone(attrs = {}) {
     sy: 1, 
     children: [],
     transform: [1, 0, 0, 0, 1, 0],
-    wx: 0,
-    wy: 0,
-    wr: 0,
-    wsx: 1,
-    wsy: 1,
     wtransform: [1, 0, 0, 0, 1, 0],
     ...attrs
   };
@@ -101,8 +100,8 @@ function createhierarchy(bonesdata) {
   const root = createbone();
   const map = {[root.id]: root};
 
-  const nodes = bonesdata.map(data => {
-    const bone = createbone(data);
+  const nodes = bonesdata.map((data, index) => {
+    const bone = createbone({...data, index});
     map[bone.id] = bone;
     return bone;
   });
@@ -110,17 +109,15 @@ function createhierarchy(bonesdata) {
   for (const bone of Object.values(nodes)) {
     if (bone.parent) {
       const parent = map[bone.parent];
-      //bone.parent = parent;
       parent.children.push(bone);
     } else if (bone !== root) {
-      //bone.parent = root;
       root.children.push(bone);
     }
   }
 
   updatetransform(root);
 
-  return {root, nodes};
+  return {root, nodes, map};
 }
 
 function updatetransform(node, parent) {
@@ -136,11 +133,6 @@ function updatetransform(node, parent) {
   node.transform = [a, b, c, d, e, f];
 
   if (!parent) {
-    node.wx = node.x;
-    node.wy = node.y;
-    node.wr = node.r;
-    node.wsx = node.sx;
-    node.wsy = node.sy;
     node.wtransform = [a, b, c, d, e, f];
   } else {
     const [
@@ -163,12 +155,6 @@ function updatetransform(node, parent) {
     ];
 
     const [a, b, c, d, e, f] = node.wtransform;
-
-    node.wx = c;
-    node.wy = d;
-    node.wsx = Math.sqrt(a**2 + e**2);
-    node.wsy = Math.sqrt(b**2 + d**2);
-    node.wr = Math.atan2(d, e) * 180 / Math.PI;
   }
 
   for (const child of node.children) {
@@ -190,9 +176,52 @@ function render(t) {
 
 function rendernodes(t) {
   let svg = '';
-  for (const node of nodes.reverse()) {
+  for (const node of nodes.sort((a, b) => b.index - a.index)) {
     const [a, c, e, b, d, f] = node.wtransform;
     svg += `<use href="#${node.id}" transform="matrix(${a} ${b} ${c} ${d} ${e} ${f})" />`;
   }
   return svg;
 }
+
+function applytimeline(timeline, time) {
+  const {bone, attribute, frames, values} = timeline;
+
+  const duration = frames[frames.lentgh - 1] - frames[0];
+
+  let prevframe = 0;
+  let frame = 0;
+
+  if (time >= duration) {
+    frame = frames.length - 1;
+    prevframe = frame;
+  } else {
+
+    // Find frame before and after. Some 
+    // optimizations like searching from the last
+    // frame index or using binary search could 
+    // be more efficient but is it really needed?
+    while (frames[frame] < time) {
+      frame++;
+      prevframe = frame - 1;
+    }
+  }
+  
+  // These will be used for interpolation.
+  const t = time - frames[prevframe];
+  const d = (frames[frame] - frames[prevframe]) || 1;
+  const a = (d - t) / d;
+  const b = t / d;
+
+  const node = nodes.find(node => node.id === bone);
+
+  if (typeof values[prevframe] === 'number') {
+    node[attribute] = a * values[prevframe] + b * values[frame];
+  } else {
+    node[attribute] = values[prevframe];
+  }
+
+  const parent = nodes.find(item => item.id === node.parent)
+  updatetransform(node, parent);
+}
+
+
