@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 16 16">
+  <defs>
+    <g id="head"><ellipse rx="4" ry="3.5" stroke="#000" fill="#fff" /></g><g id="torso"><ellipse rx="3.5" ry="4" stroke="#000" fill="#fff" /></g><g id="arm_r"><line x2="0" y2="4" stroke="#000" /></g><g id="arm_l"><line x2="0" y2="4" stroke="#000" /></g><g id="leg_r"><line x2="0" y2="4" stroke="#000" /></g><g id="leg_l"><line x2="0" y2="4" stroke="#000" /></g>
+  </defs>
+  <use href="#head" transform="translate(0,0) rotate(0) scale(1,1)" /><use href="#torso" transform="translate(0,0) rotate(0) scale(1,1)" /><use href="#arm_r" transform="translate(0,0) rotate(0) scale(1,1)" /><use href="#arm_l" transform="translate(0,0) rotate(0) scale(1,1)" /><use href="#leg_r" transform="translate(0,0) rotate(0) scale(1,1)" /><use href="#leg_l" transform="translate(0,0) rotate(0) scale(1,1)" />
+</svg>
+

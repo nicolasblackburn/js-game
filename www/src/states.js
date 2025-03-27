@@ -6,7 +6,8 @@ import {isSolid} from './movements.js';
 export function initStates(ctx) {
   ctx.states = {
     gameLoadState,
-    heroIdleState
+    heroIdleState,
+    seekState
   };
 }
 
@@ -103,4 +104,26 @@ function heroIdleState(ctx, entity) {
   } 
 } 
 
+function seekState(ctx, entity) {
+  const player = ctx.gameState.player;
+  const map = getMap(ctx);
+    
+  const gridx = entity.x / map.tilewidth;
+  const gridy = entity.y / map.tileheight;
+
+  // If change direction
+  // then update target
+  const seekchance = entity.seekchance ?? 0.25;
+  if (Math.random() < seekchance) {
+
+  } else if (!entity.target) {
+
+  }
+
+  // If target reached
+  // then set idle state
+  // else continue
+  const distance = 1;
+
+} 
 
