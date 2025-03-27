@@ -1,4 +1,4 @@
-import {getMap, getMapProperty} from './maps.js';
+import {getMap, getLayer, getMapProperty} from './maps.js';
 import {EPSILON, SQRT_1_2} from './constants.js';
 
 export function updateMovement(ctx, entity) {
@@ -247,10 +247,10 @@ function mapCollides(ctx, bbx, bby, bbw, bbh, map) {
 
 }
 
-function isSolid(ctx, x, y) {
+export function isSolid(ctx, x, y) {
   const {gameState} = ctx;
   const map = getMap(ctx);
-  const layer = map.layers[gameState.map.layer];
+  const layer = getLayer(ctx);
   const {data, width, height} = layer;
   const {tileheight, tilewidth, tilesets} = map;
   const tilesCollision = tilesets[0].tiles.map(tile => getMapProperty(tile, 'collision'));

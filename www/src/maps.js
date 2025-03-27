@@ -8,4 +8,9 @@ export function getMap(ctx, name) {
   return map;
 }
 
-
+export function getLayer(ctx, map, layerIndex) {
+  const {gameState} = ctx;
+  const mapData = getMap(ctx, map);
+  const layer = mapData.layers[layerIndex] ?? mapData.layers[gameState.map.layer];
+  return layer;
+}

@@ -26,7 +26,6 @@ async function load() {
 		update(ctx, currentTime);
 		requestAnimationFrame(updateFrame);
 	})();
- 
 }
 
 function resize(ctx, event) {

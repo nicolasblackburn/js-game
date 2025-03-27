@@ -1,7 +1,11 @@
 import {setAnimation} from './animations.js';
+import {getLayer, getMap} from './maps.js';
+import {createEntity} from './gameState.js';
+import {isSolid} from './movements.js';
 
 export function initStates(ctx) {
   ctx.states = {
+    gameLoadState,
     heroIdleState
   };
 }
@@ -18,7 +22,7 @@ export function updateStates(ctx) {
       const result = fn?.(ctx, node);
       if (!result || result === 'continue') {
         state.push(top);
-      } else if (result) {
+      } else if (Array.isArray(result)) {
         const [action, name] = result;
         const coroutine = ctx.coroutines[name];
         if (action === 'push') {
@@ -32,6 +36,27 @@ export function updateStates(ctx) {
 
     node.states = node.states?.filter(stack => stack.length) ?? [];
   }
+}
+
+function gameLoadState(ctx, game) {
+  const mapData = getMap(ctx);
+  const layer = getLayer(ctx);
+
+  for (let i = 0; i < 4; i++) {
+    let x;
+    let y;
+    do { 
+      x = mapData.tilewidth * ((Math.random() * (layer.width - 2) | 0) + 1) + 8;
+      y = mapData.tileheight * ((Math.random() * (layer.height - 2) | 0) + 1) + 8;
+    } while (false);
+    game.enemies.push(createEntity({
+      texture: 'idle_t_0',
+      x,
+      y
+    }));
+  }
+
+  return 'terminate';
 }
 
 function heroIdleState(ctx, entity) {

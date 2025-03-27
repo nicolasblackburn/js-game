@@ -32,23 +32,29 @@ app.use(async (req, res, next) => {
     let newcode = '';
     try {
       const ast = acorn.parse(code, {sourceType: 'module'});
+      let index = 0;
 
       for (const node of ast.body) {
+        if (index < node.start) {
+          // Whitespaces
+          newcode += code.slice(index, node.start);
+        }
         if (
           node.type === 'ExportNamedDeclaration' && 
           (
             node.declaration.type === 'FunctionDeclaration' || 
             node.declaration.type === 'ClassDeclaration')
         ) {
-          newcode += `export const ${node.declaration.id.name} = devEnv?.virtual(${code.slice(node.declaration.start, node.declaration.end)});` + '\n';
+          newcode += `export const ${node.declaration.id.name} = devEnv?.virtual(${code.slice(node.declaration.start, node.declaration.end)});`;
         } else if (
           node.type === 'FunctionDeclaration' || 
           node.type === 'ClassDeclaration'
         ) {
-          newcode += `const ${node.id.name} = devEnv?.virtual(${code.slice(node.start, node.end)});` + '\n';
+          newcode += `const ${node.id.name} = devEnv?.virtual(${code.slice(node.start, node.end)});`;
         } else {
-          newcode += code.slice(node.start, node.end)+ '\n';
+          newcode += code.slice(node.start, node.end);
         }
+        index = node.end;
       }
     } catch (error) {
       fns.error(`Cannot parse ${req.path}`);

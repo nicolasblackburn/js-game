@@ -58,7 +58,7 @@ function renderSprites(ctx) {
   for (let i = 0; i < Math.min(sprites.length, entities.length); i++) {
     const entity = entities[i];
     const sprite = sprites[i];
-    const {texture, x, y, px, py, scalex, scaley} = entity;
+    const {texture, x, y, px, py, scalex, scaley, visible} = entity;
     setAttributes(sprite, {
       href: getTextureId(ctx, texture),
       transform: `translate(${
@@ -66,6 +66,10 @@ function renderSprites(ctx) {
       },${
         y - map.y - py
       })`
+    });
+
+    Object.assign(sprite.style, {
+      display: visible ? '' : 'none'
     });
   }
 
