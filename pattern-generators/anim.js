@@ -5,6 +5,10 @@ const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
 
+//let [config] = argv._;
+//console.log(config);
+//return;
+
 let {
   fill,
   stroke,
@@ -29,49 +33,59 @@ height ??= width;
 
 const defs = {};
 
-const bonesdata = [
-  {id: 'head', y: -4},
-  {id: 'torso', y: 2.5},
-  {id: 'arm_r', parent: 'torso', x: -3, y: -2.5, r: 33},
-  {id: 'arm_l', parent: 'torso', x: 3, y: -2.5, r: -33},
-  {id: 'leg_r', parent: 'torso', x: -2, y: 2.5},
-  {id: 'leg_l', parent: 'torso', x: 2, y: 2.5}
-];
+const scenedata = {
+  nodes: [
+    {id: 'torso', y: 2.5, attachment: 'torso'},
+    {id: 'head', parent: 'torso', y: -6.5, attachment: 'head'},
+    {id: 'arm_r', parent: 'torso', x: -3, y: -2.5, r: 33, attachment: 'arm'},
+    {id: 'arm_l', parent: 'torso', x: 3, y: -2.5, r: -33, attachment: 'arm'},
+    {id: 'leg_r', parent: 'torso', x: -2, y: 2.5, attachment: 'leg'},
+    {id: 'leg_l', parent: 'torso', x: 2, y: 2.5, attachment: 'leg'}
+  ],
+  attachments: ['head', 'torso', 'arm', 'leg'],
+  draworder: ['head', 'torso', 'arm_r', 'arm_l', 'leg_r', 'leg_l'],
+  animations: [
+    {
+      id: 'walk_d', 
+      timelines: [
+        {
+          node: 'arm_r', attribute: 'r', 
+          frames: [ 0,  1,  2],
+          values: [45, 33, 45]
+        },
+        {
+          node: 'arm_l', attribute: 'r', 
+          frames: [  0,   1,   2],
+          values: [-45, -33, -45]
+        },
+        {
+          node: 'leg_r', attribute: 'sy', 
+          frames: [   0,    1,    2],
+          values: [0.75, 1.00, 0.75]
+        },
+        {
+          node: 'leg_l', attribute: 'sy', 
+          frames: [   0,    1,    2],
+          values: [1.00, 0.75, 1.00]
+        },
+      ]
+    }
+  ]
+};
 
-const timelines = [
-  {
-    bone: 'arm_r', attribute: 'r', 
-    frames: [ 0,  1,  2],
-    values: [45, 33, 45]
-  },
-  {
-    bone: 'arm_l', attribute: 'r', 
-    frames: [  0,   1,   2],
-    values: [-45, -33, -45]
-  },
-  {
-    bone: 'leg_r', attribute: 'sy', 
-    frames: [   0,    1,    2],
-    values: [0.75, 1.00, 0.75]
-  },
-  {
-    bone: 'leg_l', attribute: 'sy', 
-    frames: [   0,    1,    2],
-    values: [1.00, 0.75, 1.00]
-  },
-];
 
-const {root, nodes} = createhierarchy(bonesdata);
+const {root, nodes} = createhierarchy(scenedata.nodes);
+updatetransform(root);
 
 (async () => {
-  for (const {id} of bonesdata) {
+  for (const id of scenedata.attachments) {
     const svg = await (await fs.readFile(path.join(images, id + '.svg'))).toString();
     const [match, innerHTML] = svg.match(/^<[^>]+?>(.*)<\/[^>]+?>$/ms) ?? [];
     defs[id] = innerHTML.trim();
   }
 
   for (let i = 0; i < 2; i++) {
-    for (const timeline of timelines) {
+    for (const timeline of scenedata.animations[0].timelines) {
       applytimeline(timeline, i);
       const filename = path.join(output, `${prefix}_${i}.svg`);
       await fs.writeFile(filename, render(i));
@@ -80,10 +94,36 @@ const {root, nodes} = createhierarchy(bonesdata);
 
 })();
 
-function createbone(attrs = {}) {
+function createhierarchy(nodesdata) {
+  const root = createnode();
+  const map = {};
+
+  const nodes = nodesdata
+    .map((data, index) => {
+      const order = scenedata.draworder.indexOf(data.id);
+      const node = createnode({
+        ...data, 
+        index: order >= 0 ? order : index
+      });
+      map[node.id] = node;
+      return node;
+    });
+
+  for (const node of Object.values(nodes)) {
+    if (node.parent) {
+      const parent = map[node.parent];
+      parent.children.push(node);
+    } else {
+      root.children.push(node);
+    }
+  }
+
+  return {root, nodes, map};
+}
+
+function createnode(attrs = {}) {
   return {
-    id: 'root', 
-    index: 0,
+    index: -1,
     x: 0, 
     y: 0, 
     r: 0,
@@ -96,31 +136,7 @@ function createbone(attrs = {}) {
   };
 }
 
-function createhierarchy(bonesdata) {
-  const root = createbone();
-  const map = {[root.id]: root};
-
-  const nodes = bonesdata.map((data, index) => {
-    const bone = createbone({...data, index});
-    map[bone.id] = bone;
-    return bone;
-  });
-
-  for (const bone of Object.values(nodes)) {
-    if (bone.parent) {
-      const parent = map[bone.parent];
-      parent.children.push(bone);
-    } else if (bone !== root) {
-      root.children.push(bone);
-    }
-  }
-
-  updatetransform(root);
-
-  return {root, nodes, map};
-}
-
-function updatetransform(node, parent) {
+function updatetransform(node) {
   const theta = node.r * Math.PI / 180;
   const cos = Math.cos(theta);
   const sin = Math.sin(theta);
@@ -132,6 +148,7 @@ function updatetransform(node, parent) {
   const f = node.y;
   node.transform = [a, b, c, d, e, f];
 
+  parent = nodes.find(item => item.id === node.parent);
   if (!parent) {
     node.wtransform = [a, b, c, d, e, f];
   } else {
@@ -158,33 +175,12 @@ function updatetransform(node, parent) {
   }
 
   for (const child of node.children) {
-    updatetransform(child, node);
+    updatetransform(child);
   }
-}
-
-function render(t) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-width / 2} ${-height / 2} ${width} ${height}">
-  <defs>
-    ${Object.entries(defs).map(([id, svg]) => 
-      `<g id="${id}">${svg}</g>`
-    ).join('')}
-  </defs>
-  ${rendernodes(t)}
-</svg>
-`;
-}
-
-function rendernodes(t) {
-  let svg = '';
-  for (const node of nodes.sort((a, b) => b.index - a.index)) {
-    const [a, c, e, b, d, f] = node.wtransform;
-    svg += `<use href="#${node.id}" transform="matrix(${a} ${b} ${c} ${d} ${e} ${f})" />`;
-  }
-  return svg;
 }
 
 function applytimeline(timeline, time) {
-  const {bone, attribute, frames, values} = timeline;
+  const {node: nodeid, attribute, frames, values} = timeline;
 
   const duration = frames[frames.lentgh - 1] - frames[0];
 
@@ -205,14 +201,14 @@ function applytimeline(timeline, time) {
       prevframe = frame - 1;
     }
   }
-  
+
   // These will be used for interpolation.
   const t = time - frames[prevframe];
   const d = (frames[frame] - frames[prevframe]) || 1;
   const a = (d - t) / d;
   const b = t / d;
 
-  const node = nodes.find(node => node.id === bone);
+  const node = nodes.find(node => node.id === nodeid);
 
   if (typeof values[prevframe] === 'number') {
     node[attribute] = a * values[prevframe] + b * values[frame];
@@ -220,8 +216,28 @@ function applytimeline(timeline, time) {
     node[attribute] = values[prevframe];
   }
 
-  const parent = nodes.find(item => item.id === node.parent)
+  const parent = nodes.find(item => item.id === node.parent) ?? root;
   updatetransform(node, parent);
 }
 
+function render(t) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-width / 2} ${-height / 2} ${width} ${height}">
+  <defs>
+    ${Object.entries(defs).map(([id, svg]) => 
+      `<g id="${id}">${svg}</g>`
+    ).join('')}
+  </defs>
+  ${rendernodes(t)}
+</svg>
+`;
+}
+
+function rendernodes(t) {
+  let svg = '';
+  for (const node of nodes.sort((a, b) => b.index - a.index)) {
+    const [a, c, e, b, d, f] = node.wtransform;
+    svg += `<use href="#${node.attachment}" transform="matrix(${a} ${b} ${c} ${d} ${e} ${f})" />`;
+  }
+  return svg;
+}
 
