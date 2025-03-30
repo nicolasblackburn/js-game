@@ -10,7 +10,7 @@
         {
           "path": ["texture"],
           "values": [
-            "walk_r_0"
+            "hero_walk_r_0"
           ]
         }
       ]
@@ -24,13 +24,13 @@
         {
           "path": ["texture"],
           "values": [
-            "walk_l_0"
+            "hero_walk_l_0"
           ]
         }
       ]
     },
     {
-      "name": "hero_idle_t",
+      "name": "hero_idle_u",
       "loop": true,
       "duration": 320,
       "frames": [0],
@@ -38,12 +38,25 @@
         {
           "path": ["texture"],
           "values": [
-            "idle_t_0"
+            "hero_idle_u_0"
           ]
         }
       ]
     },
-
+    {
+      "name": "hero_idle_d",
+      "loop": true,
+      "duration": 320,
+      "frames": [0],
+      "properties": [
+        {
+          "path": ["texture"],
+          "values": [
+            "hero_idle_d_0"
+          ]
+        }
+      ]
+    },
     {
       "name": "hero_walk_r",
       "loop": true,
@@ -53,8 +66,8 @@
         {
           "path": ["texture"],
           "values": [
-            "walk_r_0",
-            "walk_r_1"
+            "hero_walk_r_0",
+            "hero_walk_r_1"
           ]
         }
       ]
@@ -68,14 +81,14 @@
         {
           "path": ["texture"],
           "values": [
-            "walk_l_0",
-            "walk_l_1"
+            "hero_walk_l_0",
+            "hero_walk_l_1"
           ]
         }
       ]
     }, 
     {
-      "name": "hero_walk_t",
+      "name": "hero_walk_u",
       "loop": true,
       "duration": 320,
       "frames": [0, 160],
@@ -83,8 +96,8 @@
         {
           "path": ["texture"],
           "values": [
-            "walk_t_0",
-            "walk_t_1"
+            "hero_walk_u_0",
+            "hero_walk_u_1"
           ]
         }
       ]
@@ -98,13 +111,11 @@
         {
           "path": ["texture"],
           "values": [
-            "walk_d_0",
-            "walk_d_1"
+            "hero_walk_d_0",
+            "hero_walk_d_1"
           ]
         }
       ]
     }
-
-
   ]
 }

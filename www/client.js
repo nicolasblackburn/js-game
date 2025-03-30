@@ -45,27 +45,29 @@ function call(fn, ...args) {
 	(fns[fn] ?? (() => undefined))(...args);
 }
 
-const connection = new Promise(resolve => {
-  const ws = new WebSocket('ws://localhost:3000?useragent=game');
+let ws;
+async function connect() {
+  if (!ws) {
+    ws = new WebSocket('ws://localhost:3000?useragent=game');
 
-  // Send a message to the server
-  ws.onopen = function() {
-    resolve(ws);
-  };
+    // Log messages from the server to the page
+    ws.onmessage = function(event) {
+      call(...JSON.parse(event.data));
+    };
 
-  // Log messages from the server to the page
-  ws.onmessage = function(event) {
-    call(...JSON.parse(event.data));
-  };
+    // Log errors to the console
+    ws.onerror = function(error) {
+      printError(error);
+    };
 
-  // Log errors to the console
-  ws.onerror = function(error) {
-    printError(error);
-  };
-});
+    await new Promise(resolve => ws.onopen = resolve);
+  }
+
+  return ws;
+}
 
 async function send(fn, ...args) {
-  const ws = await connection;
+  const ws = await connect();
   ws.send(JSON.stringify([fn, ...args]));
 }
 
@@ -78,15 +80,12 @@ window.addEventListener('unhandledrejection', event => {
   printError(`${event.reason.stack}`);
 });
 
-export async function printError(msg) {
-  await send('error', msg);
+export async function printError(...args) {
+  await send('error', ...args);
 }
 
-export async function printInfo(msg) {
-  if (typeof msg === 'object') {
-    msg = JSON.stringify(msg, null, 2);
-  }
-  await send('info', msg);
+export async function printInfo(...args) {
+  await send('info', ...args.map(msg => typeof msg === 'object' ? JSON.stringify(msg, null, 2) : msg));
 }
 
 const reloadListeners = [];

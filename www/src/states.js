@@ -1,7 +1,6 @@
 import {setAnimation} from './animations.js';
-import {getLayer, getMap} from './maps.js';
+import {getLayer, getMap, isSolid, mapCollides} from './maps.js';
 import {createEntity} from './gameState.js';
-import {isSolid} from './movements.js';
 
 export function initStates(ctx) {
   ctx.states = {
@@ -51,9 +50,10 @@ function gameLoadState(ctx, game) {
       y = mapData.tileheight * ((Math.random() * (layer.height - 2) | 0) + 1) + 8;
     } while (false);
     game.enemies.push(createEntity({
-      texture: 'idle_t_0',
+      texture: 'hero_idle_u_0',
       x,
-      y
+      y,
+      states: [['seekState']]
     }));
   }
 
@@ -89,7 +89,7 @@ function heroIdleState(ctx, entity) {
       'hero_walk_r',
       'hero_walk_d',
       'hero_walk_l',
-      'hero_walk_t'
+      'hero_walk_u'
     ][entity.dir];
     setAnimation(ctx, entity, animation);
   } else {
@@ -98,7 +98,7 @@ function heroIdleState(ctx, entity) {
       'hero_idle_r',
       'hero_idle_d',
       'hero_idle_l',
-      'hero_idle_t'
+      'hero_idle_u'
     ][entity.dir];
     setAnimation(ctx, entity, animation);
   } 
@@ -108,17 +108,48 @@ function seekState(ctx, entity) {
   const player = ctx.gameState.player;
   const map = getMap(ctx);
     
-  const gridx = entity.x / map.tilewidth;
-  const gridy = entity.y / map.tileheight;
+  const entitygridx = entity.x / map.tilewidth;
+  const entitygridy = entity.y / map.tileheight;
 
+  const playergridx = player.x / map.tilewidth;
+  const playergridy = player.y / map.tileheight;
+
+  const newx = entity.ax + entity.vx + entity.x;
+  const newy = entity.ay + entity.vy + entity.y;
+  const {bbx, bby, bbw, bbh} = entity;
+  const cantMove = mapCollides(ctx, newx + bbx, newy + bby, bbw, bbh);
+
+  if (!entity.target || cantMove) {
+    //do {
+    const dir = Math.random() * 4 | 0;
+    let [vx, vy] = [
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+      [0,-1]
+    ][dir];
+    entity.origin = {
+      x: entity.x % map.tilewidth + map.tilewidth / 2,
+      y: entity.y % map.tileheight + map.tileheight / 2
+    };
+
+    entity.target = {
+      x: ((entity.x / map.tilewidth | 0) + vx + 0.5) * map.tilewidth,
+      y: ((entity.y / map.tileheight | 0) + vy + 0.5) * map.tileheight
+    };
+
+    devEnv.printInfo('target', entity.target, isSolid(ctx, entity.target.x, entity.target.y));
+
+    entity.vx = 0.5 * vx;
+    entity.vy = 0.5 * vy;
+    //} while (isSolid(ctx, entity.target.x, entity.target.y));
+  }
   // If change direction
   // then update target
-  const seekchance = entity.seekchance ?? 0.25;
-  if (Math.random() < seekchance) {
+  //const seekchance = entity.seekchance ?? 0.25;
+  //if (Math.random() < seekchance) {
 
-  } else if (!entity.target) {
-
-  }
+  //}
 
   // If target reached
   // then set idle state
@@ -126,4 +157,7 @@ function seekState(ctx, entity) {
   const distance = 1;
 
 } 
+
+function randomTarget() {
+}
 

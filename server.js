@@ -129,8 +129,12 @@ async function remoteCall(ws, fn, ...args) {
 }
 
 const fns = {
-	info: (...args) => console.log(...args.map(value => util.styleText("blue", value?.toString() ?? '')), '\n'),
-	error: (...args) => console.error(...args.map(value => util.styleText("red", value?.toString() ?? '')), '\n'),
+	info: (...args) => {
+	  console.log(...args.map(value => util.styleText("blue", value?.toString() ?? '')), '\n');
+  },
+	error: (...args) => {
+	  console.error(...args.map(value => util.styleText("red", value?.toString() ?? '')), '\n');
+  },
 	//remoteCall: 
   getContext: async () => {
     const result = await new Promise(async resolve => {
@@ -142,7 +146,7 @@ const fns = {
         setTimeout(resolve, 5000);
       });
     });
-
+o
     connections.console.forEach(({ws}) => {
       if (ws.readyState === WebSocket.OPEN) {
         send(ws, undefined, result);

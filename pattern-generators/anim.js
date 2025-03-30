@@ -35,23 +35,48 @@ const defs = {};
 
 const scenedata = {
   nodes: [
-    {id: 'torso', y: 2.5, attachment: 'torso'},
-    {id: 'head', parent: 'torso', y: -6.5, attachment: 'head'},
-    {id: 'arm_r', parent: 'torso', x: -3, y: -2.5, r: 33, attachment: 'arm'},
-    {id: 'arm_l', parent: 'torso', x: 3, y: -2.5, r: -33, attachment: 'arm'},
-    {id: 'leg_r', parent: 'torso', x: -2, y: 2.5, attachment: 'leg'},
-    {id: 'leg_l', parent: 'torso', x: 2, y: 2.5, attachment: 'leg'}
+    {id: 'torso', y: 1.5, attachment: 'hero_torso'},
+    {id: 'head', parent: 'torso', y: -5.5, attachment: 'hero_head'},
+    {id: 'arm_r', parent: 'torso', x: -3, y: -2.5, r: 33, attachment: 'hero_arm'},
+    {id: 'arm_l', parent: 'torso', x: 3, y: -2.5, r: -33, attachment: 'hero_arm'},
+    {id: 'leg_r', parent: 'torso', x: -2, y: 2.5, attachment: 'hero_leg'},
+    {id: 'leg_l', parent: 'torso', x: 2, y: 2.5, attachment: 'hero_leg'}
   ],
-  attachments: ['head', 'torso', 'arm', 'leg'],
+  attachments: ['hero_head', 'hero_torso', 'hero_arm', 'hero_leg'],
   draworder: ['head', 'torso', 'arm_r', 'arm_l', 'leg_r', 'leg_l'],
   animations: [
     {
-      id: 'walk_d', 
+      id: 'hero_idle_d', 
+      timelines: [
+        {
+          node: 'arm_r', attribute: 'r', 
+          frames: [ 0, 1],
+          values: [33, 33]
+        },
+        {
+          node: 'arm_l', attribute: 'r', 
+          frames: [  0, 1],
+          values: [-33, 33]
+        },
+        {
+          node: 'leg_r', attribute: 'sy', 
+          frames: [0, 1],
+          values: [1, 1]
+        },
+        {
+          node: 'leg_l', attribute: 'sy', 
+          frames: [0, 1],
+          values: [1, 1]
+        },
+      ]
+    },
+    {
+      id: 'hero_walk_d', 
       timelines: [
         {
           node: 'arm_r', attribute: 'r', 
           frames: [ 0,  1,  2],
-          values: [45, 33, 45]
+          values: [33, 45, 33]
         },
         {
           node: 'arm_l', attribute: 'r', 
@@ -84,11 +109,13 @@ updatetransform(root);
     defs[id] = innerHTML.trim();
   }
 
-  for (let i = 0; i < 2; i++) {
-    for (const timeline of scenedata.animations[0].timelines) {
-      applytimeline(timeline, i);
-      const filename = path.join(output, `${prefix}_${i}.svg`);
-      await fs.writeFile(filename, render(i));
+  for (const animation of scenedata.animations) {
+    for (let i = 0; i < animation.timelines[0].frames.length - 1; i++) {
+      for (const timeline of animation.timelines) {
+        applytimeline(timeline, i);
+        const filename = path.join(output, `${animation.id}_${i}.svg`);
+        await fs.writeFile(filename, render(i));
+      }
     }
   }
 
