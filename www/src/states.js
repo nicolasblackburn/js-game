@@ -39,16 +39,22 @@ export function updateStates(ctx) {
 }
 
 function gameLoadState(ctx, game) {
-  const mapData = getMap(ctx);
+  const map = getMap(ctx);
   const layer = getLayer(ctx);
+  const {tilewidth, tileheight} = map;
+  const {width, height} = layer;
+  const halftilewidth = tilewidth / 2;
+  const halftileheight = tileheight / 2;
+    
 
   for (let i = 0; i < 4; i++) {
     let x;
     let y;
     do { 
-      x = mapData.tilewidth * ((Math.random() * (layer.width - 2) | 0) + 1) + 8;
-      y = mapData.tileheight * ((Math.random() * (layer.height - 2) | 0) + 1) + 8;
-    } while (false);
+      x = tilewidth * ((Math.random() * (width - 2) | 0) + 1) + halftilewidth;
+      y = tileheight * ((Math.random() * (height - 2) | 0) + 1) + halftileheight;
+    } while (isSolid(ctx, x, y));
+
     game.enemies.push(createEntity({
       texture: 'hero_idle_u_0',
       x,
@@ -107,42 +113,53 @@ function heroIdleState(ctx, entity) {
 function seekState(ctx, entity) {
   const player = ctx.gameState.player;
   const map = getMap(ctx);
-    
-  const entitygridx = entity.x / map.tilewidth;
-  const entitygridy = entity.y / map.tileheight;
 
-  const playergridx = player.x / map.tilewidth;
-  const playergridy = player.y / map.tileheight;
+  const {tilewidth, tileheight} = map;
+  const halftilewidth = tilewidth / 2;
+  const halftileheight = tileheight / 2;
+    
+  const entitygridx = entity.x / tilewidth | 0;
+  const entitygridy = entity.y / tileheight | 0;
+
+  const playergridx = player.x / tilewidth | 0;
+  const playergridy = player.y / tileheight | 0;
 
   const newx = entity.ax + entity.vx + entity.x;
   const newy = entity.ay + entity.vy + entity.y;
+
   const {bbx, bby, bbw, bbh} = entity;
   const cantMove = mapCollides(ctx, newx + bbx, newy + bby, bbw, bbh);
+  
+  // If target reached
+  // then set it to null so that a new target
+  // is selected
 
-  if (!entity.target || cantMove) {
-    //do {
-    const dir = Math.random() * 4 | 0;
-    let [vx, vy] = [
-      [1, 0],
-      [0, 1],
-      [-1, 0],
-      [0,-1]
-    ][dir];
-    entity.origin = {
-      x: entity.x % map.tilewidth + map.tilewidth / 2,
-      y: entity.y % map.tileheight + map.tileheight / 2
-    };
+  if (!entity.target || cantMove || (entity.vx === 0 && entity.vy === 0)) {
+    do {
+      const dir = Math.random() * 4 | 0;
 
-    entity.target = {
-      x: ((entity.x / map.tilewidth | 0) + vx + 0.5) * map.tilewidth,
-      y: ((entity.y / map.tileheight | 0) + vy + 0.5) * map.tileheight
-    };
+      let [vx, vy] = [
+        [1, 0],
+        [0, 1],
+        [-1, 0],
+        [0,-1]
+      ][dir];
 
-    devEnv.printInfo('target', entity.target, isSolid(ctx, entity.target.x, entity.target.y));
+      entity.origin = {
+        x: (entitygridx + 0.5)  * tilewidth,
+        y: (entitygridy + 0.5) * tileheight
+      };
 
-    entity.vx = 0.5 * vx;
-    entity.vy = 0.5 * vy;
-    //} while (isSolid(ctx, entity.target.x, entity.target.y));
+      entity.target = {
+        x: (entitygridx + vx + 0.5) * map.tilewidth,
+        y: (entitygridy + vy + 0.5) * map.tileheight
+      };
+
+      entity.vx = 0.5 * vx;
+      entity.vy = 0.5 * vy;
+
+    } while (isSolid(ctx, entity.target.x, entity.target.y));
+
   }
   // If change direction
   // then update target
@@ -150,14 +167,5 @@ function seekState(ctx, entity) {
   //if (Math.random() < seekchance) {
 
   //}
-
-  // If target reached
-  // then set idle state
-  // else continue
-  const distance = 1;
-
 } 
-
-function randomTarget() {
-}
 
