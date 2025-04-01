@@ -10,7 +10,9 @@ const EVENT_TYPES = [
   'pointerover',
   'pointerup',
   'resize',
-  'visibilitychange'
+  'visibilitychange',
+  'blur',
+  'focus'
 ]
 
 export function initEvents(ctx) {

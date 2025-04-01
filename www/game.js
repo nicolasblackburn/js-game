@@ -18,6 +18,8 @@ async function load() {
 
 	devEnv?.addReloadListener(url => reload(ctx, url));
 	addEventListener(ctx, 'resize', resize.bind(null, ctx));
+	addEventListener(ctx, 'blur', blur.bind(null, ctx));
+	addEventListener(ctx, 'focus', focus.bind(null, ctx));
 
   const urls = await (await fetch('manifest.json')).json();
 	await loadResources(ctx, urls);
@@ -51,7 +53,23 @@ function resize(ctx, event) {
 
 }
 
+function blur(ctx) {
+  ctx.paused = true;
+}
+
+function focus(ctx) {
+  ctx.requestResume = true;
+}
+
 function update(ctx, currentTime = 0) {
+  if (ctx.requestResume) {
+    ctx.paused = false;
+    ctx.lastTime = currentTime;
+    ctx.requestResume = false;
+  } else if (ctx.paused) {
+    return;
+  }
+
   ctx.currentTime = currentTime;
   ctx.fixedTimeLeft += ctx.currentTime - ctx.lastTime;
 

@@ -119,7 +119,8 @@ export function createContext() {
     currentTime: 0,
     lastTime: 0,
     fixedTimeLeft: 0,
-    fixedTimeStepDuration: 1000 / 60
+    fixedTimeStepDuration: 1000 / 60,
+    paused: false
   };
 
   initLoader(ctx);
