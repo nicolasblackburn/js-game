@@ -130,11 +130,13 @@ function seekState(ctx, entity) {
   const {bbx, bby, bbw, bbh} = entity;
   const cantMove = mapCollides(ctx, newx + bbx, newy + bby, bbw, bbh);
   
-  // If target reached
-  // then set it to null so that a new target
-  // is selected
+  if (!entity.target || cantMove || (entity.vx === 0 && entity.vy === 0) || entity.target.distance <= 0) {
+    
+    if (entity.target) {
+      //entity.x = entity.target.x;
+      //entity.y = entity.target.y;
+    }
 
-  if (!entity.target || cantMove || (entity.vx === 0 && entity.vy === 0)) {
     do {
       const dir = Math.random() * 4 | 0;
 
@@ -151,16 +153,22 @@ function seekState(ctx, entity) {
       };
 
       entity.target = {
-        x: (entitygridx + vx + 0.5) * map.tilewidth,
-        y: (entitygridy + vy + 0.5) * map.tileheight
+        x: (entitygridx + vx + 0.5) * tilewidth,
+        y: (entitygridy + vy + 0.5) * tileheight
       };
+
+      entity.target.distance = 2 * ((vx * tilewidth) ** 2 + (vy * tileheight) ** 2) ** 0.5;
+      entity.target.increment = 0.5 * (vx ** 2 + vy ** 2) ** 0.5;
 
       entity.vx = 0.5 * vx;
       entity.vy = 0.5 * vy;
 
     } while (isSolid(ctx, entity.target.x, entity.target.y));
 
+  } else {
+    entity.target.distance -= entity.target.increment;
   }
+
   // If change direction
   // then update target
   //const seekchance = entity.seekchance ?? 0.25;
