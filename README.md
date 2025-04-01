@@ -45,10 +45,10 @@ It also support error capture and messaging in the server's standard output.
 ✔ Graphics - Animations
 ✔ Tools - Modifying state from remote console
 ✔ AI - Some minimal AI system
+✔ Gameplay - Monster movements
 - Collisions - Half-tiles
 - Collisions - Diagonals
 - Maps - Rooms
-- Gameplay - Monster movements
 - Gameplay - Player health
 - Gameplay - Player death
 - Gameplay - Attack
