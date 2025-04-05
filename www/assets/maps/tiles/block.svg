@@ -2,7 +2,7 @@
   <defs>
     <symbol id="s" width="16" height="16" viewBox="0 0 16 16">
       <g transform="translate(0.0625 0.0625)">
-      <rect width="15.875" height="15.875" fill="none" stroke="#000" stroke-width="0.125" />
+      <rect width="15.875" height="15.875" fill="#c09" stroke="#000" stroke-width="0.125" />
       <line x2="16" y2="16" stroke="#000" stroke-width="0.125" />
       <line y1="15.875" x2="16" stroke="#000" stroke-width="0.125" />
       </g>

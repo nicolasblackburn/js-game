@@ -92,9 +92,6 @@ function fixedUpdate(ctx) {
   const {gamepad, gameState, view} = ctx;
   const {player, enemies} = gameState;
 
-  player.vx = gamepad.axes[0];
-  player.vy = gamepad.axes[1];
-
   const entities = [player, ...enemies];
 
   for (const entity of entities) {

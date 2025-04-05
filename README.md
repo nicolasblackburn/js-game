@@ -48,11 +48,11 @@ It also support error capture and messaging in the server's standard output.
 ✔ Gameplay - Monster movements
 - Collisions - Half-tiles
 - Collisions - Diagonals
-- Maps - Rooms
 - Gameplay - Player health
 - Gameplay - Player death
 - Gameplay - Attack
 - Gameplay - Monster health
+- Maps - Rooms
 - Gameplay - Boss & victory
 - Inputs - Inputs feedback
 - Tools - Hot code reload for constants

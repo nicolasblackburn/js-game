@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild --bundle client/src/index.js --outfile=bin/client/index.js"
+    "build": "esbuild --bundle www/game.js --outfile=bin/www/game.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +13,7 @@
   "devDependencies": {
     "acorn": "^8.14.1",
     "chokidar": "^4.0.3",
+    "esbuild": "^0.25.2",
     "express": "^4.21.2",
     "nocache": "^4.0.0",
     "serve-index": "^1.9.1",

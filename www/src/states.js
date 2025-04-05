@@ -1,16 +1,19 @@
-import {setAnimation} from './animations.js';
+import {clearAnimation, setAnimation} from './animations.js';
 import {getLayer, getMap, isSolid, mapCollides} from './maps.js';
 import {createEntity} from './gameState.js';
 
 export function initStates(ctx) {
   ctx.states = {
     gameLoadState,
-    heroIdleState,
+    gameBaseState,
+    heroNormalState,
+    entityHurtState,
     seekState
   };
 }
 
 export function updateStates(ctx) {
+  //console.log('start');
   const {gameState} = ctx;
   const {player, enemies} = gameState;
 
@@ -19,23 +22,25 @@ export function updateStates(ctx) {
     for (const state of node.states ?? []) {
       const top = state.pop();
       const fn = ctx.states?.[top];
+      //console.log('exec', top);
       const result = fn?.(ctx, node);
       if (!result || result === 'continue') {
         state.push(top);
       } else if (Array.isArray(result)) {
         const [action, name] = result;
-        const coroutine = ctx.coroutines[name];
         if (action === 'push') {
           state.push(top);
         }
-        if (coroutine && (action === 'push' || action === 'replace')) {
-          state.push(coroutine);
+        if (action === 'push' || action === 'terminatepush') {
+          state.push(name);
         }
       }
     }
 
     node.states = node.states?.filter(stack => stack.length) ?? [];
   }
+
+  //console.log('end', player.state);
 }
 
 function gameLoadState(ctx, game) {
@@ -45,7 +50,8 @@ function gameLoadState(ctx, game) {
   const {width, height} = layer;
   const halftilewidth = tilewidth / 2;
   const halftileheight = tileheight / 2;
-    
+
+  game.player.states = [['heroNormalState']];
 
   for (let i = 0; i < 4; i++) {
     let x;
@@ -63,11 +69,70 @@ function gameLoadState(ctx, game) {
     }));
   }
 
-  return 'terminate';
+  return ['terminatepush', 'gameBaseState'];
 }
 
-function heroIdleState(ctx, entity) {
+function gameBaseState(ctx) {
+  const {enemies, player} = ctx.gameState;
+  const {x, y, bbx, bby, bbw, bbh} = player;
+
+  if (!player.monsterCollisionDisabled) {
+    const x1 = x + bbx;
+    const y1 = y + bby;
+    const x2 = x1 + bbw;
+    const y2 = y1 + bbh;
+
+    for (const entity of enemies) {
+      // Check enemy / player collisions
+      const {x, y, bbx, bby, bbw, bbh} = entity;
+      const x3 = x + bbx;
+      const y3 = y + bby;
+      const x4 = x3 + bbw;
+      const y4 = y3 + bbh;
+
+      const collision =
+        x2 > x3 &&
+        x4 > x1 &&
+        y2 > y3 &&
+        y4 > y1;
+
+      if (collision) {
+        player.enemyCollision = entity;
+      break;
+    }
+  }
+  }
+}
+
+function heroNormalState(ctx, entity) {
   const {gamepad} = ctx;
+
+  if (entity.enemyCollision) {
+    const [vx, vy] = [
+      [-1, 0],
+      [0, -1],
+      [1, 0],
+      [0, 1]
+    ][entity.dir ?? 0];
+    entity.vx = vx;
+    entity.vy = vy;
+    entity.enemyCollision = null;
+    entity.monsterCollisionDisabled = true;
+    entity.hurtCountdown = 10;
+
+    return ['push', 'entityHurtState'];
+
+  } else if (entity.invincibleCountdown) {
+
+    entity.invincibleCountdown--;
+
+    if (entity.invincibleCountdown <= 0) {
+      entity.monsterCollisionDisabled = false;
+      clearAnimation(ctx, entity, 1);
+      entity.visible = true;
+    }
+
+  }
 
   entity.vx = gamepad.axes[0];
   entity.vy = gamepad.axes[1];
@@ -108,7 +173,16 @@ function heroIdleState(ctx, entity) {
     ][entity.dir];
     setAnimation(ctx, entity, animation);
   } 
-} 
+}
+
+function entityHurtState(ctx, entity) {
+  entity.hurtCountdown--;
+  if (entity.hurtCountdown <= 0) {
+    entity.invincibleCountdown = 60;
+    setAnimation(ctx, entity, 'blink', 1);
+    return 'terminate';
+  }
+}
 
 function seekState(ctx, entity) {
   const player = ctx.gameState.player;

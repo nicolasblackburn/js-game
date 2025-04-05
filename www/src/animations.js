@@ -37,6 +37,10 @@ export function setAnimation(ctx, target, name, track = 0) {
   }
 }
 
+export function clearAnimation(ctx, target, track = 0) {
+  delete target.animations[track];
+}
+
 export function gotoAndPlay(ctx, target, time, name, track = 0) {
   setAnimation(ctx, target, name, track);
   target.animations[track].time = time;

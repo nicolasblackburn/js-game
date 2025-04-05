@@ -2,10 +2,22 @@
   "animationsversion": "1.0.0",
   "animations": [
     {
+      "name": "blink",
+      "loop": true,
+      "duration": 80,
+      "frames": [0, 40, 80],
+      "properties": [
+        {
+          "path": ["visible"],
+          "values": [true, false, true]
+        }
+      ]
+    },
+    {
       "name": "hero_idle_r",
       "loop": true,
       "duration": 320,
-      "frames": [0],
+      "frames": [0, 320],
       "properties": [
         {
           "path": ["texture"],
@@ -19,7 +31,7 @@
       "name": "hero_idle_l",
       "loop": true,
       "duration": 320,
-      "frames": [0],
+      "frames": [0, 320],
       "properties": [
         {
           "path": ["texture"],
@@ -33,7 +45,7 @@
       "name": "hero_idle_u",
       "loop": true,
       "duration": 320,
-      "frames": [0],
+      "frames": [0, 320],
       "properties": [
         {
           "path": ["texture"],
@@ -47,7 +59,7 @@
       "name": "hero_idle_d",
       "loop": true,
       "duration": 320,
-      "frames": [0],
+      "frames": [0, 320],
       "properties": [
         {
           "path": ["texture"],
@@ -61,7 +73,7 @@
       "name": "hero_walk_r",
       "loop": true,
       "duration": 320,
-      "frames": [0, 160],
+      "frames": [0, 160, 320],
       "properties": [
         {
           "path": ["texture"],
@@ -76,7 +88,7 @@
       "name": "hero_walk_l",
       "loop": true,
       "duration": 320,
-      "frames": [0, 160],
+      "frames": [0, 160, 320],
       "properties": [
         {
           "path": ["texture"],
@@ -91,7 +103,7 @@
       "name": "hero_walk_u",
       "loop": true,
       "duration": 320,
-      "frames": [0, 160],
+      "frames": [0, 160, 320],
       "properties": [
         {
           "path": ["texture"],
@@ -106,7 +118,7 @@
       "name": "hero_walk_d",
       "loop": true,
       "duration": 320,
-      "frames": [0, 160],
+      "frames": [0, 160, 320],
       "properties": [
         {
           "path": ["texture"],
