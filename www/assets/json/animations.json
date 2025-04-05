@@ -3,25 +3,26 @@
   "animations": [
     {
       "name": "blink",
-      "loop": true,
-      "duration": 80,
-      "frames": [0, 40, 80],
-      "properties": [
+      "timelines": [
         {
-          "path": ["visible"],
-          "values": [true, false, true]
+          "property": "visible",
+          "frames": [0, 40, 80],
+          "values": [
+            true, 
+            false, 
+            true
+          ]
         }
       ]
     },
     {
       "name": "hero_idle_r",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "property": "texture",
+          "frames": [0, 320],
           "values": [
+            "hero_walk_r_0",
             "hero_walk_r_0"
           ]
         }
@@ -29,13 +30,12 @@
     },
     {
       "name": "hero_idle_l",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "property": "texture",
+          "frames": [0, 320],
           "values": [
+            "hero_walk_l_0",
             "hero_walk_l_0"
           ]
         }
@@ -43,13 +43,12 @@
     },
     {
       "name": "hero_idle_u",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "property": "texture",
+          "frames": [0, 320],
           "values": [
+            "hero_idle_u_0",
             "hero_idle_u_0"
           ]
         }
@@ -57,13 +56,12 @@
     },
     {
       "name": "hero_idle_d",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "property": "texture",
+          "frames": [0, 320],
           "values": [
+            "hero_idle_d_0",
             "hero_idle_d_0"
           ]
         }
@@ -71,60 +69,57 @@
     },
     {
       "name": "hero_walk_r",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 160, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "node": "body",
+          "property": "texture",
+          "frames": [0, 160, 320],
           "values": [
-            "hero_walk_r_0",
-            "hero_walk_r_1"
+            "hero_walk_r_0", 
+            "hero_walk_r_1", 
+            "hero_walk_r_0"
           ]
         }
       ]
     },
     {
       "name": "hero_walk_l",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 160, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "property": "texture",
+          "frames": [0, 160, 320],
           "values": [
             "hero_walk_l_0",
-            "hero_walk_l_1"
+            "hero_walk_l_1",
+            "hero_walk_l_0"
           ]
         }
       ]
     }, 
     {
       "name": "hero_walk_u",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 160, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "property": "texture",
+          "frames": [0, 160, 320],
           "values": [
             "hero_walk_u_0",
-            "hero_walk_u_1"
+            "hero_walk_u_1",
+            "hero_walk_u_0"
           ]
         }
       ]
     }, 
     {
       "name": "hero_walk_d",
-      "loop": true,
-      "duration": 320,
-      "frames": [0, 160, 320],
-      "properties": [
+      "timelines": [
         {
-          "path": ["texture"],
+          "property": ["texture"],
+          "frames": [0, 160, 320],
           "values": [
             "hero_walk_d_0",
-            "hero_walk_d_1"
+            "hero_walk_d_1",
+            "hero_walk_d_0"
           ]
         }
       ]

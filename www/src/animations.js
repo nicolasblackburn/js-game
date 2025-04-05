@@ -10,20 +10,24 @@ export function updateAnimations(ctx) {
   for (const entity of entities) {
     const animations = entity.animations ?? [];
     for (const state of animations) {
-      if (state.paused) {
+      if (!state || state.paused) {
         continue;
       }
       state.time += deltaTime;
       const animation = getAnimationData(ctx, state.name);
       if (animation) {
-        if (animation.loop) {
-          state.time = state.time % animation.duration;
-        } 
+        const duration = getAnimationDuration(animation);
+        state.time = state.time % duration;
         applyAnimation(entity, animation, state.time);
       }
     }
   }
 
+}
+
+function getAnimationDuration(animation) {
+  const duration = Math.max(animation.timelines.map(({frames}) => frames[frames.length - 1]));
+  return duration;
 }
 
 export function setAnimation(ctx, target, name, track = 0) {
@@ -52,42 +56,40 @@ function getAnimationData(ctx, name) {
 }
 
 function applyAnimation(target, animation, time) {
-  const {duration, frames, properties} = animation;
+  const {timelines} = animation;
 
-  let prevframe = 0;
-  let frame = 0;
+  const duration = getAnimationDuration(animation);
 
-  if (time >= duration) {
-    frame = frames.length - 1;
-    prevframe = frame;
-  } else {
+  for (const {property, frames, values} of timelines) {
 
-    // Find frame before and after. Some 
-    // optimizations like searching from the last
-    // frame index or using binary search could 
-    // be more efficient but is it really needed?
-    while (frames[frame] < time) {
-      frame++;
-      prevframe = frame - 1;
+    let prevframe = 0;
+    let frame = 0;
+
+    if (time >= duration) {
+      frame = frames.length - 1;
+      prevframe = frame;
+    } else {
+
+      // Find frame before and after. Some 
+      // optimizations like searching from the last
+      // frame index or using binary search could 
+      // be more efficient but is it really needed?
+      while (frames[frame] < time) {
+        frame++;
+        prevframe = frame - 1;
+      }
     }
-  }
-  
-  // These will be used for interpolation.
-  const t = time - frames[prevframe];
-  const d = (frames[frame] - frames[prevframe]) || 1;
-  const a = (d - t) / d;
-  const b = t / d;
 
-  for (let {path, values} of properties) {
-    let node = target;
-    while (path.length > 1) {
-      node = node[path.unshift()] ?? {};
-    }
+    // These will be used for interpolation.
+    const t = time - frames[prevframe];
+    const d = (frames[frame] - frames[prevframe]) || 1;
+    const a = (d - t) / d;
+    const b = t / d;
 
     if (typeof values[prevframe] === 'number') {
-      target[path[0]] = a * values[prevframe] + b * values[frame];
+      target[property] = a * values[prevframe] + b * values[frame];
     } else {
-      target[path[0]] = values[prevframe];
+      target[property] = values[prevframe];
     }
   }
 }
