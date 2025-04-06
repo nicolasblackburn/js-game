@@ -1,63 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 16 16">
   <defs>
-    
-    <g id="head">
-      
-  <ellipse rx="4" ry="3.5" stroke="#000" fill="#fff" />
-
-    </g>
-    
-    <g id="body">
-      
-  <ellipse rx="3.5" ry="4" stroke="#000" fill="#fff" />
-
-    </g>
-    
-    <g id="arm_r">
-      
-  <line x2="0" y2="4" stroke="#000" />
-
-    </g>
-    
-    <g id="arm_l">
-      
-  <line x2="0" y2="4" stroke="#000" />
-
-    </g>
-    
-    <g id="leg_r">
-      
-  <line x2="0" y2="4" stroke="#000" />
-
-    </g>
-    
-    <g id="leg_l">
-      
-  <line x2="0" y2="4" stroke="#000" />
-
-    </g>
-    
+    <g id="hero_head"><ellipse rx="4" ry="3.5" stroke="#000" fill="#fff" /></g><g id="hero_torso"><ellipse rx="3.5" ry="4" stroke="#000" fill="#fff" /></g><g id="hero_arm"><line x2="0" y2="4" stroke="#000" /></g><g id="hero_leg"><line x2="0" y2="4" stroke="#000" /></g>
   </defs>
-  <g transform="translate(8, 8) scale(-1, 1) translate(-8, -8)">
-  <g transform="translate(8.5, 4.5) translate(0, 0.6453177282183038)">
-    <g transform="translate(1.5, 7.5) rotate(-33)">
-      <use href="#leg_l" />
-    </g>
-    <g transform="translate(2.5, 4) rotate(33)">
-      <use href="#arm_l" />
-    </g>
-    <g transform="translate(-.5, 5)">
-      <use href="#body" />
-    </g>
-    <g transform="translate(-1.5, 7.5) rotate(33)">
-      <use href="#leg_r" />
-    </g>
-    <g transform="translate(-2.5, 4) rotate(-33)">
-      <use href="#arm_r" />
-    </g>
-    <g>
-      <use href="#head" />
-    </g>
-  </g>
-  </g>
+  <use href="#hero_leg" transform="matrix(0.7071067811865476 0.7071067811865475 -0.7071067811865475 0.7071067811865476 -1 4.5)" /><use href="#hero_arm" transform="matrix(0.7071067811865476 -0.7071067811865475 0.7071067811865475 0.7071067811865476 -2 0.5)" /><use href="#hero_torso" transform="matrix(1 0 0 1 0 2)" /><use href="#hero_leg" transform="matrix(0.7071067811865476 -0.7071067811865475 0.7071067811865475 0.7071067811865476 1 4.5)" /><use href="#hero_arm" transform="matrix(0.7071067811865476 0.7071067811865475 -0.7071067811865475 0.7071067811865476 2 0.5)" /><use href="#hero_head" transform="matrix(1 0 0 1 0 -3.5)" />
 </svg>

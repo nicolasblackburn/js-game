@@ -30,26 +30,42 @@ height ??= width;
 const defs = {};
 
 (async () => {
-  const scenedata = JSON.parse(await fs.readFile(source)));
+  const scenedata = JSON.parse(await fs.readFile(source));
 
   const {root, nodes} = createhierarchy(scenedata.nodes);
-  updatetransform(root);
 
-  console.log(JSON.stringify());
+  const basepose = JSON.parse(JSON.stringify(nodes));
 
   for (const name of scenedata.attachments) {
-    const svg = await (await fs.readFile(path.join(images, name + '.svg'))).toString();
+    const svg = '' + await fs.readFile(path.join(images, name + '.svg'));
     const [match, innerHTML] = svg.match(/^<[^>]+?>(.*)<\/[^>]+?>$/ms) ?? [];
     defs[name] = innerHTML.trim();
   }
 
   for (const animation of scenedata.animations) {
-    for (let i = 0; i < animation.timelines[0].frames.length - 1; i++) {
+    for (let i = 0; i < (animation.timelines[0]?.frames.length ?? 2) - 1; i++) {
+
+      for (const {name, x, y, r, sx, sy, index, attachment} of basepose) {
+        if (name) {
+          const node = nodes.find(node => node.name === name) ?? {};
+          node.x = x;
+          node.y = y;
+          node.r = r;
+          node.sx = sx;
+          node.sy = sy;
+          node.index = index;
+          node.attachment = attachment;
+        }
+      }
+
       for (const timeline of animation.timelines) {
         applytimeline(timeline, i);
-        const filename = path.join(output, `${animation.name}_${i}.svg`);
-        await fs.writeFile(filename, render(i));
       }
+     
+      updatetransform(root);
+
+      const filename = path.join(output, `${animation.name}_${i}.svg`);
+      await fs.writeFile(filename, render(i));
     }
   }
 
@@ -59,7 +75,7 @@ const defs = {};
 
     const nodes = nodesdata
       .map((data, index) => {
-        const order = scenedata.draworder.indexOf(data.id);
+        const order = scenedata.draworder.indexOf(data.name);
         const node = createnode({
           ...data, 
           index: order >= 0 ? order : index
@@ -129,9 +145,9 @@ const defs = {};
         wd * tb + we * te,
         wd * tc + we * tf + wf
       ];
-
-      const [a, b, c, d, e, f] = node.wtransform;
     }
+
+    //console.log(JSON.stringify({...node, children: undefined}, null, 2));
 
     for (const child of node.children) {
       updatetransform(child);
@@ -175,8 +191,8 @@ const defs = {};
       node[property] = values[prevframe];
     }
 
-    const parent = nodes.find(item => item.name === node.parent) ?? root;
-    updatetransform(node, parent);
+    //const parent = nodes.find(item => item.name === node.parent) ?? root;
+    //updatetransform(node);
   }
 
   function render(t) {

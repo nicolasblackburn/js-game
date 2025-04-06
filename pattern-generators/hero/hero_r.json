@@ -1,0 +1,140 @@
+{
+  "nodes": [
+    {
+      "name": "torso",
+      "y": 1.5,
+      "attachment": "hero_torso"
+    },
+    {
+      "name": "head",
+      "parent": "torso",
+      "y": -5.5,
+      "attachment": "hero_head"
+    },
+    {
+      "name": "arm_r",
+      "parent": "torso",
+      "x": -2,
+      "y": -1.5,
+      "r": 0,
+      "attachment": "hero_arm"
+    },
+    {
+      "name": "arm_l",
+      "parent": "torso",
+      "x": 2,
+      "y": -1.5,
+      "r": 0,
+      "attachment": "hero_arm"
+    },
+    {
+      "name": "leg_r",
+      "parent": "torso",
+      "x": -1,
+      "y": 2.5,
+      "attachment": "hero_leg"
+    },
+    {
+      "name": "leg_l",
+      "parent": "torso",
+      "x": 1,
+      "y": 2.5,
+      "attachment": "hero_leg"
+    }
+  ],
+  "attachments": [
+    "hero_head",
+    "hero_torso",
+    "hero_arm",
+    "hero_leg"
+  ],
+  "draworder": [
+    "head",
+    "arm_r",
+    "leg_r",
+    "torso",
+    "arm_l",
+    "leg_l"
+  ],
+  "animations": [
+    {
+      "name": "hero_idle_r",
+      "timelines": []
+    },
+    {
+      "name": "hero_walk_r",
+      "timelines": [
+        {
+          "node": "torso",
+          "property": "y",
+          "frames": [
+            0,
+            1,
+            2
+          ],
+          "values": [
+            1.5,
+            2,
+            1.5
+          ]
+        },
+        {
+          "node": "arm_r",
+          "property": "r",
+          "frames": [
+            0,
+            1,
+            2
+          ],
+          "values": [
+            0,
+            -45,
+            0
+          ]
+        },
+        {
+          "node": "arm_l",
+          "property": "r",
+          "frames": [
+            0,
+            1,
+            2
+          ],
+          "values": [
+            0,
+            45,
+            0
+          ]
+        },
+        {
+          "node": "leg_r",
+          "property": "r",
+          "frames": [
+            0,
+            1,
+            2
+          ],
+          "values": [
+            0,
+            45,
+            0
+          ]
+        },
+        {
+          "node": "leg_l",
+          "property": "r",
+          "frames": [
+            0,
+            1,
+            2
+          ],
+          "values": [
+            0,
+            -45,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}
