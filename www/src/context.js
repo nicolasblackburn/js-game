@@ -103,6 +103,15 @@ export function createContext() {
 	});
 	viewSvg.append(border);
 
+  const health = createSVGElement('text', {
+    x: 2,
+    y: 10,
+    'font-size': 8,
+    'font-weight': 'bold'
+  });
+  health.innerHTML = 'Health: 3';
+  viewSvg.append(health);
+
 	document.body.append(gameDiv);
 
 	const ctx = {
@@ -113,7 +122,8 @@ export function createContext() {
       defs,
       background,
       tiles,
-      sprites
+      sprites,
+      health
     },
     view,
     currentTime: 0,

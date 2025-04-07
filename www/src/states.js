@@ -119,6 +119,7 @@ function heroNormalState(ctx, entity) {
     entity.enemyCollision = null;
     entity.monsterCollisionDisabled = true;
     entity.hurtCountdown = 10;
+    entity.health--;
 
     return ['push', 'entityHurtState'];
 

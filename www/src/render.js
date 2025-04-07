@@ -5,6 +5,8 @@ import {setAttributes} from './svg.js';
 export function render(ctx) {
   renderMap(ctx);
   renderSprites(ctx);
+  const {health} = ctx.gameState.player;
+  ctx.dom.health.innerHTML = 'Health: ' + health;
 }
 
 function renderMap(ctx, map) {

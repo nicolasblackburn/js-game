@@ -2,6 +2,7 @@ export function initGameState(ctx) {
   const player = createEntity({
     x: 24,
     y: 24,
+    health: 3,
     states: [['heroIdleState']]
   });
 
