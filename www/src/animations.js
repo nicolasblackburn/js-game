@@ -3,9 +3,13 @@ export function updateAnimations(ctx) {
   const {player, enemies} = gameState;
 
   // Calculate deltaTime
-  const deltaTime = 1000 / 60;
+  const deltaTime = ctx.deltaTime;
 
-  const entities = [gameState, player, ...enemies];
+  const entities = [gameState];
+
+  if (!ctx.paused) {
+    entities.push(player, ...enemies);
+  }
 
   for (const entity of entities) {
     const animations = entity.animations ?? [];

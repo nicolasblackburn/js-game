@@ -1,11 +1,44 @@
 import {initEvents} from './events.js';
 import {initLoader} from './loader.js';
 import {initGamepad} from './gamepad.js';
-import {createSVGElement} from './svg.js';
+import {
+  createSVGElement, 
+  setAttributes,
+  setStyle
+} from './svg.js';
 import {initGameState} from './gameState.js';
 import {initStates} from './states.js';
 
 export function createContext() {
+  /*
+  const scenemodel = {
+    "name": "canvas",
+    "children": [
+      {
+        "name": "viewport",
+        "width": 160,
+        "height": 144,
+        "children": [
+          {
+            "name": "tilemap"
+            "tilesx": 10,
+            "tilesy": 9,
+            "tilewidth": 16,
+            "tileheight": 16,
+            "children": []
+          }
+        ]
+      }
+    ]
+  };
+  */
+        
+	const canvassvg = createSVGElement('svg', {
+		'class': 'canvas',
+		width: window.innerWidth,
+		height: window.innerHeight
+	});
+	
   const view = {
     width: 10,
     height: 9,
@@ -13,23 +46,12 @@ export function createContext() {
     tileheight: 16
   };
 
-	const gameDiv = document.createElement('div');
-	gameDiv.setAttribute('class', 'game');
-
-	const canvasSvg = createSVGElement('svg', {
-		'class': 'canvas',
-		width: window.innerWidth,
-		height: window.innerHeight
-	});
-	
-	gameDiv.append(canvasSvg);
-
   const width = Math.min(window.innerWidth, window.innerHeight * view.width / view.height);
   const height = Math.min(window.innerHeight, window.innerWidth * view.height / view.width);
   const x = Math.max(0, (window.innerWidth - width) / 2);
   const y = Math.max(0, (window.innerHeight - height) / 2);
 
-	const viewSvg = createSVGElement('svg', {
+	const viewsvg = createSVGElement('svg', {
 		'class': 'view',
 		x,
 		y,
@@ -38,15 +60,15 @@ export function createContext() {
 		viewBox: `0 0 ${view.tilewidth * view.width} ${view.tileheight * view.height}`
 	});
 
-	canvasSvg.append(viewSvg);
+	canvassvg.append(viewsvg);
 
 	const defs = createSVGElement('defs');
-	viewSvg.append(defs);
+	viewsvg.append(defs);
 
-	const background = createSVGElement('g', {
-		'class': 'background'
+	const tilemap = createSVGElement('g', {
+		'class': 'tileMap'
 	});
-	viewSvg.append(background);
+	viewsvg.append(tilemap);
 
 	// Background tiles
 	const tiles = [];
@@ -70,13 +92,8 @@ export function createContext() {
 		});
 
 		tiles.push(tile);
-		background.append(tile);
+		tilemap.append(tile);
 	}
-
-	const spritesContainer = createSVGElement('g', {
-		'class': 'sprites'
-	});
-	viewSvg.append(spritesContainer);
 
 	const sprites = [];
 	for (let i = 0; i < 64; i++) {
@@ -92,7 +109,7 @@ export function createContext() {
 		});
 
 		sprites.push(sprite);
-		spritesContainer.append(sprite);
+		viewsvg.append(sprite);
 	}
 
 	const border = createSVGElement('rect', {
@@ -101,7 +118,7 @@ export function createContext() {
 		stroke: '#000',
 		fill: 'none'
 	});
-	viewSvg.append(border);
+	viewsvg.append(border);
 
   const health = createSVGElement('text', {
     x: 2,
@@ -110,29 +127,30 @@ export function createContext() {
     'font-weight': 'bold'
   });
   health.innerHTML = 'Health: 3';
-  viewSvg.append(health);
+  viewsvg.append(health);
 
-	document.body.append(gameDiv);
+	document.body.append(canvassvg);
 
 	const ctx = {
     dom: {
-      gameDiv,
-      canvasSvg,
-      viewSvg,
+      canvassvg,
+      viewsvg,
       defs,
-      background,
+      tilemap,
       tiles,
       sprites,
-      health
+      health,
     },
     view,
     currentTime: 0,
+    deltaTime: 0,
     lastTime: 0,
     fixedTimeLeft: 0,
     fixedTimeStepDuration: 1000 / 60,
     paused: false
   };
 
+  initScreens(ctx);
   initLoader(ctx);
   initEvents(ctx);
   initGamepad(ctx);
@@ -143,3 +161,40 @@ export function createContext() {
   return ctx;
 }
 
+function initScreens(ctx) {
+  ctx.dom.screens = {
+    title: setInnerHTML(
+      setAttributes(
+        document.createElement('div'),
+        {
+          class: 'screen visible'
+        }
+      ),
+      `
+        <h1>Adventure Game</h1>
+        <p>Press anywhere to start</p>
+      `
+    ),
+    gameover: setInnerHTML(
+      setAttributes(
+        document.createElement('div'),
+        {
+          class: 'screen'
+        }
+      ), 
+      `
+        <h1>Game Over</h1>
+        <p>Press anywhere to continue</p>
+      `
+    )
+  };
+
+  Object.values(ctx.dom.screens).forEach(screen => {
+    document.body.append(screen);
+  });
+}
+
+function setInnerHTML(elem, html) {
+  elem.innerHTML = html;
+  return elem;
+}

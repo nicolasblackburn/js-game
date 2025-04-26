@@ -13,7 +13,7 @@ function renderMap(ctx, map) {
   map = map ?? getMap(ctx);
   
   const {dom, gameState, textures, view} = ctx;
-  const {background, tiles} = dom;
+  const {tilemap, tiles} = dom;
   
   const layer = map.layers[gameState.map.layer];
   const mapData = layer.data;
@@ -24,7 +24,7 @@ function renderMap(ctx, map) {
   const mapx = gameState.map.x / view.tilewidth | 0;
   const mapy = gameState.map.y / view.tileheight | 0;
 
-  setAttributes(background, {
+  setAttributes(tilemap, {
     transform: `translate(${viewx}, ${viewy})`
   });
 

@@ -46,9 +46,7 @@ It also support error capture and messaging in the server's standard output.
 ✔ Tools - Modifying state from remote console
 ✔ AI - Some minimal AI system
 ✔ Gameplay - Monster movements
-- Collisions - Half-tiles
-- Collisions - Diagonals
-- Gameplay - Player health
+✔ Gameplay - Player health
 - Gameplay - Player death
 - Gameplay - Attack
 - Gameplay - Monster health
@@ -57,4 +55,6 @@ It also support error capture and messaging in the server's standard output.
 - Inputs - Inputs feedback
 - Tools - Hot code reload for constants
 - Events - Should event be queued and processed all together?
+- Collisions - Half-tiles
+- Collisions - Diagonals
 

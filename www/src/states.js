@@ -5,7 +5,9 @@ import {createEntity} from './gameState.js';
 export function initStates(ctx) {
   ctx.states = {
     gameLoadState,
+    titleScreenState,
     gameBaseState,
+    ganeOverState,
     heroNormalState,
     entityHurtState,
     seekState
@@ -44,32 +46,39 @@ export function updateStates(ctx) {
 }
 
 function gameLoadState(ctx, game) {
-  const map = getMap(ctx);
-  const layer = getLayer(ctx);
-  const {tilewidth, tileheight} = map;
-  const {width, height} = layer;
-  const halftilewidth = tilewidth / 2;
-  const halftileheight = tileheight / 2;
+  ctx.paused = true;
 
-  game.player.states = [['heroNormalState']];
 
-  for (let i = 0; i < 4; i++) {
-    let x;
-    let y;
-    do { 
-      x = tilewidth * ((Math.random() * (width - 2) | 0) + 1) + halftilewidth;
-      y = tileheight * ((Math.random() * (height - 2) | 0) + 1) + halftileheight;
-    } while (isSolid(ctx, x, y));
+  if (ctx.events.pointerdown) {
+    const map = getMap(ctx);
+    const layer = getLayer(ctx);
+    const {tilewidth, tileheight} = map;
+    const {width, height} = layer;
+    const halftilewidth = tilewidth / 2;
+    const halftileheight = tileheight / 2;
 
-    game.enemies.push(createEntity({
-      texture: 'hero_idle_u_0',
-      x,
-      y,
+    game.player.states = [['heroNormalState']];
+
+    for (let i = 0; i < 4; i++) {
+      let x;
+      let y;
+      do { 
+        x = tilewidth * ((Math.random() * (width - 2) | 0) + 1) + halftilewidth;
+        y = tileheight * ((Math.random() * (height - 2) | 0) + 1) + halftileheight;
+      } while (isSolid(ctx, x, y));
+
+      game.enemies.push(createEntity({
+        texture: 'hero_idle_u_0',
+        x,
+        y,
       states: [['seekState']]
     }));
   }
 
-  return ['terminatepush', 'gameBaseState'];
+    ctx.paused = false;
+    ctx.dom.screens.title.classList.remove('visible');
+    return ['terminatepush', 'gameBaseState'];
+  }
 }
 
 function gameBaseState(ctx) {

@@ -10,5 +10,10 @@ export function setAttributes(element, attrs) {
 	for (const [key, value] of Object.entries(attrs)) {
 		element.setAttribute(key, value);
 	}
+	return element;
 }
 
+export function setStyle(elem, style) {
+  Object.assign(elem.style, style);
+  return elem;
+}

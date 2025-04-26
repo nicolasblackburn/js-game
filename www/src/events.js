@@ -20,6 +20,7 @@ export function initEvents(ctx) {
     (rest, type) => ({...rest, [type]: []}), 
     {}
   );
+  ctx.events = {};
 }
 
 export function addEventListeners(ctx) {
@@ -34,6 +35,7 @@ export function dispatchEvent(ctx, type, ...args) {
   ctx.listeners[type]?.forEach(listener => {
     listener(...args);
   });
+  ctx.events[type] = args[0];
 }
 
 

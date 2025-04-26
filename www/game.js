@@ -32,19 +32,19 @@ async function load() {
 
 function resize(ctx, event) {
   const {view, dom} = ctx;
-  const {canvasSvg, viewSvg} = dom;
+  const {canvassvg, viewsvg} = dom;
   const {innerWidth, innerHeight} = window;
   const width = Math.min(innerWidth, innerHeight * view.width / view.height);
   const height = Math.min(innerHeight, innerWidth * view.height / view.width);
   const x = Math.max(0, (innerWidth - width) / 2);
   const y = Math.max(0, (innerHeight - height) / 2);
 
-  setAttributes(canvasSvg, {
+  setAttributes(canvassvg, {
     width: innerWidth,
     height: innerHeight
   });
 
-  setAttributes(viewSvg, {
+  setAttributes(viewsvg, {
     x,
     y,
 		width,
@@ -54,40 +54,37 @@ function resize(ctx, event) {
 }
 
 function blur(ctx) {
+  ctx.savedPausedState = ctx.paused;
   ctx.paused = true;
 }
 
 function focus(ctx) {
-  ctx.requestResume = true;
+  ctx.paused = ctx.savedPausedState;
 }
 
 function update(ctx, currentTime = 0) {
-  if (ctx.requestResume) {
-    ctx.paused = false;
-    ctx.lastTime = currentTime;
-    ctx.requestResume = false;
-  } else if (ctx.paused) {
-    return;
-  }
-
   ctx.currentTime = currentTime;
-  ctx.fixedTimeLeft += ctx.currentTime - ctx.lastTime;
+  ctx.deltaTime = ctx.currentTime - ctx.lastTime;
+  ctx.fixedTimeLeft += ctx.paused ? 0 : ctx.deltaTime;
+  
+  updateStates(ctx);
 
   while (ctx.fixedTimeLeft > 0) {
     fixedUpdate(ctx);
     ctx.fixedTimeLeft -= ctx.fixedTimeStepDuration;
   }
   
+  updateAnimations(ctx);
+  
   render(ctx);
 
   ctx.lastTime = currentTime;
 
+  ctx.events = {};
+
 }
 
 function fixedUpdate(ctx) {
-  updateStates(ctx);
-  updateAnimations(ctx);
-
   // update physics
   const {gamepad, gameState, view} = ctx;
   const {player, enemies} = gameState;
