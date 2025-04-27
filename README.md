@@ -47,7 +47,7 @@ It also support error capture and messaging in the server's standard output.
 ✔ AI - Some minimal AI system
 ✔ Gameplay - Monster movements
 ✔ Gameplay - Player health
-- Gameplay - Player death
+✔ Gameplay - Player death
 - Gameplay - Attack
 - Gameplay - Monster health
 - Maps - Rooms

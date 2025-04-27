@@ -1,6 +1,7 @@
 import {initEvents} from './events.js';
 import {initLoader} from './loader.js';
 import {initGamepad} from './gamepad.js';
+import {initScreens} from './screens.js';
 import {
   createSVGElement, 
   setAttributes,
@@ -161,40 +162,3 @@ export function createContext() {
   return ctx;
 }
 
-function initScreens(ctx) {
-  ctx.dom.screens = {
-    title: setInnerHTML(
-      setAttributes(
-        document.createElement('div'),
-        {
-          class: 'screen visible'
-        }
-      ),
-      `
-        <h1>Adventure Game</h1>
-        <p>Press anywhere to start</p>
-      `
-    ),
-    gameover: setInnerHTML(
-      setAttributes(
-        document.createElement('div'),
-        {
-          class: 'screen'
-        }
-      ), 
-      `
-        <h1>Game Over</h1>
-        <p>Press anywhere to continue</p>
-      `
-    )
-  };
-
-  Object.values(ctx.dom.screens).forEach(screen => {
-    document.body.append(screen);
-  });
-}
-
-function setInnerHTML(elem, html) {
-  elem.innerHTML = html;
-  return elem;
-}

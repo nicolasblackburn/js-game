@@ -17,3 +17,9 @@ export function setStyle(elem, style) {
   Object.assign(elem.style, style);
   return elem;
 }
+
+export function setInnerHTML(elem, html) {
+  elem.innerHTML = html;
+  return elem;
+}
+

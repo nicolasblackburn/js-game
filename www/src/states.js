@@ -1,13 +1,14 @@
 import {clearAnimation, setAnimation} from './animations.js';
 import {getLayer, getMap, isSolid, mapCollides} from './maps.js';
 import {createEntity} from './gameState.js';
+import {showScreen} from './screens.js';
 
 export function initStates(ctx) {
   ctx.states = {
     gameLoadState,
     titleScreenState,
     gameBaseState,
-    ganeOverState,
+    gameOverState,
     heroNormalState,
     entityHurtState,
     seekState
@@ -33,7 +34,7 @@ export function updateStates(ctx) {
         if (action === 'push') {
           state.push(top);
         }
-        if (action === 'push' || action === 'terminatepush') {
+        if (action === 'push' || action === 'set') {
           state.push(name);
         }
       }
@@ -42,42 +43,68 @@ export function updateStates(ctx) {
     node.states = node.states?.filter(stack => stack.length) ?? [];
   }
 
-  //console.log('end', player.state);
 }
 
 function gameLoadState(ctx, game) {
   ctx.paused = true;
+  return ['set', 'titleScreenState'];
+}
 
+function resetBaseGame(ctx) {
+  const {gameState} = ctx;
+  const map = getMap(ctx);
+  const layer = getLayer(ctx);
+  const {tilewidth, tileheight} = map;
+  const {width, height} = layer;
+  const halftilewidth = tilewidth / 2;
+  const halftileheight = tileheight / 2;
 
-  if (ctx.events.pointerdown) {
-    const map = getMap(ctx);
-    const layer = getLayer(ctx);
-    const {tilewidth, tileheight} = map;
-    const {width, height} = layer;
-    const halftilewidth = tilewidth / 2;
-    const halftileheight = tileheight / 2;
+  gameState.player.x = 24;
+  gameState.player.y = 24;
+  gameState.player.vx = 0;
+  gameState.player.vy = 0;
+  gameState.player.health = 3;
+  gameState.player.enemyCollision = null;
+  gameState.player.monsterCollisionDisabled = false;
+  gameState.player.hurtCountdown = 0;
+  gameState.player.invincibleCountdown = 0;
+  gameState.player.states = [['heroNormalState']];
+  setAnimation(ctx, gameState.player, 'hero_idle_r');
 
-    game.player.states = [['heroNormalState']];
+  gameState.enemies.splice(0);
 
-    for (let i = 0; i < 4; i++) {
-      let x;
-      let y;
-      do { 
-        x = tilewidth * ((Math.random() * (width - 2) | 0) + 1) + halftilewidth;
-        y = tileheight * ((Math.random() * (height - 2) | 0) + 1) + halftileheight;
-      } while (isSolid(ctx, x, y));
+  for (let i = 0; i < 4; i++) {
+    let x;
+    let y;
+    do { 
+      x = tilewidth * ((Math.random() * (width - 2) | 0) + 1) + halftilewidth;
+      y = tileheight * ((Math.random() * (height - 2) | 0) + 1) + halftileheight;
+    } while (isSolid(ctx, x, y));
 
-      game.enemies.push(createEntity({
-        texture: 'hero_idle_u_0',
-        x,
-        y,
+    gameState.enemies.push(createEntity({
+      texture: 'hero_idle_u_0',
+      x,
+      y,
       states: [['seekState']]
     }));
   }
+}
 
+
+function titleScreenState(ctx) {
+  if (ctx.events.pointerdown) {
     ctx.paused = false;
-    ctx.dom.screens.title.classList.remove('visible');
-    return ['terminatepush', 'gameBaseState'];
+    showScreen(ctx, 'gamebase');
+    resetBaseGame(ctx);
+    return ['set', 'gameBaseState'];
+  }
+}
+
+function gameOverState(ctx) {
+  if (ctx.events.pointerdown) {
+    ctx.paused = false;
+    showScreen(ctx, 'title');
+    return ['set', 'titleScreenState'];
   }
 }
 
@@ -92,6 +119,7 @@ function gameBaseState(ctx) {
     const y2 = y1 + bbh;
 
     for (const entity of enemies) {
+
       // Check enemy / player collisions
       const {x, y, bbx, bby, bbw, bbh} = entity;
       const x3 = x + bbx;
@@ -116,21 +144,40 @@ function gameBaseState(ctx) {
 function heroNormalState(ctx, entity) {
   const {gamepad} = ctx;
 
-  if (entity.enemyCollision) {
-    const [vx, vy] = [
-      [-1, 0],
-      [0, -1],
-      [1, 0],
-      [0, 1]
-    ][entity.dir ?? 0];
-    entity.vx = vx;
-    entity.vy = vy;
-    entity.enemyCollision = null;
-    entity.monsterCollisionDisabled = true;
-    entity.hurtCountdown = 10;
+  if (entity.enemyCollision) { 
     entity.health--;
 
-    return ['push', 'entityHurtState'];
+    if (entity.health <= 0) {
+      // Reset game state
+      
+      // Pause game
+      ctx.paused = true;
+
+      // Display game over screen
+      showScreen(ctx, 'gameover');
+
+      // Go to game over state
+      return ['set', 'gameOverState'];
+
+    } else {
+
+      const [vx, vy] = [
+        [-1, 0],
+        [0, -1],
+        [1, 0],
+        [0, 1]
+      ][entity.dir ?? 0];
+
+      entity.vx = vx;
+      entity.vy = vy;
+
+      entity.enemyCollision = null;
+      entity.monsterCollisionDisabled = true;
+      entity.hurtCountdown = 10;
+
+      // Push hurt state
+      return ['push', 'entityHurtState'];
+    }
 
   } else if (entity.invincibleCountdown) {
 
