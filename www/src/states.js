@@ -2,143 +2,14 @@ import {clearAnimation, setAnimation} from './animations.js';
 import {getLayer, getMap, isSolid, mapCollides} from './maps.js';
 import {createEntity} from './gameState.js';
 import {showScreen} from './screens.js';
+import {addEventListener} from './events.js';
 
 export function initStates(ctx) {
   ctx.states = {
-    gameLoadState,
-    titleScreenState,
-    gameBaseState,
-    gameOverState,
     heroNormalState,
     entityHurtState,
     seekState
   };
-}
-
-export function updateStates(ctx) {
-  //console.log('start');
-  const {gameState} = ctx;
-  const {player, enemies} = gameState;
-
-  const nodes = [gameState, player, ...enemies];
-  for (const node of nodes) {
-    for (const state of node.states ?? []) {
-      const top = state.pop();
-      const fn = ctx.states?.[top];
-      //console.log('exec', top);
-      const result = fn?.(ctx, node);
-      if (!result || result === 'continue') {
-        state.push(top);
-      } else if (Array.isArray(result)) {
-        const [action, name] = result;
-        if (action === 'push') {
-          state.push(top);
-        }
-        if (action === 'push' || action === 'set') {
-          state.push(name);
-        }
-      }
-    }
-
-    node.states = node.states?.filter(stack => stack.length) ?? [];
-  }
-
-}
-
-function gameLoadState(ctx, game) {
-  ctx.paused = true;
-  return ['set', 'titleScreenState'];
-}
-
-function resetBaseGame(ctx) {
-  const {gameState} = ctx;
-  const map = getMap(ctx);
-  const layer = getLayer(ctx);
-  const {tilewidth, tileheight} = map;
-  const {width, height} = layer;
-  const halftilewidth = tilewidth / 2;
-  const halftileheight = tileheight / 2;
-
-  gameState.player.x = 24;
-  gameState.player.y = 24;
-  gameState.player.vx = 0;
-  gameState.player.vy = 0;
-  gameState.player.health = 3;
-  gameState.player.enemyCollision = null;
-  gameState.player.monsterCollisionDisabled = false;
-  gameState.player.hurtCountdown = 0;
-  gameState.player.invincibleCountdown = 0;
-  gameState.player.states = [['heroNormalState']];
-  setAnimation(ctx, gameState.player, 'hero_idle_r');
-
-  gameState.enemies.splice(0);
-
-  for (let i = 0; i < 4; i++) {
-    let x;
-    let y;
-    do { 
-      x = tilewidth * ((Math.random() * (width - 2) | 0) + 1) + halftilewidth;
-      y = tileheight * ((Math.random() * (height - 2) | 0) + 1) + halftileheight;
-    } while (isSolid(ctx, x, y));
-
-    gameState.enemies.push(createEntity({
-      texture: 'hero_idle_u_0',
-      x,
-      y,
-      states: [['seekState']]
-    }));
-  }
-}
-
-
-function titleScreenState(ctx) {
-  if (ctx.events.pointerdown) {
-    ctx.paused = false;
-    showScreen(ctx, 'gamebase');
-    resetBaseGame(ctx);
-    return ['set', 'gameBaseState'];
-  }
-}
-
-function gameOverState(ctx) {
-  if (ctx.events.pointerdown) {
-    ctx.paused = false;
-    showScreen(ctx, 'title');
-    return ['set', 'titleScreenState'];
-  }
-}
-
-function gameBaseState(ctx) {
-  const {enemies, player} = ctx.gameState;
-  const {x, y, bbx, bby, bbw, bbh} = player;
-
-  if (!player.monsterCollisionDisabled) {
-    const x1 = x + bbx;
-    const y1 = y + bby;
-    const x2 = x1 + bbw;
-    const y2 = y1 + bbh;
-
-    for (const entity of enemies) {
-
-      // Check enemy / player collisions
-      const {x, y, bbx, bby, bbw, bbh} = entity;
-      const x3 = x + bbx;
-      const y3 = y + bby;
-      const x4 = x3 + bbw;
-      const y4 = y3 + bbh;
-
-      const collision =
-        x2 > x3 &&
-        x4 > x1 &&
-        y2 > y3 &&
-        y4 > y1;
-
-      if (collision) {
-        player.enemyCollision = entity;
-      break;
-    }
-  }
-  }
 }
 
 function heroNormalState(ctx, entity) {
@@ -194,6 +65,10 @@ function heroNormalState(ctx, entity) {
   entity.vx = gamepad.axes[0];
   entity.vy = gamepad.axes[1];
 
+  const {weapon} = ctx.gameState;
+  weapon.x = entity.x;
+  weapon.y = entity.y;
+  
   if (entity.vx !== 0 || entity.vy !== 0) {
     const tan = entity.vy / entity.vx;
     if (entity.vx >= 0) {
@@ -307,4 +182,35 @@ function seekState(ctx, entity) {
 
   //}
 } 
+
+export function updateStates(ctx) {
+  //console.log('start');
+  const {gameState} = ctx;
+  const {player, enemies} = gameState;
+
+  const nodes = [player, ...enemies];
+  for (const node of nodes) {
+    for (const state of node.states ?? []) {
+      const top = state.pop();
+      const fn = ctx.states?.[top];
+      //console.log('exec', top);
+      const result = fn?.(ctx, node);
+      if (!result || result === 'continue') {
+        state.push(top);
+      } else if (Array.isArray(result)) {
+        const [action, name] = result;
+        if (action === 'push') {
+          state.push(top);
+        }
+        if (action === 'push' || action === 'set') {
+          state.push(name);
+        }
+      }
+    }
+
+    node.states = node.states?.filter(stack => stack.length) ?? [];
+  }
+
+}
+
 

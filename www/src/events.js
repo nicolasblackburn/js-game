@@ -59,3 +59,23 @@ export function removeEventListener(ctx, type, listener) {
     listeners.splice(index, 1);
   }
 }
+
+export function waitForEvent(target, type, predicate = () => true) {
+  return new Promise(resolve => {
+    function listener(event) {
+      if (predicate(event)) {
+        if (target.removeEventListener) {
+          target.removeEventListener(type, listener);
+        } else {
+          removeEventListener(target, type, listener);
+        }
+        resolve();
+      }
+    }
+    if (target.addEventListener) {
+      target.addEventListener(type, listener);
+    } else {
+      addEventListener(target, type, listener);
+    }
+  });
+}

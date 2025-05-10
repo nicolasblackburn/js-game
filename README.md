@@ -34,6 +34,17 @@ The development server supports hot code reload. Saving changes in a code file o
 
 It also support error capture and messaging in the server's standard output.
 
+- Hot code reload
+- Remote console log and error reporting
+- Remote code execution
+- One-hand touch controls
+- 2d tilemaps
+- Tilemap physics
+- Animations
+- SVG sprites and rendering system
+- Stack state machine
+- Functional
+
 ## Backlog
 
 ✔ Tools - From client being able to log infos in server stdout

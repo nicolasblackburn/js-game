@@ -3,15 +3,51 @@ import {getMap} from './maps.js';
 import {setAttributes} from './svg.js';
 
 export function render(ctx) {
-  renderMap(ctx);
-  renderSprites(ctx);
+  renderScene(ctx, ctx.gameState.scene);
   const {health} = ctx.gameState.player;
   ctx.dom.health.innerHTML = 'Health: ' + health;
 }
 
-function renderMap(ctx, map) {
-  map = map ?? getMap(ctx);
-  
+function renderScene(ctx, scene) {
+  let i = 0;
+  for (const node of iterateNodes(ctx, ctx.gameState.scene)) {
+    if (node.texture) {
+      renderSprite(ctx, node, i++);
+    } else if (node.type === 'tilemap') {
+      renderMap(ctx, node);
+    }
+  }
+}
+
+function* iterateNodes(ctx, node) {
+  yield node;
+  for (const child of node.children ?? []) {
+    yield* iterateNodes(ctx, child);
+  }
+}
+
+function renderSprite(ctx, entity, i) {
+  const {map} = ctx.gameState;
+  const {sprites} = ctx.dom;
+  const sprite = sprites[i];
+  const {texture, x, y, px, py, scalex, scaley, visible} = entity;
+  setAttributes(sprite, {
+    href: getTextureId(ctx, texture),
+    transform: `translate(${
+      x - map.x - px
+    },${
+      y - map.y - py
+    })`
+  });
+
+  Object.assign(sprite.style, {
+    display: visible ? '' : 'none'
+  });
+}
+
+function renderMap(ctx, mapNode) {
+  const map = getMap(ctx, mapNode.current);
+
   const {dom, gameState, textures, view} = ctx;
   const {tilemap, tiles} = dom;
   
@@ -50,31 +86,6 @@ function renderMap(ctx, map) {
       });
     }
   }
-}
-
-function renderSprites(ctx) {
-  const {player, enemies, map} = ctx.gameState;
-  const {sprites} = ctx.dom;
-  const entities = [player, ...enemies];
-
-  for (let i = 0; i < Math.min(sprites.length, entities.length); i++) {
-    const entity = entities[i];
-    const sprite = sprites[i];
-    const {texture, x, y, px, py, scalex, scaley, visible} = entity;
-    setAttributes(sprite, {
-      href: getTextureId(ctx, texture),
-      transform: `translate(${
-        x - map.x - px
-      },${
-        y - map.y - py
-      })`
-    });
-
-    Object.assign(sprite.style, {
-      display: visible ? '' : 'none'
-    });
-  }
-
 }
 
 export function getTextureId(ctx, name) {

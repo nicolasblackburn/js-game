@@ -1,6 +1,6 @@
 import {createContext} from './src/context.js';
 import {loadResources, reload} from './src/loader.js';
-import {addEventListeners, addEventListener} from './src/events.js';
+import {addEventListeners, addEventListener, dispatchEvent, waitForEvent} from './src/events.js';
 import {setAttributes} from './src/svg.js';
 import {getMap} from './src/maps.js';
 import {updateAnimations} from './src/animations.js';
@@ -8,6 +8,8 @@ import {updateStates} from './src/states.js';
 import {updateMovement} from './src/movements.js';
 import {render} from './src/render.js';
 import {EPSILON} from './src/constants.js';
+import {showScreen} from './src/screens.js';
+import {resetGameState} from './src/gameState.js';
 
 async function load() {
 	const ctx = createContext();
@@ -28,6 +30,20 @@ async function load() {
 		update(ctx, currentTime);
 		requestAnimationFrame(updateFrame);
 	})();
+
+  while (true) {
+    await waitForEvent(window, 'pointerdown');
+    ctx.paused = false;
+    resetGameState(ctx);
+    showScreen(ctx, 'basegame');
+
+    await waitForEvent(ctx, 'update', () => {
+      return ctx.gameState.player.health <= 0;
+    });
+
+    ctx.paused = false;
+    showScreen(ctx, 'gameover');
+  }
 }
 
 function resize(ctx, event) {
@@ -67,14 +83,17 @@ function update(ctx, currentTime = 0) {
   ctx.deltaTime = ctx.currentTime - ctx.lastTime;
   ctx.fixedTimeLeft += ctx.paused ? 0 : ctx.deltaTime;
   
-  updateStates(ctx);
-
   while (ctx.fixedTimeLeft > 0) {
     fixedUpdate(ctx);
+    dispatchEvent(ctx, 'fixedupdate');
     ctx.fixedTimeLeft -= ctx.fixedTimeStepDuration;
   }
-  
+ 
+  checkCollisions(ctx);
+  updateStates(ctx);
   updateAnimations(ctx);
+
+  dispatchEvent(ctx, 'update');
   
   render(ctx);
 
@@ -142,6 +161,39 @@ function fixedUpdate(ctx) {
   gameState.map.x = Math.min(Math.max(lowboundx, player.x - viewwidth / 2), upboundx);
   gameState.map.y = Math.min(Math.max(lowboundy, player.y - viewheight / 2), upboundy);
 
+}
+
+function checkCollisions(ctx) {
+  const {enemies, player} = ctx.gameState;
+  const {x, y, bbx, bby, bbw, bbh} = player;
+
+  if (!player.monsterCollisionDisabled) {
+    const x1 = x + bbx;
+    const y1 = y + bby;
+    const x2 = x1 + bbw;
+    const y2 = y1 + bbh;
+
+    for (const entity of enemies) {
+
+      // Check enemy / player collisions
+      const {x, y, bbx, bby, bbw, bbh} = entity;
+      const x3 = x + bbx;
+      const y3 = y + bby;
+      const x4 = x3 + bbw;
+      const y4 = y3 + bbh;
+
+      const collision =
+        x2 > x3 &&
+        x4 > x1 &&
+        y2 > y3 &&
+        y4 > y1;
+
+      if (collision) {
+        player.enemyCollision = entity;
+        break;
+      }
+    }
+  }
 }
 
 window.addEventListener('load', load);
