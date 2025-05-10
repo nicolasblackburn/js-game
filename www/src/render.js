@@ -33,10 +33,10 @@ function updateTransform(node, parent) {
   const sin = Math.sin(theta);
   const a = (node.sx ?? 1) * cos;
   const b = -(node.sx ?? 1) * sin;
-  const c = (node.x ?? 0) - (node.px ?? 0);
+  const c = node.x ?? 0;
   const d = (node.sy ?? 1) * sin;
   const e = (node.sy ?? 1) * cos;
-  const f = (node.y ?? 0) - (node.py ?? 0);
+  const f = node.y ?? 0;
   node.transform = [a, b, c, d, e, f];
 
   if (!parent) {
@@ -85,14 +85,14 @@ function renderSprite(ctx, entity, i) {
   const {map} = ctx.gameState;
   const {sprites} = ctx.dom;
   const sprite = sprites[i];
-  const {texture, x, y, px, py, scalex, scaley, visible} = entity;
+  const {texture, px = 0, py = 0, visible} = entity;
   const [
     a = 1, b = 0, c = 0,
     d = 0, e = 1, f = 0
   ] = entity.wtransform ?? [];
   setAttributes(sprite, {
     href: getTextureId(ctx, texture),
-    transform: `matrix(${a} ${d} ${b} ${e} ${c} ${f})`
+    transform: `matrix(${a} ${d} ${b} ${e} ${c} ${f}) translate(${-px} ${-py})`
     //transform: `translate(${c} ${f})`
   });
 
