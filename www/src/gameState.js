@@ -108,6 +108,7 @@ export function resetGameState(ctx) {
     } while (isSolid(ctx, x, y));
 
     gameState.enemies.push(createEntity({
+      name: `enemy${i}`,
       texture: 'hero_idle_u_0',
       x,
       y,

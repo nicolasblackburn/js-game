@@ -65,9 +65,9 @@ function heroNormalState(ctx, entity) {
   entity.vx = gamepad.axes[0];
   entity.vy = gamepad.axes[1];
 
-  const {weapon} = ctx.gameState;
-  weapon.x = entity.x;
-  weapon.y = entity.y;
+  //const {weapon} = ctx.gameState;
+  //weapon.x = entity.x;
+  //weapon.y = entity.y;
   
   if (entity.vx !== 0 || entity.vy !== 0) {
     const tan = entity.vy / entity.vx;
