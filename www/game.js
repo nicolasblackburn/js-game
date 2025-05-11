@@ -3,13 +3,14 @@ import {loadResources, reload} from './src/loader.js';
 import {addEventListeners, addEventListener, dispatchEvent, waitForEvent} from './src/events.js';
 import {setAttributes} from './src/svg.js';
 import {getMap} from './src/maps.js';
-import {updateAnimations} from './src/animations.js';
-import {updateStates} from './src/states.js';
+import {updateAnimation} from './src/animations.js';
+import {updateState} from './src/states.js';
 import {updateMovement} from './src/movements.js';
 import {render} from './src/render.js';
 import {EPSILON} from './src/constants.js';
 import {showScreen} from './src/screens.js';
 import {resetGameState} from './src/gameState.js';
+import {iterateNodes} from './src/scene.js';
 
 async function load() {
 	const ctx = createContext();
@@ -90,8 +91,7 @@ function update(ctx, currentTime = 0) {
   }
  
   checkCollisions(ctx);
-  updateStates(ctx);
-  updateAnimations(ctx);
+  updateScene(ctx, ctx.gameState.scene);
 
   dispatchEvent(ctx, 'update');
   
@@ -101,6 +101,13 @@ function update(ctx, currentTime = 0) {
 
   ctx.events = {};
 
+}
+
+function updateScene(ctx, scene) {
+  for (const [node, parent] of iterateNodes(ctx, scene)) {
+    updateState(ctx, node);
+    updateAnimation(ctx, node);
+  }
 }
 
 function fixedUpdate(ctx) {

@@ -183,34 +183,24 @@ function seekState(ctx, entity) {
   //}
 } 
 
-export function updateStates(ctx) {
-  //console.log('start');
-  const {gameState} = ctx;
-  const {player, enemies} = gameState;
-
-  const nodes = [player, ...enemies];
-  for (const node of nodes) {
-    for (const state of node.states ?? []) {
-      const top = state.pop();
-      const fn = ctx.states?.[top];
-      //console.log('exec', top);
-      const result = fn?.(ctx, node);
-      if (!result || result === 'continue') {
+export function updateState(ctx, node) {
+  for (const state of node.states ?? []) {
+    const top = state.pop();
+    const fn = ctx.states?.[top];
+    //console.log('exec', top);
+    const result = fn?.(ctx, node);
+    if (!result || result === 'continue') {
+      state.push(top);
+    } else if (Array.isArray(result)) {
+      const [action, name] = result;
+      if (action === 'push') {
         state.push(top);
-      } else if (Array.isArray(result)) {
-        const [action, name] = result;
-        if (action === 'push') {
-          state.push(top);
-        }
-        if (action === 'push' || action === 'set') {
-          state.push(name);
-        }
+      }
+      if (action === 'push' || action === 'set') {
+        state.push(name);
       }
     }
-
-    node.states = node.states?.filter(stack => stack.length) ?? [];
   }
 
+  node.states = node.states?.filter(stack => stack.length) ?? [];
 }
-
-

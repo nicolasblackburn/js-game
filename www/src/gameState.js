@@ -13,6 +13,7 @@ export function initGameState(ctx) {
     x: 24,
     y: 24,
     health: 3,
+    weapon,
     states: [['heroIdleState']],
     children: [
       weapon
@@ -32,6 +33,9 @@ export function initGameState(ctx) {
 
   const scene = {
     name: 'root',
+    map,
+    player,
+    enemies,
     children: [
       map,
       player,
@@ -45,7 +49,6 @@ export function initGameState(ctx) {
   ctx.gameState = {
     map,
     player,
-    weapon,
     enemies,
     scene
   };

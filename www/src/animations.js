@@ -1,32 +1,18 @@
-export function updateAnimations(ctx) {
-  const {gameState} = ctx;
-  const {player, enemies} = gameState;
-
-  // Calculate deltaTime
+export function updateAnimation(ctx, node) {
   const deltaTime = ctx.deltaTime;
-
-  const entities = [gameState];
-
-  if (!ctx.paused) {
-    entities.push(player, ...enemies);
-  }
-
-  for (const entity of entities) {
-    const animations = entity.animations ?? [];
-    for (const state of animations) {
-      if (!state || state.paused) {
-        continue;
-      }
-      state.time += deltaTime;
-      const animation = getAnimationData(ctx, state.name);
-      if (animation) {
-        const duration = getAnimationDuration(animation);
-        state.time = state.time % duration;
-        applyAnimation(entity, animation, state.time);
-      }
+  
+  for (const animation of node.animations ?? []) {
+    if (!animation || animation.paused) {
+      continue;
+    }
+    animation.time += deltaTime;
+    const data = getAnimationData(ctx, animation.name);
+    if (data) {
+      const duration = getAnimationDuration(data);
+      animation.time = animation.time % duration;
+      applyAnimation(node, data, animation.time);
     }
   }
-
 }
 
 function getAnimationDuration(animation) {

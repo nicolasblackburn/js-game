@@ -1,6 +1,7 @@
 import {pathDirname, pathJoin} from './loader.js';
 import {getMap} from './maps.js';
 import {setAttributes} from './svg.js';
+import {iterateNodes} from './scene.js';
 
 export function render(ctx) {
   renderScene(ctx, ctx.gameState.scene);
@@ -72,13 +73,6 @@ function updateTransform(node, parent) {
     console.log(node.name + ':\n' + [a, b, c].join() + '\n' + [d, e, f].join());
   })();
   */
-}
-
-function* iterateNodes(ctx, node, parent) {
-  yield [node, parent];
-  for (const child of node.children ?? []) {
-    yield* iterateNodes(ctx, child, node);
-  }
 }
 
 function renderSprite(ctx, entity, i) {
