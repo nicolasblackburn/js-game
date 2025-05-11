@@ -16,11 +16,15 @@ export function updateAnimation(ctx, node) {
 }
 
 function getAnimationDuration(animation) {
-  const duration = Math.max(animation.timelines.map(({frames}) => frames[frames.length - 1]));
+  const duration = Math.max(...animation.timelines.map(({frames}) => frames[frames.length - 1]));
+  //if (animation.name === 'weapon_cut_r') {
+  //  console.log('duration:', duration);
+  //}
   return duration;
 }
 
 export function setAnimation(ctx, target, name, track = 0) {
+  target.animations = target.animations ?? [];
   if (target.animations[track]?.name !== name) {
     target.animations[track] = {
       name,
@@ -29,10 +33,13 @@ export function setAnimation(ctx, target, name, track = 0) {
       loop: true
     };
   }
+  if (name === 'weapon_cut_r') {
+    //console.log(target);
+  }
 }
 
 export function clearAnimation(ctx, target, track = 0) {
-  delete target.animations[track];
+  target.animations?.splice(track, 1);
 }
 
 export function gotoAndPlay(ctx, target, time, name, track = 0) {
@@ -75,11 +82,18 @@ function applyAnimation(target, animation, time) {
     const d = (frames[frame] - frames[prevframe]) || 1;
     const a = (d - t) / d;
     const b = t / d;
+    
+    let targ = target;
+    let prop = property[0];
+    for (let i = 0; i < property.length - 1; i++) {
+      targ = targ[prop];
+      prop = property[i + 1];
+    }
 
     if (typeof values[prevframe] === 'number') {
-      target[property] = a * values[prevframe] + b * values[frame];
+      targ[prop] = a * values[prevframe] + b * values[frame];
     } else {
-      target[property] = values[prevframe];
+      targ[prop] = values[prevframe];
     }
   }
 }

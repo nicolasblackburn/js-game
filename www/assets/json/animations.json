@@ -5,7 +5,7 @@
       "name": "blink",
       "timelines": [
         {
-          "property": "visible",
+          "property": ["visible"],
           "frames": [0, 40, 80],
           "values": [
             true, 
@@ -19,7 +19,7 @@
       "name": "hero_idle_r",
       "timelines": [
         {
-          "property": "texture",
+          "property": ["texture"],
           "frames": [0, 320],
           "values": [
             "hero_walk_r_0",
@@ -32,7 +32,7 @@
       "name": "hero_idle_l",
       "timelines": [
         {
-          "property": "texture",
+          "property": ["texture"],
           "frames": [0, 320],
           "values": [
             "hero_walk_l_0",
@@ -45,7 +45,7 @@
       "name": "hero_idle_u",
       "timelines": [
         {
-          "property": "texture",
+          "property": ["texture"],
           "frames": [0, 320],
           "values": [
             "hero_idle_u_0",
@@ -58,7 +58,7 @@
       "name": "hero_idle_d",
       "timelines": [
         {
-          "property": "texture",
+          "property": ["texture"],
           "frames": [0, 320],
           "values": [
             "hero_idle_d_0",
@@ -72,7 +72,7 @@
       "timelines": [
         {
           "node": "body",
-          "property": "texture",
+          "property": ["texture"],
           "frames": [0, 160, 320],
           "values": [
             "hero_walk_r_0", 
@@ -86,7 +86,7 @@
       "name": "hero_walk_l",
       "timelines": [
         {
-          "property": "texture",
+          "property": ["texture"],
           "frames": [0, 160, 320],
           "values": [
             "hero_walk_l_0",
@@ -100,7 +100,7 @@
       "name": "hero_walk_u",
       "timelines": [
         {
-          "property": "texture",
+          "property": ["texture"],
           "frames": [0, 160, 320],
           "values": [
             "hero_walk_u_0",
@@ -121,6 +121,31 @@
             "hero_walk_d_1",
             "hero_walk_d_0"
           ]
+        }
+      ]
+    },
+    {
+      "name": "weapon_cut_r",
+      "timelines": [
+        {
+          "property": ["r"],
+          "frames": [0, 100, 200],
+          "values": [0, 60, 120]
+        },
+        {
+          "property": ["py"],
+          "frames": [0, 200],
+          "values": [13, 13]
+        },
+        {
+          "property": ["x"],
+          "frames": [0, 200],
+          "values": [4, 4]
+        },
+        {
+          "property": ["y"],
+          "frames": [0, 200],
+          "values": [2, 2]
         }
       ]
     }

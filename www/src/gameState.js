@@ -4,7 +4,8 @@ import {setAnimation} from './animations.js';
 export function initGameState(ctx) {
   const weapon = createEntity({
     name: 'weapon',
-    texture: 'sword'
+    texture: 'sword',
+    //py: 16
   });
 
   // This is the player

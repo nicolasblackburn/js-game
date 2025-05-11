@@ -15,6 +15,8 @@ export function initStates(ctx) {
 function heroNormalState(ctx, entity) {
   const {gamepad} = ctx;
 
+  setAnimation(ctx, entity.weapon, 'weapon_cut_r');
+
   if (entity.enemyCollision) { 
     entity.health--;
 
@@ -65,10 +67,6 @@ function heroNormalState(ctx, entity) {
   entity.vx = gamepad.axes[0];
   entity.vy = gamepad.axes[1];
 
-  //const {weapon} = ctx.gameState;
-  //weapon.x = entity.x;
-  //weapon.y = entity.y;
-  
   if (entity.vx !== 0 || entity.vy !== 0) {
     const tan = entity.vy / entity.vx;
     if (entity.vx >= 0) {

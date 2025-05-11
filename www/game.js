@@ -27,7 +27,7 @@ async function load() {
   const urls = await (await fetch('manifest.json')).json();
 	await loadResources(ctx, urls);
 
-	(function updateFrame(currentTime) {
+  (function updateFrame(currentTime) {
 		update(ctx, currentTime);
 		requestAnimationFrame(updateFrame);
 	})();
@@ -113,7 +113,7 @@ function updateScene(ctx, scene) {
 function fixedUpdate(ctx) {
   // update physics
   const {gamepad, gameState, view} = ctx;
-  const {player, enemies} = gameState;
+  const {player, enemies} = gameState.scene;
 
   const entities = [player, ...enemies];
 
