@@ -47,12 +47,7 @@ export function initGameState(ctx) {
     ]
   };
   
-  ctx.gameState = {
-    map,
-    player,
-    enemies,
-    scene
-  };
+  ctx.scene = scene;
 }
 
 export function createEntity(attrs = {}) {
@@ -82,7 +77,8 @@ export function createEntity(attrs = {}) {
 }
 
 export function resetGameState(ctx) {
-  const {gameState} = ctx;
+  const {scene} = ctx;
+  const {player, enemies} = scene;
   const map = getMap(ctx);
   const layer = getLayer(ctx);
   const {tilewidth, tileheight} = map;
@@ -90,18 +86,18 @@ export function resetGameState(ctx) {
   const halftilewidth = tilewidth / 2;
   const halftileheight = tileheight / 2;
 
-  gameState.player.x = 24;
-  gameState.player.y = 24;
-  gameState.player.vx = 0;
-  gameState.player.vy = 0;
-  gameState.player.health = 3;
-  gameState.player.enemyCollision = null;
-  gameState.player.monsterCollisionDisabled = false;
-  gameState.player.hurtCountdown = 0;
-  gameState.player.invincibleCountdown = 0;
-  gameState.player.states = [['heroNormalState']];
+  player.x = 24;
+  player.y = 24;
+  player.vx = 0;
+  player.vy = 0;
+  player.health = 3;
+  player.enemyCollision = null;
+  player.monsterCollisionDisabled = false;
+  player.hurtCountdown = 0;
+  player.invincibleCountdown = 0;
+  player.states = [['heroNormalState']];
 
-  gameState.enemies.splice(0);
+  enemies.splice(0);
 
   for (let i = 0; i < 4; i++) {
     let x;
@@ -111,7 +107,7 @@ export function resetGameState(ctx) {
       y = tileheight * ((Math.random() * (height - 2) | 0) + 1) + halftileheight;
     } while (isSolid(ctx, x, y));
 
-    gameState.enemies.push(createEntity({
+    enemies.push(createEntity({
       name: `enemy${i}`,
       texture: 'hero_idle_u_0',
       x,

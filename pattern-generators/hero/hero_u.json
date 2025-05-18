@@ -63,7 +63,7 @@
         {
           "node": "arm_r",
           "property": "r",
-          "frames": [
+          "times": [
             0,
             1
           ],
@@ -75,7 +75,7 @@
         {
           "node": "arm_l",
           "property": "r",
-          "frames": [
+          "times": [
             0,
             1
           ],
@@ -87,7 +87,7 @@
         {
           "node": "leg_r",
           "property": "sy",
-          "frames": [
+          "times": [
             0,
             1
           ],
@@ -99,7 +99,7 @@
         {
           "node": "leg_l",
           "property": "sy",
-          "frames": [
+          "times": [
             0,
             1
           ],
@@ -116,7 +116,7 @@
         {
           "node": "arm_r",
           "property": "r",
-          "frames": [
+          "times": [
             0,
             1,
             2
@@ -130,7 +130,7 @@
         {
           "node": "arm_l",
           "property": "r",
-          "frames": [
+          "times": [
             0,
             1,
             2
@@ -144,7 +144,7 @@
         {
           "node": "leg_r",
           "property": "sy",
-          "frames": [
+          "times": [
             0,
             1,
             2
@@ -158,7 +158,7 @@
         {
           "node": "leg_l",
           "property": "sy",
-          "frames": [
+          "times": [
             0,
             1,
             2

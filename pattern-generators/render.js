@@ -43,7 +43,7 @@ const defs = {};
   }
 
   for (const animation of scenedata.animations) {
-    for (let i = 0; i < (animation.timelines[0]?.frames.length ?? 2) - 1; i++) {
+    for (let i = 0; i < (animation.timelines[0]?.times.length ?? 2) - 1; i++) {
 
       for (const {name, x, y, r, sx, sy, index, attachment} of basepose) {
         if (name) {
@@ -155,15 +155,15 @@ const defs = {};
   }
 
   function applytimeline(timeline, time) {
-    const {node: nodename, property, frames, values} = timeline;
+    const {node: nodename, property, times, values} = timeline;
 
-    const duration = frames[frames.lentgh - 1];
+    const duration = times[times.lentgh - 1];
 
     let prevframe = 0;
     let frame = 0;
 
     if (time >= duration) {
-      frame = frames.length - 1;
+      frame = times.length - 1;
       prevframe = frame;
     } else {
 
@@ -171,15 +171,15 @@ const defs = {};
       // optimizations like searching from the last
       // frame index or using binary search could 
       // be more efficient but is it really needed?
-      while (frames[frame] < time) {
+      while (times[frame] < time) {
         frame++;
         prevframe = frame - 1;
       }
     }
 
     // These will be used for interpolation.
-    const t = time - frames[prevframe];
-    const d = (frames[frame] - frames[prevframe]) || 1;
+    const t = time - times[prevframe];
+    const d = (times[frame] - times[prevframe]) || 1;
     const a = (d - t) / d;
     const b = t / d;
 

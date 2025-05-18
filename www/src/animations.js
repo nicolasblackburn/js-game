@@ -57,7 +57,7 @@ function applyAnimation(target, animation, time) {
 
   const duration = getAnimationDuration(animation);
 
-  for (const {property, frames, values} of timelines) {
+  for (const {property, frames, values, discrete = false} of timelines) {
 
     let prevframe = 0;
     let frame = 0;
@@ -90,7 +90,7 @@ function applyAnimation(target, animation, time) {
       prop = property[i + 1];
     }
 
-    if (typeof values[prevframe] === 'number') {
+    if (!discrete && typeof values[prevframe] === 'number') {
       targ[prop] = a * values[prevframe] + b * values[frame];
     } else {
       targ[prop] = values[prevframe];

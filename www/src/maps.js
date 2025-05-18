@@ -5,15 +5,15 @@ export function getMapProperty(map, pname) {
 }
 
 export function getMap(ctx, name) {
-  const {gameState, maps} = ctx;
-  const map = maps[name ?? gameState.map.current];
+  const {scene, maps} = ctx;
+  const map = maps[name ?? scene.map.current];
   return map;
 }
 
 export function getLayer(ctx, map, layerIndex) {
-  const {gameState} = ctx;
+  const {scene} = ctx;
   const mapData = getMap(ctx, map);
-  const layer = mapData.layers[layerIndex] ?? mapData.layers[gameState.map.layer];
+  const layer = mapData.layers[layerIndex] ?? mapData.layers[scene.map.layer];
   return layer;
 }
 

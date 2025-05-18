@@ -39,7 +39,7 @@ async function load() {
     showScreen(ctx, 'basegame');
 
     await waitForEvent(ctx, 'update', () => {
-      return ctx.gameState.player.health <= 0;
+      return ctx.scene.player.health <= 0;
     });
 
     ctx.paused = false;
@@ -91,7 +91,7 @@ function update(ctx, currentTime = 0) {
   }
  
   checkCollisions(ctx);
-  updateScene(ctx, ctx.gameState.scene);
+  updateScene(ctx, ctx.scene);
 
   dispatchEvent(ctx, 'update');
   
@@ -112,8 +112,8 @@ function updateScene(ctx, scene) {
 
 function fixedUpdate(ctx) {
   // update physics
-  const {gamepad, gameState, view} = ctx;
-  const {player, enemies} = gameState.scene;
+  const {gamepad, scene, view} = ctx;
+  const {player, enemies} = scene;
 
   const entities = [player, ...enemies];
 
@@ -154,7 +154,7 @@ function fixedUpdate(ctx) {
 
   // update map
   const map = getMap(ctx);
-  const layer = map.layers[gameState.map.layer];
+  const layer = map.layers[scene.map.layer];
   const layerwidth = layer.width * map.tilewidth;
   const layerheight = layer.height * map.tileheight;
   const viewwidth = view.width * view.tilewidth;
@@ -165,13 +165,13 @@ function fixedUpdate(ctx) {
   const upboundx = layer.width * map.tilewidth - viewwidth;
   const lowboundy = 0;
   const upboundy = layer.height * map.tileheight - viewheight;
-  gameState.map.x = Math.min(Math.max(lowboundx, player.x - viewwidth / 2), upboundx);
-  gameState.map.y = Math.min(Math.max(lowboundy, player.y - viewheight / 2), upboundy);
+  scene.map.x = Math.min(Math.max(lowboundx, player.x - viewwidth / 2), upboundx);
+  scene.map.y = Math.min(Math.max(lowboundy, player.y - viewheight / 2), upboundy);
 
 }
 
 function checkCollisions(ctx) {
-  const {enemies, player} = ctx.gameState;
+  const {enemies, player} = ctx.scene;
   const {x, y, bbx, bby, bbw, bbh} = player;
 
   if (!player.monsterCollisionDisabled) {

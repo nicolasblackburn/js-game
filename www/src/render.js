@@ -4,13 +4,13 @@ import {setAttributes} from './svg.js';
 import {iterateNodes} from './scene.js';
 
 export function render(ctx) {
-  renderScene(ctx, ctx.gameState.scene);
-  const {health} = ctx.gameState.player;
+  renderScene(ctx, ctx.scene);
+  const {health} = ctx.scene.player;
   ctx.dom.health.innerHTML = 'Health: ' + health;
 }
 
 function renderScene(ctx, scene) {
-  const {map} = ctx.gameState;
+  const {map} = scene;
   scene.x = -map.x ?? 0;
   scene.y = -map.y ?? 0;
   scene.sx = 1 / (map.sx ?? 1);
@@ -76,7 +76,7 @@ function updateTransform(node, parent) {
 }
 
 function renderSprite(ctx, entity, i) {
-  const {map} = ctx.gameState;
+  const {map} = ctx.scene;
   const {sprites} = ctx.dom;
   const sprite = sprites[i];
   const {texture, px = 0, py = 0, visible} = entity;
@@ -98,17 +98,17 @@ function renderSprite(ctx, entity, i) {
 function renderMap(ctx, mapNode) {
   const map = getMap(ctx, mapNode.current);
 
-  const {dom, gameState, textures, view} = ctx;
+  const {dom, textures, view} = ctx;
   const {tilemap, tiles} = dom;
   
-  const layer = map.layers[gameState.map.layer];
+  const layer = map.layers[mapNode.layer];
   const mapData = layer.data;
   const tileset = map.tilesets[0].tiles;
   
-  const viewx = -gameState.map.x % view.tilewidth;
-  const viewy = -gameState.map.y % view.tileheight;
-  const mapx = gameState.map.x / view.tilewidth | 0;
-  const mapy = gameState.map.y / view.tileheight | 0;
+  const viewx = -mapNode.x % view.tilewidth;
+  const viewy = -mapNode.y % view.tileheight;
+  const mapx = mapNode.x / view.tilewidth | 0;
+  const mapy = mapNode.y / view.tileheight | 0;
 
   setAttributes(tilemap, {
     transform: `translate(${viewx}, ${viewy})`

@@ -15,7 +15,7 @@ export function initStates(ctx) {
 function heroNormalState(ctx, entity) {
   const {gamepad} = ctx;
 
-  setAnimation(ctx, entity.weapon, 'weapon_cut_r');
+  setAnimation(ctx, entity, 'weapon_cut_r');
 
   if (entity.enemyCollision) { 
     entity.health--;
@@ -92,7 +92,7 @@ function heroNormalState(ctx, entity) {
       'hero_walk_l',
       'hero_walk_u'
     ][entity.dir];
-    setAnimation(ctx, entity, animation);
+    //setAnimation(ctx, entity, animation);
   } else {
     // No movement
     const animation = [
@@ -101,7 +101,7 @@ function heroNormalState(ctx, entity) {
       'hero_idle_l',
       'hero_idle_u'
     ][entity.dir];
-    setAnimation(ctx, entity, animation);
+    //setAnimation(ctx, entity, animation);
   } 
 }
 
@@ -115,7 +115,7 @@ function entityHurtState(ctx, entity) {
 }
 
 function seekState(ctx, entity) {
-  const player = ctx.gameState.player;
+  const player = ctx.scene.player;
   const map = getMap(ctx);
 
   const {tilewidth, tileheight} = map;
