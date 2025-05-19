@@ -15,7 +15,13 @@ export function initStates(ctx) {
 function heroNormalState(ctx, entity) {
   const {gamepad} = ctx;
 
-  setAnimation(ctx, entity, 'weapon_cut_r');
+  const animation = [
+    'weapon_cut_r',
+    'weapon_cut_d',
+    'weapon_cut_l',
+    'weapon_cut_u'
+  ][entity.dir];
+  setAnimation(ctx, entity, animation);
 
   if (entity.enemyCollision) { 
     entity.health--;

@@ -144,6 +144,11 @@
           "values": [0, 45, 90, 90]
         },
         {
+          "property": ["weapon", "sx"],
+          "frames": [0, 240],
+          "values": [1, 1]
+        },
+        {
           "property": ["weapon", "py"],
           "frames": [0, 240],
           "values": [13, 13]
@@ -159,6 +164,135 @@
           "_discrete": true,
           "frames": [0, 80, 160, 240],
           "values": [-4, -4, 4, 4]
+        }
+      ]
+    },
+    {
+      "name": "weapon_cut_d",
+      "timelines": [
+        {
+          "property": ["texture"],
+          "frames": [0, 80, 160, 240],
+          "values": [
+            "hero_walk_d_0",
+            "hero_walk_d_0",
+            "hero_walk_d_0",
+            "hero_walk_d_0"
+          ]
+        },
+        {
+          "property": ["weapon", "r"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [90, 135, 180, 180]
+        },
+        {
+          "property": ["weapon", "sx"],
+          "frames": [0, 240],
+          "values": [-1, -1]
+        },
+        {
+          "property": ["weapon", "py"],
+          "frames": [0, 240],
+          "values": [13, 13]
+        },
+        {
+          "property": ["weapon", "x"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [-4, -4, 4, 4]
+        },
+        {
+          "property": ["weapon", "y"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [4, 4, 6, 6]
+        }
+      ]
+    },
+    {
+      "name": "weapon_cut_l",
+      "timelines": [
+        {
+          "property": ["texture"],
+          "frames": [0, 80, 160, 240],
+          "values": [
+            "hero_attack_l_0",
+            "hero_attack_l_1",
+            "hero_attack_l_2",
+            "hero_attack_l_3"
+          ]
+        },
+        {
+          "property": ["weapon", "r"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [0, 45, 90, 90]
+        },
+        {
+          "property": ["weapon", "sx"],
+          "frames": [0, 240],
+          "values": [-1, -1]
+        },
+        {
+          "property": ["weapon", "py"],
+          "frames": [0, 240],
+          "values": [13, 13]
+        },
+        {
+          "property": ["weapon", "x"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [-4, -4, -6, -6]
+        },
+        {
+          "property": ["weapon", "y"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [-4, -4, 4, 4]
+        }
+      ]
+    },
+    {
+      "name": "weapon_cut_u",
+      "timelines": [
+        {
+          "property": ["texture"],
+          "frames": [0, 80, 160, 240],
+          "values": [
+            "hero_walk_u_0",
+            "hero_walk_u_0",
+            "hero_walk_u_0",
+            "hero_walk_u_0"
+          ]
+        },
+        {
+          "property": ["weapon", "r"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [90, 45, 0, 0]
+        },
+        {
+          "property": ["weapon", "sx"],
+          "frames": [0, 240],
+          "values": [1, 1]
+        },
+        {
+          "property": ["weapon", "py"],
+          "frames": [0, 240],
+          "values": [13, 13]
+        },
+        {
+          "property": ["weapon", "x"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [4, 4, -4, -4]
+        },
+        {
+          "property": ["weapon", "y"],
+          "_discrete": true,
+          "frames": [0, 80, 160, 240],
+          "values": [-4, -4, -6, -6]
         }
       ]
     }

@@ -176,6 +176,47 @@
           "values": [0, -45, -45, -45, 0]
         }
       ]
+    },
+    {
+      "name": "hero_attack_l",
+      "timelines": [
+        {
+          "node": "torso",
+          "property": "y",
+          "times": [0, 1, 2, 3, 4],
+          "values": [1.5, 2, 2, 2, 1.5]
+        },
+        {
+          "node": "arm_r",
+          "property": "r",
+          "times": [0, 1, 2, 3, 4],
+          "values": [0, 45, 45, 45, 0]
+        },
+        {
+          "node": "arm_l",
+          "property": "y",
+          "times": [0, 1, 2, 3, 4],
+          "values": [0, 0, 2, 2, 0]
+        },
+        {
+          "node": "arm_l",
+          "property": "r",
+          "times": [0, 1, 2, 3, 4],
+          "values": [0, -135, -90, -90, 0]
+        },
+        {
+          "node": "leg_r",
+          "property": "r",
+          "times": [0, 1, 2, 3, 4],
+          "values": [0, 45, 45, 45, 0]
+        },
+        {
+          "node": "leg_l",
+          "property": "r",
+          "times": [0, 1, 2, 3, 4],
+          "values": [0, -45, -45, -45, 0]
+        }
+      ]
     }
   ]
 }
