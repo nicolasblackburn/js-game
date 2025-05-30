@@ -15,7 +15,7 @@ export function updateAnimation(ctx, node) {
   }
 }
 
-function getAnimationDuration(animation) {
+export function getAnimationDuration(animation) {
   const duration = Math.max(...animation.timelines.map(({frames}) => frames[frames.length - 1]));
   //if (animation.name === 'weapon_cut_r') {
   //  console.log('duration:', duration);
@@ -48,7 +48,7 @@ export function gotoAndPlay(ctx, target, time, name, track = 0) {
   target.animations[track].paused = false;
 }
 
-function getAnimationData(ctx, name) {
+export function getAnimationData(ctx, name) {
   return ctx.animations[name];
 }
 

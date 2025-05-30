@@ -11,6 +11,7 @@ import {EPSILON} from './src/constants.js';
 import {showScreen} from './src/screens.js';
 import {resetGameState} from './src/gameState.js';
 import {iterateNodes} from './src/scene.js';
+import {processDelayedEvents} from './src/gamepad.js';
 
 async function load() {
 	const ctx = createContext();
@@ -99,6 +100,7 @@ function update(ctx, currentTime = 0) {
 
   ctx.lastTime = currentTime;
 
+  processDelayedEvents(ctx);
   ctx.events = {};
 
 }
@@ -167,6 +169,7 @@ function fixedUpdate(ctx) {
   const upboundy = layer.height * map.tileheight - viewheight;
   scene.map.x = Math.min(Math.max(lowboundx, player.x - viewwidth / 2), upboundx);
   scene.map.y = Math.min(Math.max(lowboundy, player.y - viewheight / 2), upboundy);
+
 
 }
 

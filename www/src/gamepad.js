@@ -16,8 +16,8 @@ export function initGamepad(ctx) {
       pressed: false
     }],
     axisDistanceMax: 32**2,
-    touchstartDistanceThreshold: 49,
-    tapTimeThreshold: 100,
+    touchstartMinDistance: 49,
+    tapTimeDelay: 100,
     clampAxes: true
   };
   ctx.listeners.touchstart = [];
@@ -32,8 +32,16 @@ export function initGamepad(ctx) {
         delayTouchStart: true,
         region: [0, 0, 1, 1],
       }
-    ]
+    ],
+    delayedEvents: []
   };
+}
+
+export function processDelayedEvents(ctx) {
+  while (ctx.touch.delayedEvents.length) {
+    const emit = ctx.touch.delayedEvents.shift();
+    emit();
+  }
 }
 
 export function addGamepadEventListeners(ctx) {
@@ -49,6 +57,19 @@ export function addGamepadEventListeners(ctx) {
 function touchPointerDown(ctx, event) {
   const touch = createTouch(event);
   ctx.touch.touches.push(touch);
+  touch.timeoutid = setTimeout(() => {
+    if (!touch.type) {
+      touch.type = 'press';
+    
+      ctx.gamepad.buttons[0].pressed = true;
+
+      dispatchEvent(ctx, 'buttondown', {
+        ...ctx.gamepad,
+        touch
+      });
+
+    }
+  }, ctx.gamepad.tapTimeDelay);
 }
 
 function touchPointerMove(ctx, event) {
@@ -61,16 +82,17 @@ function touchPointerMove(ctx, event) {
   let dist = touch.moveX ** 2 + touch.moveY ** 2;
 
   if (!touch.type) {
-    const {touchstartDistanceThreshold} = ctx.gamepad;
+    const {touchstartMinDistance} = ctx.gamepad;
 
-    if (dist >= touchstartDistanceThreshold) {
+    if (dist >= touchstartMinDistance) {
+      clearTimeout(touch.timeoutid);
       touch.type = 'move';
       dispatchEvent(ctx, 'touchstart', touch);
 
       ctx.gamepad.axes[0] = 0;
       ctx.gamepad.axes[1] = 0;
 
-      dispatchEvent(ctx, 'axispress', {
+      dispatchEvent(ctx, 'axispressed', {
         ...ctx.gamepad,
         touch
       });
@@ -119,6 +141,16 @@ function touchPointerMove(ctx, event) {
 function touchPointerUp(ctx, event) {
   const index = {value: undefined};
   const touch = findClosestTouch(ctx, event, index);
+  if (!touch) {
+    ctx.gamepad.axes[0] = 0;
+    ctx.gamepad.axes[1] = 0;
+    ctx.gamepad.buttons[0].pressed = false;
+
+    return;
+  }
+      
+  clearTimeout(touch.timeoutid);
+
   ctx.touch.touches.splice(index.value, 1);
   if (touch.type === 'move') {
     dispatchEvent(ctx, 'touchend', touch);
@@ -130,6 +162,37 @@ function touchPointerUp(ctx, event) {
       ...ctx.gamepad,
       touch
     });
+
+    dispatchEvent(ctx, 'axisreleased', {
+      ...ctx.gamepad,
+      touch
+    });
+
+  } else if (touch.type === 'press') {
+    ctx.gamepad.buttons[0].pressed = false;
+
+    dispatchEvent(ctx, 'buttonup', {
+      ...ctx.gamepad,
+      touch
+    });
+
+  } else {
+    ctx.gamepad.buttons[0].pressed = true;
+
+    dispatchEvent(ctx, 'buttondown', {
+      ...ctx.gamepad,
+      touch
+    });
+
+    ctx.touch.delayedEvents.push(() => {
+      ctx.gamepad.buttons[0].pressed = false;
+
+      dispatchEvent(ctx, 'buttonup', {
+        ...ctx.gamepad,
+        touch
+      });
+    });
+
   }
 }
 

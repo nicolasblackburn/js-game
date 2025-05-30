@@ -1,4 +1,4 @@
-import {clearAnimation, setAnimation} from './animations.js';
+import {clearAnimation, getAnimationData, getAnimationDuration, setAnimation} from './animations.js';
 import {getLayer, getMap, isSolid, mapCollides} from './maps.js';
 import {createEntity} from './gameState.js';
 import {showScreen} from './screens.js';
@@ -8,20 +8,13 @@ export function initStates(ctx) {
   ctx.states = {
     heroNormalState,
     entityHurtState,
+    entityAttackState,
     seekState
   };
 }
 
 function heroNormalState(ctx, entity) {
   const {gamepad} = ctx;
-
-  const animation = [
-    'weapon_cut_r',
-    'weapon_cut_d',
-    'weapon_cut_l',
-    'weapon_cut_u'
-  ][entity.dir];
-  setAnimation(ctx, entity, animation);
 
   if (entity.enemyCollision) { 
     entity.health--;
@@ -54,7 +47,6 @@ function heroNormalState(ctx, entity) {
       entity.monsterCollisionDisabled = true;
       entity.hurtCountdown = 10;
 
-      // Push hurt state
       return ['push', 'entityHurtState'];
     }
 
@@ -68,6 +60,23 @@ function heroNormalState(ctx, entity) {
       entity.visible = true;
     }
 
+  }
+
+  if (gamepad.buttons[0].pressed) {
+    const animation = [
+      'weapon_cut_r',
+      'weapon_cut_d',
+      'weapon_cut_l',
+      'weapon_cut_u'
+    ][entity.dir];
+
+    setAnimation(ctx, entity, animation);
+
+    const data = getAnimationData(ctx, animation);
+    entity.attackCountdown = getAnimationDuration(data) * 60 / 1000;
+    console.log()
+    
+    return ['push', 'entityAttackState'];
   }
 
   entity.vx = gamepad.axes[0];
@@ -98,7 +107,9 @@ function heroNormalState(ctx, entity) {
       'hero_walk_l',
       'hero_walk_u'
     ][entity.dir];
-    //setAnimation(ctx, entity, animation);
+
+    setAnimation(ctx, entity, animation);
+
   } else {
     // No movement
     const animation = [
@@ -107,8 +118,17 @@ function heroNormalState(ctx, entity) {
       'hero_idle_l',
       'hero_idle_u'
     ][entity.dir];
-    //setAnimation(ctx, entity, animation);
+
+    setAnimation(ctx, entity, animation);
+
   } 
+}
+
+function entityAttackState(ctx, entity) {
+  entity.attackCountdown--;
+  if (entity.attackCountdown <= 0) {
+    return 'terminate';
+  }
 }
 
 function entityHurtState(ctx, entity) {
