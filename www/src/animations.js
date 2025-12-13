@@ -9,8 +9,19 @@ export function updateAnimation(ctx, node) {
     const data = getAnimationData(ctx, animation.name);
     if (data) {
       const duration = getAnimationDuration(data);
-      animation.time = animation.time % duration;
+      const loop = getAnimationLoop(data);
+      if (animation.time > duration) {
+        if (loop) {
+          animation.time = animation.time % duration;
+        } else {
+          animation.time = duration;
+        }
+
+      } 
       applyAnimation(node, data, animation.time);
+      if (!loop && animation.time > duration) {
+        clearAnimation(ctx, node, animation.name);
+      } 
     }
   }
 }
@@ -21,6 +32,10 @@ export function getAnimationDuration(animation) {
   //  console.log('duration:', duration);
   //}
   return duration;
+}
+
+export function getAnimationLoop(animation) {
+  return animation.loop;
 }
 
 export function setAnimation(ctx, target, name, track = 0) {

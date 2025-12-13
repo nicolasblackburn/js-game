@@ -16,7 +16,7 @@ export function initGamepad(ctx) {
       pressed: false
     }],
     axisDistanceMax: 32**2,
-    touchstartMinDistance: 49,
+    touchstartMinDistance: 12,
     tapTimeDelay: 100,
     clampAxes: true
   };

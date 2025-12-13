@@ -3,6 +3,7 @@
   "animations": [
     {
       "name": "blink",
+      "loop": true,
       "timelines": [
         {
           "property": ["visible"],
@@ -17,6 +18,7 @@
     },
     {
       "name": "hero_idle_r",
+      "loop": true,
       "timelines": [
         {
           "property": ["texture"],
@@ -30,6 +32,7 @@
     },
     {
       "name": "hero_idle_l",
+      "loop": true,
       "timelines": [
         {
           "property": ["texture"],
@@ -43,6 +46,7 @@
     },
     {
       "name": "hero_idle_u",
+      "loop": true,
       "timelines": [
         {
           "property": ["texture"],
@@ -56,6 +60,7 @@
     },
     {
       "name": "hero_idle_d",
+      "loop": true,
       "timelines": [
         {
           "property": ["texture"],
@@ -69,6 +74,7 @@
     },
     {
       "name": "hero_walk_r",
+      "loop": true,
       "timelines": [
         {
           "node": "body",
@@ -84,6 +90,7 @@
     },
     {
       "name": "hero_walk_l",
+      "loop": true,
       "timelines": [
         {
           "property": ["texture"],
@@ -98,6 +105,7 @@
     }, 
     {
       "name": "hero_walk_u",
+      "loop": true,
       "timelines": [
         {
           "property": ["texture"],
@@ -112,6 +120,7 @@
     }, 
     {
       "name": "hero_walk_d",
+      "loop": true,
       "timelines": [
         {
           "property": ["texture"],
@@ -127,6 +136,11 @@
     {
       "name": "weapon_cut_r",
       "timelines": [
+        {
+          "property": ["weapon", "visible"],
+          "frames": [0, 240],
+          "values": [true, false]
+        },
         {
           "property": ["texture"],
           "frames": [0, 80, 160, 240],
@@ -171,6 +185,11 @@
       "name": "weapon_cut_d",
       "timelines": [
         {
+          "property": ["weapon", "visible"],
+          "frames": [0, 240],
+          "values": [true, false]
+        },
+        {
           "property": ["texture"],
           "frames": [0, 80, 160, 240],
           "values": [
@@ -213,6 +232,11 @@
     {
       "name": "weapon_cut_l",
       "timelines": [
+        {
+          "property": ["weapon", "visible"],
+          "frames": [0, 240],
+          "values": [true, false]
+        },
         {
           "property": ["texture"],
           "frames": [0, 80, 160, 240],
@@ -257,6 +281,11 @@
       "name": "weapon_cut_u",
       "timelines": [
         {
+          "property": ["weapon", "visible"],
+          "frames": [0, 240],
+          "values": [true, false]
+        },
+        {
           "property": ["texture"],
           "frames": [0, 80, 160, 240],
           "values": [
@@ -285,8 +314,8 @@
         {
           "property": ["weapon", "x"],
           "_discrete": true,
-          "frames": [0, 80, 160, 240],
-          "values": [4, 4, -4, -4]
+          "frames": [0, 80, 160, 240, 320],
+          "values": [4, 4, -4, -4, -4]
         },
         {
           "property": ["weapon", "y"],

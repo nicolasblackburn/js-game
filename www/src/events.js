@@ -24,6 +24,9 @@ export function initEvents(ctx) {
 }
 
 export function addEventListeners(ctx) {
+  // Prevents long press haptic vibration on mobile
+  window.addEventListener('touchstart', event => event.preventDefault(), {passive: false});
+
   EVENT_TYPES.forEach(type => 
     window.addEventListener(type, event => 
       dispatchEvent(ctx, type, event)));

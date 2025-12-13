@@ -63,7 +63,9 @@ It also support error capture and messaging in the server's standard output.
 - Gameplay - Monster health
 - Maps - Rooms
 - Gameplay - Boss & victory
+- Gameplay - Swipe & release to quickly change direction and attack simultaneously
 - Inputs - Inputs feedback
+- Tools - Animation editor
 - Tools - Hot code reload for constants
 - Events - Should event be queued and processed all together?
 - Collisions - Half-tiles

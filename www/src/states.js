@@ -1,4 +1,4 @@
-import {clearAnimation, getAnimationData, getAnimationDuration, setAnimation} from './animations.js';
+import {clearAnimation, getAnimationData, getAnimationDuration, setAnimation, gotoAndPlay} from './animations.js';
 import {getLayer, getMap, isSolid, mapCollides} from './maps.js';
 import {createEntity} from './gameState.js';
 import {showScreen} from './screens.js';
@@ -74,7 +74,10 @@ function heroNormalState(ctx, entity) {
 
     const data = getAnimationData(ctx, animation);
     entity.attackCountdown = getAnimationDuration(data) * 60 / 1000;
-    console.log()
+    entity.attackReleased = false;
+
+    entity.vx = 0;
+    entity.vy = 0;
     
     return ['push', 'entityAttackState'];
   }
@@ -120,15 +123,31 @@ function heroNormalState(ctx, entity) {
     ][entity.dir];
 
     setAnimation(ctx, entity, animation);
-
   } 
 }
 
 function entityAttackState(ctx, entity) {
+  const {gamepad} = ctx;
+  const animation = entity.animations[0].name;
+
+  if (!gamepad.buttons[0].pressed) {
+    entity.attackReleased = true;
+  } else if (entity.attackReleased && gamepad.buttons[0].pressed) {
+    gotoAndPlay(ctx, entity, 0, animation);
+    const data = getAnimationData(ctx, animation);
+    entity.attackCountdown = getAnimationDuration(data) * 60 / 1000;
+    entity.attackReleased = false;
+  }
+
   entity.attackCountdown--;
   if (entity.attackCountdown <= 0) {
-    return 'terminate';
+    entity.attackCountdown = 0;
+
+    if (entity.attackReleased) {
+      return 'terminate';
+    }
   }
+
 }
 
 function entityHurtState(ctx, entity) {
