@@ -2,27 +2,27 @@
 
 ## Introduction
 
-About 2 years ago, I had been using Termux on my Android phone for some time and I found myself using it more and for small programming experiments and other tasks to the detriment of my laptop. It came to a point were eventually I would barely open my laptop for weeks. I started to ask myself what are the limits. Could I create a game 100% using my phone?
+About 2 years ago, I had been using Termux on my Android phone for some time and I found myself using it more and more for small programming experiments and other tasks to the detriment of my laptop. It came to a point were eventually I would barely open my laptop for weeks. I started to ask myself what are the limits. Could I create a game 100% using my phone?
 
-There were obvious drawbacks to developing on a phone. The absence of a developer console is a major inconvrnient and rather painful one. The context switching between Termux and the browser is also tedious as there are various steps involved in saving changes in vim and reloading the browser. Webpack is a well known bundler that handles automatic browser reloading but I was becoming rather dissatisfied with its ecosystem and complex dependencies. All my projects built with Webpack have a tendency to rot and stop building if I don't maintain them on a consistent basis.
+There were obvious drawbacks to developing on a phone. The absence of a developer console is a major inconvenient and rather painful one. The context switching between Termux and the browser is also tedious as there are various steps involved in saving changes in vim and reloading the browser. Webpack is a well known bundler that handles automatic browser reloading but I was becoming rather dissatisfied with its ecosystem and complex dependencies. All my projects built with Webpack have a tendency to rot and stop building if I don't maintain them on a consistent basis.
 
-So I wrote down what a minimal good development experience would look like on a phone. First of all you would need a good way to catch and display execution errors. 
+So I defined what a minimal good development experience would look like on a phone. First of all you need a way to catch and display execution errors in the browser. 
 
-Second, the feedback loop needs to be almost seamless and requires better than just automatic browser reload. It requires hot code reload. That way updating an asset automatically changes its representation as the code execute within the browser, not requiring a refresh. This makes authoring assets in code much more convenient.
+Second, the feedback loop needs to be almost seamless and requires better than just automatic browser reload. It requires hot code reload. That way updating an asset automatically changes its representation as the code executes within the browser, not requiring a refresh. This makes authoring assets in code much more efficient.
 
-I would use SVG for authoring and rendering as it is very well supported in browsers and doesn't require any additional dependencies.
+Next, for authoring and rendering, SVG is a decent solution. It is resolution independant, it is very well supported in browsers, does not require any additional dependencies and it is fast enough for simple 2d games. 
 
-For the programming language, I had explored various ones, Racket, Haxe, Typescript. I really liked Haxe as a language, but found it was quite verbose to type on a phone. Racket on the other side is nice to type on a phone as the syntax is very simple and all important characters fit nicely on the touch keyboard. I found that programming web apps in Racket to be rather difficult. In the end I opted for simplicity and chose regular Javascript. Not needing a compilation step is nice and the syntax of modern Javascript can be quite terse and makes it a good candidate for typing code on a phone.
+For the programming language, I had explored various ones, Racket, Haxe, Typescript. I really liked Haxe as a language, but found it was quite verbose to type on a phone. Racket on the other side is nice to type on a phone as the syntax is very simple and all important characters fit nicely on the touch keyboard's main screen. However, I found that programming web apps in Racket was rather difficult. In the end I opted for simplicity and chose regular Javascript. Not needing a compilation step is nice and the syntax of modern Javascript can be quite terse and makes it a good candidate for typing code on the small screen of a phone.
 
-So I set up to build a little game framework using a websocket server for development, supporting messaging between the browser and the server for errors and debugging and some basic hot code reload for assets and game code. 
+With these requirements in mind, I started to build a little game framework using a websocket server for development that supported messaging between the browser and the server for errors and debugging and some basic hot code reload for assets and game code. 
 
-As time went by, I was making good progress. The project supported all key functionalities: SVG rendering, hot code reload and 2-way messaging. The setup was rather pleasing to use and I was pleased with myself. Until a catastrophe happened. I had clumsily rmrf'ed my project's folder! And worst than anything I had not saved it in a remote git repository! As I was realising with horror I had wiped months of painstaking progress, the motivation to restart from scratch was evaporating.
+As time went by, I was making good progress. The project supported all key functionalities: SVG rendering, hot code reload and 2-way messaging. The setup was a decent developer experience. I was very satisfied until a catastrophe happened. While reorganizing my folders in Termux, I accidentally rmrf'ed the project's folder and I had not committed it in a remote git repository! I realised with horror I had wiped months of painstaking progress. I had to restart from scratch but I was too devastated and I could not bare myself to do it.
 
-So I let the idea sit for some time and decided to take a stab at it again recently. This time creating the github repository is the first thing I did.
+So I put the idea to sleep for some a while. Only recently, I recomposed myself and decided to take a new stab at it. This time creating the github repository is the first thing I did.
 
 ## Getting started
 
-I use pnpm for package management as I find projects using npm bloat my disk space. You can still use npm but I rather recommend using pnpm, especially if you are developing on a device with limited disk space.
+I use pnpm for package management as I find projects using npm bloat my disk space. You can still use npm but I recommend using pnpm, especially if you are developing on a device with limited disk space.
 
 1. Install dependencies with `pnpm install`
 2. Launch development server with `node server.js`
@@ -30,9 +30,9 @@ I use pnpm for package management as I find projects using npm bloat my disk spa
 
 ## Features
 
-The development server supports hot code reload. Saving changes in a code file or in an asset file will automatically reload it in the browser without requiring a refresh. Functions and classes that want to support hot cod reload must use the `virtual()` function. There are some limitations to this approach. For example, growing the state of a game or a class is not straightforward to reload. I find for this reason that a more functional style works better with hot code reload.
+The development server supports hot code reload. Saving changes in a code file or in an asset file will automatically reload it in the browser without requiring a refresh. Functions and classes that want to support hot code reload must use the `virtual()` function. There are some limitations to this approach. For example, changing the structure of persistent data, for example class properties, does not work well with reload. I find for this reason that a more functional style works better with hot code reload.
 
-It also support error capture and messaging in the server's standard output.
+It also supports error capture and messaging in the server's standard output.
 
 - Hot code reload
 - Remote console log and error reporting
@@ -43,7 +43,7 @@ It also support error capture and messaging in the server's standard output.
 - Animations
 - SVG sprites and rendering system
 - Stack state machine
-- Functional
+- Functional programming style
 
 ## Backlog
 
@@ -59,10 +59,12 @@ It also support error capture and messaging in the server's standard output.
 ✔ Gameplay - Monster movements
 ✔ Gameplay - Player health
 ✔ Gameplay - Player death
-- Gameplay - Attack
+✔ Gameplay - Attack
 - Gameplay - Monster health
 - Maps - Rooms
-- Gameplay - Boss & victory
+- Gameplay - Boss
+- Gameplay - Victory
+- Tutorial - How to move and attack
 - Gameplay - Swipe & release to quickly change direction and attack simultaneously
 - Inputs - Inputs feedback
 - Tools - Animation editor
